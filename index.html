@@ -41,6 +41,7 @@
     </script>
 </head>
     <style>
+        html, body { overflow-x: hidden; max-width: 100vw; }
         @keyframes girarRuleta {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(3600deg); }
@@ -420,6 +421,103 @@
         }
         .boton-fruta-trag .fruta-emoji { font-size: 1.05rem; line-height: 1; }
         .boton-fruta-trag .fruta-valor { font-size: 8px; font-weight: 900; color: #F59E0B; }
+        .boton-fruta-trag { position: relative; }
+        .boton-fruta-trag.fruta-seleccionada {
+            border-color: #10B981;
+            background: linear-gradient(180deg, #064E3B, #0B0F19);
+            box-shadow: 0 0 10px 2px rgba(16,185,129,0.65);
+        }
+        .boton-fruta-trag.fruta-seleccionada::after {
+            content: '✓';
+            position: absolute;
+            top: -6px;
+            right: -4px;
+            font-size: 8px;
+            font-weight: 900;
+            color: #000;
+            background: #10B981;
+            border-radius: 9999px;
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== BOOSTS FLOTANTES: bonus activo con ícono + temporizador (estilo insignia) ===== */
+        #contenedor-boosts-flotantes {
+            position: fixed;
+            top: 7.5rem;
+            right: 0.5rem;
+            z-index: 35;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.9rem;
+            pointer-events: none;
+            max-width: 4rem;
+        }
+        .boost-flotante {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            pointer-events: auto;
+            cursor: pointer;
+            animation: boostFlotanteAparecer 0.35s ease-out;
+        }
+        @keyframes boostFlotanteAparecer {
+            from { opacity: 0; transform: translateX(24px) scale(0.7); }
+            to { opacity: 1; transform: translateX(0) scale(1); }
+        }
+        .boost-flotante-icono {
+            position: relative;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 9999px;
+            background: radial-gradient(circle at 30% 30%, #1e293b, #0f172a);
+            border: 2.5px solid #F59E0B;
+            box-shadow: 0 0 12px rgba(245,158,11,0.7), inset 0 0 8px rgba(245,158,11,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #F59E0B;
+            animation: boostFlotantePulso 1.4s ease-in-out infinite;
+        }
+        .boost-flotante-icono.boost-pausado {
+            border-color: #64748B;
+            color: #94A3B8;
+            box-shadow: 0 0 8px rgba(100,116,139,0.5);
+            animation: none;
+        }
+        @keyframes boostFlotantePulso {
+            0%, 100% { box-shadow: 0 0 10px rgba(245,158,11,0.6), inset 0 0 8px rgba(245,158,11,0.25); }
+            50% { box-shadow: 0 0 20px rgba(245,158,11,0.95), inset 0 0 10px rgba(245,158,11,0.4); }
+        }
+        .boost-flotante-factor {
+            position: absolute;
+            bottom: -3px;
+            right: -3px;
+            background: #10B981;
+            color: #000;
+            font-size: 8px;
+            font-weight: 900;
+            padding: 1px 4px;
+            border-radius: 9999px;
+            border: 1.5px solid #0f172a;
+        }
+        .boost-flotante-tiempo {
+            font-family: monospace;
+            font-size: 9px;
+            font-weight: 900;
+            color: #fff;
+            background: rgba(15,23,42,0.9);
+            padding: 2px 7px;
+            border-radius: 9999px;
+            border: 1px solid rgba(245,158,11,0.4);
+            white-space: nowrap;
+        }
 
         #btn-girar-trag {
             position: relative;
@@ -461,6 +559,9 @@
     </style>
 </head>
 <body class="bg-oscuro text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-dorado selection:text-black">
+
+    <!-- BOOSTS FLOTANTES: bonus activo (multiplicador VIP) con ícono + temporizador -->
+    <div id="contenedor-boosts-flotantes"></div>
 
     <!-- PANTALLA DE CARGA INICIAL -->
     <div id="pantalla-carga" class="fixed inset-0 z-50 bg-oscuro flex flex-col items-center justify-center transition-opacity duration-700 bg-cover bg-center">
@@ -523,20 +624,21 @@
 
     <!-- HEADER SUPERIOR -->
     <div id="reloj-local" class="text-xs font-mono text-gray-300 text-center py-1"></div>
-    <header class="bg-medio border-b border-borde px-4 py-3 flex justify-between items-center sticky top-0 z-30 shadow-md">
+    <header class="bg-medio border-b border-borde px-4 py-3 flex flex-wrap justify-between items-center gap-y-2 sticky top-0 z-30 shadow-md">
         <div class="flex items-center gap-3">
             <div id="header-logo-contenedor" class="w-10 h-10 rounded-xl bg-dorado/20 border border-dorado flex items-center justify-center text-dorado text-lg overflow-hidden bg-cover bg-center">
                 <i class="fa fa-crown" id="header-logo-icono"></i>
             </div>
             <div>
                 <h1 id="header-titulo-app" class="text-xs font-black text-white tracking-wider">GAMING PREMIER</h1>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <p id="nombre-usuario-display" class="text-[10px] text-dorado font-bold">Cargando...</p>
                     <span id="id-usuario-badge-header" class="text-[9px] font-mono text-slate-400 bg-oscuro px-1.5 py-0.5 rounded border border-borde">ID: --</span>
+                    <span id="badge-version-header" class="text-[9px] font-mono text-verde bg-oscuro px-1.5 py-0.5 rounded border border-borde" title="">v--</span>
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center justify-end gap-2">
             <div class="px-3 py-1.5 rounded-xl bg-oscuro border border-dorado/40 flex items-center gap-1.5 shadow-inner">
                 <span class="text-xs">🪙</span>
                 <span id="saldo-mostrar" class="text-xs font-black text-dorado">100</span>
@@ -784,10 +886,14 @@
                         <span class="text-[11px] font-black text-dorado trag-titulo-neon">FRUIT KING</span>
                     </div>
                 </div>
+                <div class="flex items-center justify-between relative z-10">
+                    <p class="text-[8px] text-slate-400 uppercase tracking-wider"><span id="texto-contador-seleccion-trag">Ninguna fruta seleccionada</span></p>
+                    <button type="button" onclick="limpiarSeleccionFrutasTrag()" class="text-[8px] font-bold text-slate-400 hover:text-rojo transition underline">Limpiar selección</button>
+                </div>
                 <button id="btn-girar-trag" onclick="girarTragamonedas()" class="w-full py-3 bg-gradient-to-r from-verde to-emerald-600 text-black font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">GIRAR TRAGAMONEDAS (<span id="texto-precio-trag">🪙 10</span>)</button>
                 <div id="resultado-trag" class="hidden text-xs font-bold text-center"></div>
                 <div class="space-y-1.5 relative z-10">
-                    <p class="text-[8px] text-slate-400 uppercase tracking-wider text-center">Tabla de premios · toca una fruta</p>
+                    <p class="text-[8px] text-slate-400 uppercase tracking-wider text-center">Tabla de premios · selecciona varias frutas antes de girar (opcional)</p>
                     <div id="tabla-premios-trag" class="grid grid-cols-5 gap-1.5"></div>
                 </div>
             </div>
@@ -1730,13 +1836,42 @@
     </div>
 
     <!-- FOOTER -->
-    <footer class="bg-medio border-t border-borde py-4 text-center text-xs text-slate-500 flex justify-center items-center gap-4">
-        <p id="texto-footer-app">&copy; 2026 Gaming Premier VIP Supreme. Todos los derechos reservados.</p>
-        <button onclick="solicitarCerrarSesion()" class="px-3 py-1 bg-rojo/20 text-rojo font-bold rounded-lg border border-rojo/30 hover:bg-rojo/30 transition text-xs"><i class="fa fa-right-from-bracket"></i> Salir</button>
+    <footer class="bg-medio border-t border-borde py-4 text-center text-[10px] sm:text-xs text-slate-500 flex flex-col items-center gap-2">
+        <div class="flex flex-wrap justify-center items-center gap-4">
+            <p id="texto-footer-app">&copy; 2026 Gaming Premier VIP Supreme. Todos los derechos reservados.</p>
+            <button onclick="solicitarCerrarSesion()" class="px-3 py-1 bg-rojo/20 text-rojo font-bold rounded-lg border border-rojo/30 hover:bg-rojo/30 transition text-xs"><i class="fa fa-right-from-bracket"></i> Salir</button>
+        </div>
+        <p id="texto-version-app" class="text-[9px] text-slate-600 font-mono"></p>
     </footer>
 
     <script>
  const PASSWORD_ADMIN_SECRETA = "admin123";
+
+        // ===== CONTROL DE VERSIÓN DE LA APP =====
+        // Sube este número cada vez que publiques cambios nuevos; el footer detecta
+        // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
+        const VERSION_APP_ACTUAL = "2.6.0";
+        function inicializarVersionApp() {
+            const el = document.getElementById('texto-version-app');
+            const badge = document.getElementById('badge-version-header');
+            let info = JSON.parse(localStorage.getItem('info_version_app') || 'null');
+            if (!info || info.actual !== VERSION_APP_ACTUAL) {
+                info = {
+                    actual: VERSION_APP_ACTUAL,
+                    anterior: info ? info.actual : '—',
+                    fecha: new Date().toISOString()
+                };
+                localStorage.setItem('info_version_app', JSON.stringify(info));
+            }
+            const fechaLegible = new Date(info.fecha).toLocaleString();
+            if (el) {
+                el.textContent = `Versión actual: v${info.actual} · Versión anterior: ${info.anterior === '—' ? '—' : 'v' + info.anterior} · Última actualización: ${fechaLegible}`;
+            }
+            if (badge) {
+                badge.textContent = `v${info.actual}`;
+                badge.title = `Versión anterior: ${info.anterior === '—' ? '—' : 'v' + info.anterior} · Última actualización: ${fechaLegible}`;
+            }
+        }
 
         function solicitarPasswordAdmin() {
             document.getElementById('modal-password-admin')?.classList.remove('hidden');
@@ -2269,6 +2404,7 @@
         let tarjetasVip = usuarioActual ? (parseInt(localStorage.getItem(`tarjetas_vip_${usuarioActual}`)) || 0) : 0;
         let multiplicadorFactor = usuarioActual ? (parseFloat(localStorage.getItem(`multiplicador_factor_${usuarioActual}`)) || 0) : 0;
         let multiplicadorSegundosRestantes = usuarioActual ? (parseInt(localStorage.getItem(`multiplicador_segundos_${usuarioActual}`)) || 0) : 0;
+        let multiplicadorExpiraTs = Date.now() + multiplicadorSegundosRestantes * 1000;
         let ultimaActividadTs = Date.now();
         const PRECIO_TARJETA_VIP_GEMAS = 25;
         const DURACION_MULTIPLICADOR_SEGUNDOS = 3600; // 1 hora de bonus activo por compra
@@ -2675,7 +2811,10 @@
             const nombreArchivo = `imagen_${Date.now()}.jpg`;
             subirArchivoACloudinary(blob, nombreArchivo).then(url => {
                 aplicarValorImagen(url, targetInput);
-                alert('📱 Imagen subida y lista — se sincroniza automáticamente en todos los dispositivos.');
+                const seGuardaSolo = targetInput && AUTOGUARDADO_IMAGENES_SIMPLES[targetInput.id];
+                alert(seGuardaSolo
+                    ? '📱 Imagen subida y guardada — ya se sincroniza automáticamente en todos los dispositivos.'
+                    : '📱 Imagen subida a la nube. Para que quede guardada y se sincronice, no olvides pulsar "Guardar" en esta sección.');
             }).catch(err => {
                 console.warn('No se pudo subir la imagen a Cloudinary:', err);
                 aplicarValorImagen(dataUrlFallback, targetInput);
@@ -2683,10 +2822,35 @@
             });
         }
 
+        // Imágenes de configuración simple (no forman parte de una lista/array): al subirlas
+        // se guardan y sincronizan al instante, igual que la música — sin necesitar un botón "Guardar" aparte.
+        const AUTOGUARDADO_IMAGENES_SIMPLES = {
+            'input-logo-carga-url': () => {
+                localStorage.setItem('logo_carga_app', document.getElementById('input-logo-carga-url').value);
+                if (typeof aplicarConfiguracionApp === 'function') aplicarConfiguracionApp();
+            },
+            'input-gif-companero-url': () => {
+                localStorage.setItem('input_gif_companero_url', document.getElementById('input-gif-companero-url').value);
+            },
+            'admin-champ-fondo-img': () => {
+                imagenFondoChampions = document.getElementById('admin-champ-fondo-img').value;
+                localStorage.setItem('imagen_fondo_champions_app', imagenFondoChampions);
+                if (typeof actualizarPreviewFondoChampionsAdmin === 'function') actualizarPreviewFondoChampionsAdmin();
+            },
+            'admin-champ-premio-img': () => {
+                imagenPremioChampions = document.getElementById('admin-champ-premio-img').value;
+                localStorage.setItem('imagen_premio_champions_app', imagenPremioChampions);
+                if (typeof actualizarPreviewPremioAdmin === 'function') actualizarPreviewPremioAdmin();
+            }
+        };
+
         function aplicarValorImagen(valor, targetInput) {
             if (targetInput) {
                 targetInput.value = valor;
                 targetInput.dispatchEvent(new Event('input'));
+                if (AUTOGUARDADO_IMAGENES_SIMPLES[targetInput.id]) {
+                    AUTOGUARDADO_IMAGENES_SIMPLES[targetInput.id]();
+                }
             }
         }
 
@@ -2949,6 +3113,7 @@
             const inactivoMs = Date.now() - ultimaActividadTs;
             if (inactivoMs >= 3600000) return; // pausado: usuario ausente hace 1h o más
             multiplicadorSegundosRestantes = Math.max(0, multiplicadorSegundosRestantes - 10);
+            multiplicadorExpiraTs = Date.now() + multiplicadorSegundosRestantes * 1000;
             localStorage.setItem(`multiplicador_segundos_${usuarioActual}`, multiplicadorSegundosRestantes);
             if (multiplicadorSegundosRestantes === 0) {
                 multiplicadorFactor = 0;
@@ -2960,6 +3125,7 @@
                 }
             }
             if (typeof renderizarTiendaVista === 'function') renderizarTiendaVista();
+            if (typeof renderizarBoostsFlotantes === 'function') renderizarBoostsFlotantes();
         }, 10000);
 
         function comprarTarjetaVip() {
@@ -2995,9 +3161,11 @@
             tarjetasVip -= costoTarjetas;
             multiplicadorFactor = factor;
             multiplicadorSegundosRestantes = DURACION_MULTIPLICADOR_SEGUNDOS;
+            multiplicadorExpiraTs = Date.now() + multiplicadorSegundosRestantes * 1000;
             localStorage.setItem(`tarjetas_vip_${usuarioActual}`, tarjetasVip);
             localStorage.setItem(`multiplicador_factor_${usuarioActual}`, multiplicadorFactor);
             localStorage.setItem(`multiplicador_segundos_${usuarioActual}`, multiplicadorSegundosRestantes);
+            if (typeof renderizarBoostsFlotantes === 'function') renderizarBoostsFlotantes();
             if (firebaseListo) {
                 dbFirebase.collection('usuarios').doc(usuarioActual.toLowerCase()).set({
                     tarjetasVip, multiplicadorFactor, multiplicadorSegundos: multiplicadorSegundosRestantes
@@ -3302,12 +3470,31 @@
             actualizarDisplayTragamonedas();
         }
 
-        // Botones táctiles con cada fruta/símbolo y su valor en monedas — solo informativos,
-        // el resultado real del giro sigue siendo aleatorio.
+        // Botones táctiles con cada fruta/símbolo y su valor en monedas.
+        // MODO SELECCIÓN MÚLTIPLE: el usuario puede tocar varias frutas antes de girar
+        // (se marcan con un check ✓). El giro sigue siendo aleatorio entre los 30 casilleros,
+        // pero si el resultado cae en una fruta que el usuario había seleccionado, se le
+        // otorga un bono extra de monedas como recompensa por haber acertado su elección.
+        let frutasSeleccionadasTrag = new Set();
+
+        function actualizarContadorSeleccionTrag() {
+            const txt = document.getElementById('texto-contador-seleccion-trag');
+            if(!txt) return;
+            const n = frutasSeleccionadasTrag.size;
+            txt.textContent = n === 0 ? 'Ninguna fruta seleccionada' : `${n} fruta${n > 1 ? 's' : ''} seleccionada${n > 1 ? 's' : ''} · bono si acierta`;
+        }
+
+        function limpiarSeleccionFrutasTrag() {
+            frutasSeleccionadasTrag.clear();
+            document.querySelectorAll('#tabla-premios-trag .boton-fruta-trag.fruta-seleccionada').forEach(b => b.classList.remove('fruta-seleccionada'));
+            actualizarContadorSeleccionTrag();
+        }
+
         function generarTablaPremiosTrag() {
             const cont = document.getElementById('tabla-premios-trag');
             if(!cont) return;
             cont.innerHTML = '';
+            frutasSeleccionadasTrag.clear();
             const simbolosUnicos = Object.keys(VALORES_SIMBOLOS_TRAG);
             simbolosUnicos.forEach(simbolo => {
                 const btn = document.createElement('button');
@@ -3317,6 +3504,14 @@
                 btn.onclick = () => {
                     btn.classList.add('fruta-presionada');
                     setTimeout(() => btn.classList.remove('fruta-presionada'), 200);
+                    if(frutasSeleccionadasTrag.has(simbolo)) {
+                        frutasSeleccionadasTrag.delete(simbolo);
+                        btn.classList.remove('fruta-seleccionada');
+                    } else {
+                        frutasSeleccionadasTrag.add(simbolo);
+                        btn.classList.add('fruta-seleccionada');
+                    }
+                    actualizarContadorSeleccionTrag();
                     const resTrag = document.getElementById('resultado-trag');
                     if(resTrag) {
                         resTrag.classList.remove('hidden');
@@ -3339,6 +3534,7 @@
                 }
             };
             cont.appendChild(btnBonus);
+            actualizarContadorSeleccionTrag();
         }
 
         function actualizarDisplayTragamonedas() {
@@ -3397,13 +3593,21 @@
                         enviarNotificacionTelegram(`¡BONUS! El usuario ${usuarioActual} activó Bolas de la Suerte en el Tragamonedas VIP 🎁`);
                         setTimeout(() => iniciarMinijuegoBolas(configTragamonedas.premio || 100), 500);
                     } else {
-                        const premioGanado = VALORES_SIMBOLOS_TRAG[simbolo] || 10;
+                        const premioBase = VALORES_SIMBOLOS_TRAG[simbolo] || 10;
+                        const acertoSeleccion = frutasSeleccionadasTrag.has(simbolo);
+                        const bonoSeleccion = acertoSeleccion ? Math.round(premioBase * 0.2) : 0;
+                        const premioGanado = premioBase + bonoSeleccion;
                         saldo += premioGanado;
                         localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
                         actualizarInterfazUsuario();
                         actualizarDisplayTragamonedas();
                         agregarExpUsuario(15);
-                        if(resTrag) { resTrag.classList.remove('hidden'); resTrag.innerHTML = `<span class="text-verde font-bold">${simbolo} ¡Ganaste ${premioGanado} monedas!</span>`; }
+                        if(resTrag) {
+                            resTrag.classList.remove('hidden');
+                            resTrag.innerHTML = acertoSeleccion
+                                ? `<span class="text-verde font-bold">🎯 ¡Acertaste tu fruta seleccionada! ${simbolo} +${premioGanado} monedas (${premioBase} + ${bonoSeleccion} bono)</span>`
+                                : `<span class="text-verde font-bold">${simbolo} ¡Ganaste ${premioGanado} monedas!</span>`;
+                        }
                     }
                 }
             }, 60);
@@ -4731,6 +4935,7 @@
         }
 
         function guardarCambios() {
+          try {
             ['gp', 'gm', 'top', 'ruleta'].forEach(tipo => {
                 const ini = document.getElementById(`input-ini-${tipo}`)?.value;
                 const fin = document.getElementById(`input-fin-${tipo}`)?.value;
@@ -4778,26 +4983,26 @@
             infoTorneoChampions.server = document.getElementById('admin-info-server')?.value || infoTorneoChampions.server;
             localStorage.setItem('info_torneo_champions_app', JSON.stringify(infoTorneoChampions));
 
-            for(let i=0; i<30; i++) {
+            premiosRuleta.forEach((premio, i) => {
                 const nom = document.getElementById(`admin-ruleta-nombre-${i}`)?.value;
                 const mon = parseInt(document.getElementById(`admin-ruleta-monedas-${i}`)?.value);
-                if(nom !== undefined) premiosRuleta[i].nombre = nom;
-                if(!isNaN(mon)) premiosRuleta[i].monedas = mon;
-            }
+                if(nom !== undefined) premio.nombre = nom;
+                if(!isNaN(mon)) premio.monedas = mon;
+            });
             localStorage.setItem('premios_ruleta_app', JSON.stringify(premiosRuleta));
 
-            for(let p=0; p<5; p++) {
-                for(let j=0; j<4; j++) {
+            datosTienda.forEach((pagina, p) => {
+                (pagina || []).forEach((producto, j) => {
                     const nom = document.getElementById(`admin-prod-nombre-${p}-${j}`)?.value;
                     const prec = parseInt(document.getElementById(`admin-prod-precio-${p}-${j}`)?.value);
                     const img = document.getElementById(`admin-prod-img-${p}-${j}`)?.value;
                     const nivelReq = parseInt(document.getElementById(`admin-prod-nivel-${p}-${j}`)?.value);
-                    if(nom !== undefined) datosTienda[p][j].nombre = nom;
-                    if(!isNaN(prec)) datosTienda[p][j].precio = prec;
-                    if(img !== undefined) datosTienda[p][j].imagen = img;
-                    datosTienda[p][j].nivelRequerido = isNaN(nivelReq) ? 0 : nivelReq;
-                }
-            }
+                    if(nom !== undefined) producto.nombre = nom;
+                    if(!isNaN(prec)) producto.precio = prec;
+                    if(img !== undefined) producto.imagen = img;
+                    producto.nivelRequerido = isNaN(nivelReq) ? 0 : nivelReq;
+                });
+            });
             localStorage.setItem('datos_tienda_app', JSON.stringify(datosTienda));
 
             topSemanalData.forEach((item, idx) => {
@@ -4847,6 +5052,10 @@
             alert('💾 ¡Todos los cambios han sido guardados correctamente!');
             cerrarPanel();
             location.reload();
+          } catch (e) {
+            console.error('Error guardando cambios del admin:', e);
+            alert(`⚠️ Ocurrió un error y NO se guardaron todos los cambios: ${e.message}\n\nRevisa la consola o avísale al desarrollador con este mensaje.`);
+          }
         }
 
         function eventoEstaActivo(tipo) {
@@ -4935,6 +5144,32 @@
                     el.className = 'text-[9px] text-rojo font-mono mt-0.5';
                 }
             });
+        }
+
+        // ===== WIDGET DE BOOSTS FLOTANTES: bonus activo (multiplicador VIP) =====
+        // Muestra el ícono con anillo dorado + temporizador regresivo (estilo insignia),
+        // igual al de referencia: mientras el multiplicador comprado siga activo, la
+        // insignia flota fija en pantalla y su tiempo va bajando en vivo cada segundo.
+        function renderizarBoostsFlotantes() {
+            const cont = document.getElementById('contenedor-boosts-flotantes');
+            if(!cont) return;
+            cont.innerHTML = '';
+            if(multiplicadorFactor > 0 && multiplicadorSegundosRestantes > 0) {
+                const pausado = (Date.now() - ultimaActividadTs) >= 3600000;
+                const msRestantes = pausado ? multiplicadorSegundosRestantes * 1000 : Math.max(0, multiplicadorExpiraTs - Date.now());
+                const badge = document.createElement('div');
+                badge.className = 'boost-flotante';
+                badge.title = 'Bonus VIP activo · toca para ver la Tienda';
+                badge.onclick = () => abrirVentana('modal-tienda');
+                badge.innerHTML = `
+                    <div class="boost-flotante-icono${pausado ? ' boost-pausado' : ''}">
+                        <i class="fa ${pausado ? 'fa-pause' : 'fa-bolt'}"></i>
+                        <span class="boost-flotante-factor">x${multiplicadorFactor}</span>
+                    </div>
+                    <div class="boost-flotante-tiempo">${pausado ? '⏸ pausado' : formatoDuracion(msRestantes)}</div>
+                `;
+                cont.appendChild(badge);
+            }
         }
 
         // ============================================================
@@ -5428,6 +5663,7 @@
             document.addEventListener('click', reintentarMusicaBloqueada, { once: true });
             document.addEventListener('touchstart', reintentarMusicaBloqueada, { once: true });
             aplicarConfiguracionApp();
+            inicializarVersionApp();
             generarGridTragamonedas();
             if (firebaseListo) {
                 await cargarListaUsuariosDesdeNube();
@@ -5463,8 +5699,10 @@
             estadoConexionNube();
             actualizarBadgesTarjetas();
             actualizarCronometrosTarjetas();
+            renderizarBoostsFlotantes();
             setInterval(actualizarBadgesTarjetas, 15000);
             setInterval(actualizarCronometrosTarjetas, 1000);
+            setInterval(renderizarBoostsFlotantes, 1000);
         };
     </script>
 </body>
