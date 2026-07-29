@@ -2162,11 +2162,14 @@
 
         // ===== Misiones GP / Mata al GM: config + puntos globales compartidos =====
         function guardarMetasMisionesNube(tipo) {
-            if (!firebaseListo) return;
+            if (!firebaseListo) { alert('⚠️ La nube no está conectada — este cambio de misiones solo se guardó en este dispositivo.'); return; }
             const data = tipo === 'gp' ? metasGPData : metasGMData;
             const docId = tipo === 'gp' ? 'misionesGP' : 'misionesGM';
             dbFirebase.collection('config').doc(docId).set({ metas: data }, { merge: true })
-                .catch(e => console.warn('No se pudo sincronizar las misiones:', e));
+                .catch(e => {
+                    console.warn('No se pudo sincronizar las misiones:', e);
+                    alert(`⚠️ Las misiones se guardaron en este dispositivo, pero NO se sincronizaron con los demás (${e.message || e.code || 'error de conexión'}).`);
+                });
         }
         function sumarPuntosMisionNube(tipo, cantidad) {
             if (!firebaseListo) return;
@@ -2276,7 +2279,11 @@
                     return;
                 }
                 dbFirebase.collection('config').doc(clave).set({ valor: valorTexto }, { merge: true })
-                    .catch(e => console.warn('No se pudo sincronizar', clave, ':', e));
+                    .catch(e => {
+                        console.warn('No se pudo sincronizar', clave, ':', e);
+                        const etiqueta = ETIQUETAS_CLAVES_SYNC[clave] || clave;
+                        alert(`⚠️ "${etiqueta}" se guardó en este dispositivo, pero NO se pudo sincronizar con los demás (${e.message || e.code || 'error de conexión'}). Revisa tu conexión a internet e inténtalo de nuevo.`);
+                    });
             }
         };
 
@@ -5473,13 +5480,22 @@
         function estadoConexionNube() {
             const el = document.getElementById('estado-firebase');
             if(!el) return;
-            if(firebaseListo) {
-                el.textContent = '🔥 Nube: Conectada';
-                el.className = 'text-[10px] font-bold text-center text-verde';
-            } else {
+            if(!firebaseListo) {
                 el.textContent = '⚠️ Nube: No configurada (revisa firebaseConfig en el código)';
                 el.className = 'text-[10px] font-bold text-center text-naranja';
+                return;
             }
+            el.textContent = '🔄 Nube: probando conexión...';
+            el.className = 'text-[10px] font-bold text-center text-slate-400';
+            dbFirebase.collection('config').doc('_ping').set({ t: Date.now() }, { merge: true })
+                .then(() => {
+                    el.textContent = '🔥 Nube: Conectada (los cambios SÍ llegan a los demás)';
+                    el.className = 'text-[10px] font-bold text-center text-verde';
+                })
+                .catch(e => {
+                    el.textContent = `❌ Nube: SIN conexión real (${e.message || e.code || 'error'}) — tus cambios NO están llegando a los demás`;
+                    el.className = 'text-[10px] font-bold text-center text-rojo';
+                });
         }
         function mostrarMensajeNube(msg, color) {
             const el = document.getElementById('estado-firebase');
