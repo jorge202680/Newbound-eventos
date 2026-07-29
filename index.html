@@ -1287,6 +1287,7 @@
             <div class="p-4 bg-oscuro rounded-2xl border border-dorado/40 space-y-3">
                 <h4 class="text-xs font-black text-white flex items-center gap-2"><i class="fa fa-fire text-dorado"></i> Sincronización Automática (Firebase)</h4>
                 <p id="estado-firebase" class="text-[10px] font-bold text-center text-slate-400">Verificando...</p>
+                <button onclick="probarConexionNubeAhora()" class="w-full py-2 bg-oscuro border border-dorado/50 text-dorado font-black text-[10px] rounded-xl hover:bg-dorado/10 transition"><i class="fa fa-satellite-dish"></i> Probar conexión ahora</button>
                 <p class="text-[10px] text-slate-400">Tu progreso se guarda solo en la nube y se puede recuperar iniciando sesión con el mismo usuario en cualquier dispositivo.</p>
                 <div class="flex gap-2">
                     <button onclick="guardarProgresoNube(false)" class="flex-1 py-2.5 bg-dorado text-black font-black text-[10px] rounded-xl shadow hover:opacity-90 transition"><i class="fa fa-cloud-arrow-up"></i> Sincronizar ahora</button>
@@ -1820,7 +1821,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "2.7.0";
+        const VERSION_APP_ACTUAL = "2.7.1";
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
             const badge = document.getElementById('badge-version-header');
@@ -5495,6 +5496,28 @@
                 .catch(e => {
                     el.textContent = `❌ Nube: SIN conexión real (${e.message || e.code || 'error'}) — tus cambios NO están llegando a los demás`;
                     el.className = 'text-[10px] font-bold text-center text-rojo';
+                });
+        }
+
+        // Prueba manual con resultado en alert() — para diagnosticar sin depender de que
+        // alguien note el texto pequeño del estado. Hace una escritura Y una lectura real.
+        function probarConexionNubeAhora() {
+            if(!firebaseListo) {
+                alert('❌ Firebase no se inicializó en este dispositivo (firebaseListo = false).\n\nRevisa que firebaseConfig tenga tus datos reales y que el archivo cargue bien el SDK de Firebase.');
+                return;
+            }
+            const marca = `prueba_${Date.now()}`;
+            dbFirebase.collection('config').doc('_ping').set({ marca, t: Date.now() }, { merge: true })
+                .then(() => dbFirebase.collection('config').doc('_ping').get())
+                .then(doc => {
+                    if(doc.exists && doc.data().marca === marca) {
+                        alert('✅ CONEXIÓN REAL CONFIRMADA.\n\nSe escribió y se leyó correctamente en tu base de datos (Firestore). Si aun así tus cambios no le llegan a los demás, el problema no es de conexión — puede ser que los demás usuarios tengan una copia vieja del archivo que nunca vuelve a consultar la nube. Avísame y seguimos por ahí.');
+                    } else {
+                        alert('⚠️ Se pudo escribir pero la lectura no devolvió el dato esperado. Puede ser un problema de reglas de seguridad de Firestore (permiso de lectura). Revisa las "Rules" de tu base de datos en la consola de Firebase.');
+                    }
+                })
+                .catch(e => {
+                    alert(`❌ FALLÓ LA CONEXIÓN REAL.\n\nCódigo: ${e.code || 'desconocido'}\nMensaje: ${e.message || e}\n\nEsto confirma que tus cambios NO están llegando a los demás. La causa más común es que las "Rules" (reglas de seguridad) de Firestore en tu consola de Firebase estén bloqueando la escritura/lectura. Copia este mensaje y revísalo en tu consola de Firebase → Firestore Database → Reglas.`);
                 });
         }
         function mostrarMensajeNube(msg, color) {
