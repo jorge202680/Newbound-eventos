@@ -1298,6 +1298,7 @@
                 <h4 class="text-xs font-black text-white flex items-center gap-2"><i class="fa fa-fire text-dorado"></i> Sincronización Automática (Firebase)</h4>
                 <p id="estado-firebase" class="text-[10px] font-bold text-center text-slate-400">Verificando...</p>
                 <button onclick="probarConexionNubeAhora()" class="w-full py-2 bg-oscuro border border-dorado/50 text-dorado font-black text-[10px] rounded-xl hover:bg-dorado/10 transition"><i class="fa fa-satellite-dish"></i> Probar conexión ahora</button>
+                <button onclick="probarSincronizacionTienda()" class="w-full py-2 bg-oscuro border border-azul/50 text-azul font-black text-[10px] rounded-xl hover:bg-azul/10 transition"><i class="fa fa-shop"></i> Revisar precio de la Tienda en la nube</button>
                 <p class="text-[10px] text-slate-400">Tu progreso se guarda solo en la nube y se puede recuperar iniciando sesión con el mismo usuario en cualquier dispositivo.</p>
                 <div class="flex gap-2">
                     <button onclick="guardarProgresoNube(false)" class="flex-1 py-2.5 bg-dorado text-black font-black text-[10px] rounded-xl shadow hover:opacity-90 transition"><i class="fa fa-cloud-arrow-up"></i> Sincronizar ahora</button>
@@ -5556,6 +5557,30 @@
 
         // Prueba manual con resultado en alert() — para diagnosticar sin depender de que
         // alguien note el texto pequeño del estado. Hace una escritura Y una lectura real.
+        // Lee DIRECTO de Firestore (sin pasar por localStorage) el precio real
+        // guardado en la nube para Página 1 - Producto 1, para confirmar si
+        // el cambio de precio realmente llegó a la base de datos o no.
+        async function probarSincronizacionTienda() {
+            if(!firebaseListo) {
+                alert('❌ Firebase no está conectado en este dispositivo. Los cambios de la tienda NO se están subiendo a la nube.');
+                return;
+            }
+            try {
+                const doc = await dbFirebase.collection('config').doc('datos_tienda_app').get();
+                if(!doc.exists || doc.data().valor === undefined) {
+                    alert('⚠️ En la nube (Firestore) todavía NO existe ningún dato guardado de la tienda. Nunca llegó a subirse ni un solo cambio.');
+                    return;
+                }
+                const valorTexto = doc.data().valor;
+                const pesoKB = Math.round((valorTexto || '').length / 1024);
+                const tienda = JSON.parse(valorTexto);
+                const prod = tienda?.[0]?.[0];
+                alert(`📦 Esto es lo que HAY GUARDADO EN LA NUBE ahora mismo (Página 1, Producto 1):\n\nNombre: ${prod?.nombre ?? '(sin dato)'}\nPrecio: ${prod?.precio ?? '(sin dato)'}\n\nPeso total de los datos de la tienda en la nube: ${pesoKB} KB`);
+            } catch(e) {
+                alert('❌ Error al leer la tienda desde la nube: ' + (e.message || e.code || e));
+            }
+        }
+
         function probarConexionNubeAhora() {
             if(!firebaseListo) {
                 alert('❌ Firebase no se inicializó en este dispositivo (firebaseListo = false).\n\nRevisa que firebaseConfig tenga tus datos reales y que el archivo cargue bien el SDK de Firebase.');
