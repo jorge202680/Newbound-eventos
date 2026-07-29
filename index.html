@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Gaming Premier - VIP Supreme</title>
 
     <!-- Font Awesome -->
@@ -1821,7 +1824,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "2.7.1";
+        const VERSION_APP_ACTUAL = "2.8.0";
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
             const badge = document.getElementById('badge-version-header');
@@ -1842,6 +1845,26 @@
                 badge.textContent = `v${info.actual}`;
                 badge.title = `Versión anterior: ${info.anterior === '—' ? '—' : 'v' + info.anterior} · Última actualización: ${fechaLegible}`;
             }
+            comprobarVersionServidorYAutoActualizar();
+        }
+
+        // Compara la versión ya cargada contra la que está publicada AHORA MISMO en el
+        // servidor (pidiéndola sin usar caché del navegador). Si son distintas, significa
+        // que este dispositivo se quedó con una copia vieja guardada — y se refresca solo
+        // para traer la actualización, en vez de quedarse desactualizado en silencio.
+        function comprobarVersionServidorYAutoActualizar() {
+            if (sessionStorage.getItem('ya_reintento_actualizar_version') === '1') return;
+            fetch(window.location.pathname + '?_v=' + Date.now(), { cache: 'no-store' })
+                .then(r => r.text())
+                .then(htmlServidor => {
+                    const m = htmlServidor.match(/VERSION_APP_ACTUAL\s*=\s*"([^"]+)"/);
+                    if (m && m[1] && m[1] !== VERSION_APP_ACTUAL) {
+                        sessionStorage.setItem('ya_reintento_actualizar_version', '1');
+                        console.warn(`Versión desactualizada: este dispositivo tenía v${VERSION_APP_ACTUAL}, el servidor ya tiene v${m[1]}. Refrescando...`);
+                        window.location.reload(true);
+                    }
+                })
+                .catch(e => console.warn('No se pudo comprobar la versión del servidor:', e));
         }
 
         function solicitarPasswordAdmin() {
