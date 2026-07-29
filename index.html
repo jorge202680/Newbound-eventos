@@ -340,14 +340,14 @@
         /* ===== TRAGAMONEDAS VIP: MARCO MODERNO ESTILO CASINO ===== */
         .marco-tragamonedas {
             position: relative;
-            background: radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.10), transparent 60%), linear-gradient(180deg, #0d1f17 0%, #131C2E 100%);
-            box-shadow: 0 0 0 1px rgba(245,158,11,0.25), 0 8px 30px -8px rgba(0,0,0,0.6), inset 0 0 30px rgba(245,158,11,0.05);
+            background: radial-gradient(circle at 12% 8%, rgba(255,45,149,0.16), transparent 55%), radial-gradient(circle at 88% 12%, rgba(34,211,238,0.14), transparent 55%), linear-gradient(180deg, #170f26 0%, #131C2E 100%);
+            box-shadow: 0 0 0 1px rgba(245,158,11,0.25), 0 8px 30px -8px rgba(0,0,0,0.6), inset 0 0 30px rgba(255,45,149,0.06);
             overflow: hidden;
         }
         .marco-tragamonedas::before {
             content: '';
             position: absolute; inset: 0;
-            background: repeating-linear-gradient(90deg, rgba(245,158,11,0.06) 0 2px, transparent 2px 26px);
+            background: repeating-linear-gradient(90deg, rgba(255,45,149,0.05) 0 2px, transparent 2px 26px);
             pointer-events: none;
             opacity: 0.5;
         }
@@ -356,15 +356,42 @@
             letter-spacing: 0.06em;
         }
         .trag-pantalla-central {
-            box-shadow: inset 0 0 18px rgba(0,0,0,0.6), 0 0 12px rgba(16,185,129,0.15);
+            background: radial-gradient(ellipse at 50% 25%, rgba(255,45,149,0.16), transparent 60%), linear-gradient(160deg, #1c1130 0%, #0B0F19 100%);
+            box-shadow: inset 0 0 18px rgba(0,0,0,0.6), 0 0 14px rgba(34,211,238,0.2);
         }
         .trag-pantalla-central span:first-child {
-            filter: drop-shadow(0 0 6px rgba(245,158,11,0.6));
+            filter: drop-shadow(0 0 6px rgba(255,45,149,0.7));
             animation: flotarIcono 2.4s ease-in-out infinite;
         }
         @keyframes flotarIcono {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
+        }
+        /* ===== TEMA BAR MODERNO: letrero de neón (magenta/cian) y símbolo BAR ===== */
+        .letrero-bar-neon {
+            font-weight: 900;
+            letter-spacing: 0.09em;
+            background: linear-gradient(90deg, #FF2D95, #22D3EE);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: neonParpadeo 3s infinite;
+        }
+        @keyframes neonParpadeo {
+            0%, 18%, 22%, 25%, 53%, 57%, 100% {
+                filter: drop-shadow(0 0 6px rgba(255,45,149,0.85)) drop-shadow(0 0 11px rgba(34,211,238,0.55));
+                opacity: 1;
+            }
+            20%, 24%, 55% { filter: none; opacity: 0.35; }
+        }
+        .bar-simbolo-neon {
+            color: #FF2D95 !important;
+            font-size: 0.72em !important;
+            letter-spacing: 0.02em;
+            text-shadow: 0 0 5px rgba(255,45,149,0.9), 0 0 10px rgba(34,211,238,0.6);
+        }
+        .casillero-trag-30.bar-simbolo-neon {
+            border-color: rgba(255,45,149,0.5) !important;
         }
 
         /* Casillero base: LED apagado tenue en reposo */
@@ -444,80 +471,22 @@
             justify-content: center;
         }
 
-        /* ===== BOOSTS FLOTANTES: bonus activo con ícono + temporizador (estilo insignia) ===== */
-        #contenedor-boosts-flotantes {
-            position: fixed;
-            top: 7.5rem;
-            right: 0.5rem;
-            z-index: 35;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.9rem;
-            pointer-events: none;
-            max-width: 4rem;
+        /* ===== INSIGNIA DE BONUS EN EL HEADER: multiplicador VIP activo con ícono + temporizador ===== */
+        /* Va dentro del header (no flota sobre la pantalla), así nunca se cruza con otras tarjetas. */
+        #badge-boost-header {
+            animation: boostHeaderPulso 1.4s ease-in-out infinite;
         }
-        .boost-flotante {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.3rem;
-            pointer-events: auto;
-            cursor: pointer;
-            animation: boostFlotanteAparecer 0.35s ease-out;
-        }
-        @keyframes boostFlotanteAparecer {
-            from { opacity: 0; transform: translateX(24px) scale(0.7); }
-            to { opacity: 1; transform: translateX(0) scale(1); }
-        }
-        .boost-flotante-icono {
-            position: relative;
-            width: 3rem;
-            height: 3rem;
-            border-radius: 9999px;
-            background: radial-gradient(circle at 30% 30%, #1e293b, #0f172a);
-            border: 2.5px solid #F59E0B;
-            box-shadow: 0 0 12px rgba(245,158,11,0.7), inset 0 0 8px rgba(245,158,11,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: #F59E0B;
-            animation: boostFlotantePulso 1.4s ease-in-out infinite;
-        }
-        .boost-flotante-icono.boost-pausado {
-            border-color: #64748B;
-            color: #94A3B8;
-            box-shadow: 0 0 8px rgba(100,116,139,0.5);
+        #badge-boost-header.boost-pausado {
+            border-color: #64748B !important;
             animation: none;
         }
-        @keyframes boostFlotantePulso {
-            0%, 100% { box-shadow: 0 0 10px rgba(245,158,11,0.6), inset 0 0 8px rgba(245,158,11,0.25); }
-            50% { box-shadow: 0 0 20px rgba(245,158,11,0.95), inset 0 0 10px rgba(245,158,11,0.4); }
+        #badge-boost-header.boost-pausado #icono-boost-header,
+        #badge-boost-header.boost-pausado #texto-boost-header { color: #94A3B8 !important; }
+        @keyframes boostHeaderPulso {
+            0%, 100% { box-shadow: 0 0 6px rgba(245,158,11,0.35); }
+            50% { box-shadow: 0 0 12px rgba(245,158,11,0.75); }
         }
-        .boost-flotante-factor {
-            position: absolute;
-            bottom: -3px;
-            right: -3px;
-            background: #10B981;
-            color: #000;
-            font-size: 8px;
-            font-weight: 900;
-            padding: 1px 4px;
-            border-radius: 9999px;
-            border: 1.5px solid #0f172a;
-        }
-        .boost-flotante-tiempo {
-            font-family: monospace;
-            font-size: 9px;
-            font-weight: 900;
-            color: #fff;
-            background: rgba(15,23,42,0.9);
-            padding: 2px 7px;
-            border-radius: 9999px;
-            border: 1px solid rgba(245,158,11,0.4);
-            white-space: nowrap;
-        }
+
 
         #btn-girar-trag {
             position: relative;
@@ -559,9 +528,6 @@
     </style>
 </head>
 <body class="bg-oscuro text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-dorado selection:text-black">
-
-    <!-- BOOSTS FLOTANTES: bonus activo (multiplicador VIP) con ícono + temporizador -->
-    <div id="contenedor-boosts-flotantes"></div>
 
     <!-- PANTALLA DE CARGA INICIAL -->
     <div id="pantalla-carga" class="fixed inset-0 z-50 bg-oscuro flex flex-col items-center justify-center transition-opacity duration-700 bg-cover bg-center">
@@ -648,6 +614,10 @@
                 <span id="gemas-mostrar" class="text-xs font-black text-morado">0</span>
             </div>
             <span id="badge-vip-display" class="hidden px-2.5 py-1 rounded-xl bg-gradient-to-r from-dorado to-naranja text-black text-[10px] font-black shadow">VIP 1</span>
+            <div id="badge-boost-header" style="display:none;" class="px-2.5 py-1.5 rounded-xl bg-oscuro border border-dorado/60 items-center gap-1.5 shadow-inner cursor-pointer" onclick="abrirVentana('modal-tienda')" title="Bonus VIP activo · toca para ver la Tienda">
+                <i class="fa fa-bolt text-dorado text-xs" id="icono-boost-header"></i>
+                <span id="texto-boost-header" class="text-[10px] font-black text-dorado font-mono"></span>
+            </div>
             <button onclick="alternarMusicaUsuario()" id="btn-musica-toggle" class="w-9 h-9 rounded-xl bg-claro border border-borde text-slate-300 hover:text-white flex items-center justify-center transition shadow-sm" title="Música">
                 <i class="fa fa-volume-high text-xs" id="icono-musica-toggle"></i>
             </button>
@@ -882,8 +852,8 @@
                 </div>
                 <div id="grid-trag-30" class="relative grid gap-1 p-2 bg-oscuro rounded-2xl border border-dorado/30 z-10" style="grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(8, 1fr); aspect-ratio: 9/7.5;">
                     <div class="trag-pantalla-central flex flex-col items-center justify-center gap-1 rounded-xl bg-gradient-to-br from-emerald-900/60 to-oscuro border border-dorado/30" style="grid-column: 2 / 9; grid-row: 2 / 8;">
-                        <span class="text-3xl">🦁</span>
-                        <span class="text-[11px] font-black text-dorado trag-titulo-neon">FRUIT KING</span>
+                        <span class="text-3xl">🍸</span>
+                        <span class="text-base font-black letrero-bar-neon">NEON BAR</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between relative z-10">
@@ -3255,22 +3225,26 @@
                     estiloTarjeta += ' border-borde';
                 }
 
-                const imgHtml = meta.imagen ? `<div class="w-full h-24 rounded-xl bg-medio bg-cover bg-center border border-borde cursor-pointer hover:opacity-80 transition" style="background-image: url('${meta.imagen}')" onclick="verImagenCompleta('${meta.imagen.replace(/'/g, "\'")}')"></div>` : '';
+                const imgHtml = meta.imagen ? `<div class="w-16 h-16 shrink-0 rounded-xl bg-medio bg-cover bg-center border border-borde cursor-pointer hover:opacity-80 transition" style="background-image: url('${meta.imagen}')" onclick="verImagenCompleta('${meta.imagen.replace(/'/g, "\'")}')"></div>` : '';
 
                 const div = document.createElement('div');
                 div.className = estiloTarjeta;
                 div.innerHTML = `
-                    ${imgHtml}
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-dorado">Meta ${idx + 1}: ${meta.puntos.toLocaleString()} GP Globales</span>
-                        <span class="font-mono text-slate-400">${puntosGPGlobal} / ${meta.puntos}</span>
-                    </div>
-                    <div class="w-full bg-medio h-3 rounded-full overflow-hidden border border-borde p-0.5">
-                        <div class="bg-dorado h-full rounded-full transition-all" style="width: ${porc}%"></div>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-300">Recompensa: <strong class="text-dorado">🪙 ${meta.recompensas}</strong></span>
-                        ${estadoBtn}
+                    <div class="flex gap-3 items-center">
+                        ${imgHtml}
+                        <div class="flex-1 min-w-0 space-y-2">
+                            <div class="flex justify-between items-center text-xs gap-2">
+                                <span class="font-bold text-dorado">Meta ${idx + 1}: ${meta.puntos.toLocaleString()} GP Globales</span>
+                                <span class="font-mono text-slate-400 shrink-0">${puntosGPGlobal} / ${meta.puntos}</span>
+                            </div>
+                            <div class="w-full bg-medio h-3 rounded-full overflow-hidden border border-borde p-0.5">
+                                <div class="bg-dorado h-full rounded-full transition-all" style="width: ${porc}%"></div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs gap-2">
+                                <span class="text-slate-300">Recompensa: <strong class="text-dorado">🪙 ${meta.recompensas}</strong></span>
+                                ${estadoBtn}
+                            </div>
+                        </div>
                     </div>
                 `;
                 cont.appendChild(div);
@@ -3331,22 +3305,26 @@
                     estiloTarjeta += ' border-borde';
                 }
 
-                const imgHtml = meta.imagen ? `<div class="w-full h-24 rounded-xl bg-medio bg-cover bg-center border border-borde cursor-pointer hover:opacity-80 transition" style="background-image: url('${meta.imagen}')" onclick="verImagenCompleta('${meta.imagen.replace(/'/g, "\'")}')"></div>` : '';
+                const imgHtml = meta.imagen ? `<div class="w-16 h-16 shrink-0 rounded-xl bg-medio bg-cover bg-center border border-borde cursor-pointer hover:opacity-80 transition" style="background-image: url('${meta.imagen}')" onclick="verImagenCompleta('${meta.imagen.replace(/'/g, "\'")}')"></div>` : '';
 
                 const div = document.createElement('div');
                 div.className = estiloTarjeta;
                 div.innerHTML = `
-                    ${imgHtml}
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-rojo">Desafío ${idx + 1}: Derrotar al GM (${meta.puntos} veces)</span>
-                        <span class="font-mono text-slate-400">${puntosGMGlobal} / ${meta.puntos}</span>
-                    </div>
-                    <div class="w-full bg-medio h-3 rounded-full overflow-hidden border border-borde p-0.5">
-                        <div class="bg-rojo h-full rounded-full transition-all" style="width: ${porc}%"></div>
-                    </div>
-                    <div class="flex justify-between items-center text-xs">
-                        <span class="text-slate-300">Recompensa: <strong class="text-dorado">🪙 ${meta.recompensas}</strong></span>
-                        ${estadoBtn}
+                    <div class="flex gap-3 items-center">
+                        ${imgHtml}
+                        <div class="flex-1 min-w-0 space-y-2">
+                            <div class="flex justify-between items-center text-xs gap-2">
+                                <span class="font-bold text-rojo">Desafío ${idx + 1}: Derrotar al GM (${meta.puntos} veces)</span>
+                                <span class="font-mono text-slate-400 shrink-0">${puntosGMGlobal} / ${meta.puntos}</span>
+                            </div>
+                            <div class="w-full bg-medio h-3 rounded-full overflow-hidden border border-borde p-0.5">
+                                <div class="bg-rojo h-full rounded-full transition-all" style="width: ${porc}%"></div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs gap-2">
+                                <span class="text-slate-300">Recompensa: <strong class="text-dorado">🪙 ${meta.recompensas}</strong></span>
+                                ${estadoBtn}
+                            </div>
+                        </div>
                     </div>
                 `;
                 cont.appendChild(div);
@@ -3448,8 +3426,8 @@
             return pos;
         })();
 
-        const SIMBOLOS_TRAG_30 = ['🍒','🍋','🍊','🍇','🍉','🔔','⭐','💎','🍒','🍋','🍊','🍇','🍉','🔔','⭐','BONUS','🍒','🍋','🍊','🍇','🍉','🔔','⭐','💎','🍒','🍋','🍊','🍇','🍉','7️⃣'];
-        const VALORES_SIMBOLOS_TRAG = { '🍒': 10, '🍋': 10, '🍊': 15, '🍇': 15, '🍉': 20, '🔔': 30, '⭐': 40, '💎': 60, '7️⃣': 100 };
+        const SIMBOLOS_TRAG_30 = ['🍒','🍋','🍊','🍇','🍉','🔔','⭐','💎','🍒','🍋','🍊','🍇','🍉','BAR','⭐','BONUS','🍒','🍋','🍊','🍇','🍉','🔔','BAR','💎','🍒','🍋','🍊','🍇','🍉','7️⃣'];
+        const VALORES_SIMBOLOS_TRAG = { '🍒': 10, '🍋': 10, '🍊': 15, '🍇': 15, '🍉': 20, '🔔': 30, '⭐': 40, '💎': 60, 'BAR': 80, '7️⃣': 100 };
 
         function generarGridTragamonedas() {
             const grid = document.getElementById('grid-trag-30');
@@ -3464,6 +3442,7 @@
                 const simbolo = SIMBOLOS_TRAG_30[idx];
                 div.textContent = simbolo === 'BONUS' ? '🎁' : simbolo;
                 if(simbolo === 'BONUS') div.classList.add('text-dorado', 'border-dorado');
+                if(simbolo === 'BAR') div.classList.add('bar-simbolo-neon', 'font-black');
                 grid.appendChild(div);
             });
             generarTablaPremiosTrag();
@@ -3500,7 +3479,8 @@
                 const btn = document.createElement('button');
                 btn.type = 'button';
                 btn.className = 'boton-fruta-trag';
-                btn.innerHTML = `<span class="fruta-emoji">${simbolo}</span><span class="fruta-valor">${VALORES_SIMBOLOS_TRAG[simbolo]}</span>`;
+                const claseEmoji = simbolo === 'BAR' ? 'fruta-emoji bar-simbolo-neon font-black' : 'fruta-emoji';
+                btn.innerHTML = `<span class="${claseEmoji}">${simbolo}</span><span class="fruta-valor">${VALORES_SIMBOLOS_TRAG[simbolo]}</span>`;
                 btn.onclick = () => {
                     btn.classList.add('fruta-presionada');
                     setTimeout(() => btn.classList.remove('fruta-presionada'), 200);
@@ -5146,29 +5126,23 @@
             });
         }
 
-        // ===== WIDGET DE BOOSTS FLOTANTES: bonus activo (multiplicador VIP) =====
-        // Muestra el ícono con anillo dorado + temporizador regresivo (estilo insignia),
-        // igual al de referencia: mientras el multiplicador comprado siga activo, la
-        // insignia flota fija en pantalla y su tiempo va bajando en vivo cada segundo.
+        // ===== INSIGNIA DE BONUS EN EL HEADER: multiplicador VIP activo =====
+        // Vive dentro del header (no flota sobre la pantalla), así nunca se cruza con
+        // tarjetas, marcos LED ni la barra de Meta Global al hacer scroll.
         function renderizarBoostsFlotantes() {
-            const cont = document.getElementById('contenedor-boosts-flotantes');
-            if(!cont) return;
-            cont.innerHTML = '';
+            const badge = document.getElementById('badge-boost-header');
+            const icono = document.getElementById('icono-boost-header');
+            const texto = document.getElementById('texto-boost-header');
+            if(!badge || !texto) return;
             if(multiplicadorFactor > 0 && multiplicadorSegundosRestantes > 0) {
                 const pausado = (Date.now() - ultimaActividadTs) >= 3600000;
                 const msRestantes = pausado ? multiplicadorSegundosRestantes * 1000 : Math.max(0, multiplicadorExpiraTs - Date.now());
-                const badge = document.createElement('div');
-                badge.className = 'boost-flotante';
-                badge.title = 'Bonus VIP activo · toca para ver la Tienda';
-                badge.onclick = () => abrirVentana('modal-tienda');
-                badge.innerHTML = `
-                    <div class="boost-flotante-icono${pausado ? ' boost-pausado' : ''}">
-                        <i class="fa ${pausado ? 'fa-pause' : 'fa-bolt'}"></i>
-                        <span class="boost-flotante-factor">x${multiplicadorFactor}</span>
-                    </div>
-                    <div class="boost-flotante-tiempo">${pausado ? '⏸ pausado' : formatoDuracion(msRestantes)}</div>
-                `;
-                cont.appendChild(badge);
+                badge.style.display = 'flex';
+                badge.classList.toggle('boost-pausado', pausado);
+                if(icono) icono.className = `fa ${pausado ? 'fa-pause' : 'fa-bolt'} text-dorado text-xs`;
+                texto.textContent = `x${multiplicadorFactor} ${pausado ? '⏸' : formatoDuracion(msRestantes)}`;
+            } else {
+                badge.style.display = 'none';
             }
         }
 
