@@ -76,6 +76,41 @@
         .barra-completada {
             animation: brilloBarraFinal 0.6s ease-out;
         }
+
+        /* ===== TEMA DE COLOR (recolorea "dorado" en toda la app vía variables CSS) ===== */
+        :root {
+            --tema-primario: #F59E0B;
+            --tema-primario-rgb: 245, 158, 11;
+        }
+        .text-dorado { color: var(--tema-primario) !important; }
+        .text-dorado\/5 { color: rgba(var(--tema-primario-rgb), 0.05) !important; }
+        .bg-dorado { background-color: var(--tema-primario) !important; }
+        .bg-dorado\/10 { background-color: rgba(var(--tema-primario-rgb), 0.1) !important; }
+        .bg-dorado\/20 { background-color: rgba(var(--tema-primario-rgb), 0.2) !important; }
+        .bg-dorado\/30 { background-color: rgba(var(--tema-primario-rgb), 0.3) !important; }
+        .border-dorado { border-color: var(--tema-primario) !important; }
+        .border-dorado\/30 { border-color: rgba(var(--tema-primario-rgb), 0.3) !important; }
+        .border-dorado\/40 { border-color: rgba(var(--tema-primario-rgb), 0.4) !important; }
+        .border-dorado\/50 { border-color: rgba(var(--tema-primario-rgb), 0.5) !important; }
+        .border-dorado\/60 { border-color: rgba(var(--tema-primario-rgb), 0.6) !important; }
+        .ring-dorado { --tw-ring-color: var(--tema-primario) !important; }
+        .led-dorado { --led-color: rgba(var(--tema-primario-rgb), 0.6) !important; }
+
+        /* ===== MARCOS DE PERFIL ===== */
+        .marco-clasico { border-color: var(--tema-primario) !important; }
+        .marco-plata { border-color: #CBD5E1 !important; box-shadow: 0 0 12px rgba(203,213,225,0.7); }
+        .marco-neon { border-color: #933EEA !important; box-shadow: 0 0 16px rgba(147,62,234,0.85); }
+        .marco-diamante { border-color: #38BDF8 !important; box-shadow: 0 0 18px rgba(56,189,248,0.9); }
+        .marco-fuego { border-color: #EA580C !important; box-shadow: 0 0 18px rgba(234,88,12,0.9); }
+        .marco-arcoiris {
+            border-width: 3px !important;
+            border-image: linear-gradient(90deg, #F59E0B, #EC4899, #2563EB, #16A34A, #F59E0B) 1;
+            animation: girarArcoirisMarco 4s linear infinite;
+        }
+        @keyframes girarArcoirisMarco {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
         @keyframes girarRuleta {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(3600deg); }
@@ -722,8 +757,13 @@
             <div class="flex flex-col gap-4 relative z-10">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
-                        <div onclick="abrirPerfilPublico(usuarioActual)" class="w-16 h-16 rounded-2xl bg-dorado/20 border-2 border-dorado flex items-center justify-center text-dorado text-3xl shadow-inner overflow-hidden cursor-pointer hover:scale-105 transition" id="avatar-perfil-contenedor" title="Ver mi perfil público">
-                            <i class="fa fa-user-astronaut" id="icono-avatar-perfil"></i>
+                        <div class="relative">
+                            <div onclick="abrirPerfilPublico(usuarioActual)" class="w-16 h-16 rounded-2xl bg-dorado/20 border-2 border-dorado flex items-center justify-center text-dorado text-3xl shadow-inner overflow-hidden cursor-pointer hover:scale-105 transition" id="avatar-perfil-contenedor" title="Ver mi perfil público">
+                                <i class="fa fa-user-astronaut" id="icono-avatar-perfil"></i>
+                            </div>
+                            <button onclick="abrirVentana('modal-personalizacion'); renderizarModalPersonalizacion();" class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-morado border-2 border-medio flex items-center justify-center text-white text-[10px] shadow-lg" title="Personalizar perfil">
+                                <i class="fa fa-palette"></i>
+                            </button>
                         </div>
                         <div>
                             <div class="flex items-center gap-2">
@@ -795,6 +835,32 @@
             <i class="fa fa-chevron-right text-slate-500 ml-auto text-xs"></i>
         </button>
 
+        <!-- BANNER OFERTA RELÁMPAGO (solo visible mientras está vigente) -->
+        <button onclick="abrirVentana('modal-oferta-relampago'); renderizarModalOfertaRelampago();" id="banner-oferta-relampago" class="hidden w-full p-4 rounded-3xl bg-gradient-to-r from-rojo/30 to-naranja/20 border border-naranja/50 shadow-xl items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-naranja/30 text-naranja flex items-center justify-center text-lg shrink-0 animate-pulse"><i class="fa fa-bolt"></i></div>
+            <div class="text-left flex-1 min-w-0">
+                <h3 class="font-black text-xs text-white">⚡ Oferta Relámpago</h3>
+                <p id="texto-resumen-oferta-relampago" class="text-[10px] text-slate-300 truncate"></p>
+            </div>
+            <span id="texto-cronometro-oferta-banner" class="text-[10px] font-mono text-naranja shrink-0"></span>
+        </button>
+
+        <!-- REGALO DIARIO Y MISIÓN DEL DÍA -->
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="abrirVentana('modal-regalo-diario'); renderizarModalRegaloDiario();" id="card-regalo-diario" class="p-4 rounded-3xl bg-gradient-to-br from-pink-500/20 to-medio border border-pink-500/40 hover:border-pink-500 transition shadow-xl flex flex-col items-center text-center gap-1 relative overflow-hidden">
+                <span id="badge-regalo-diario-disponible" class="hidden absolute top-2 right-2 w-3 h-3 rounded-full bg-verde animate-pulse"></span>
+                <div class="w-11 h-11 rounded-2xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-xl"><i class="fa fa-gift"></i></div>
+                <h3 class="font-black text-xs text-white">Regalo Diario</h3>
+                <p id="texto-estado-regalo-diario" class="text-[9px] text-slate-400">Toca para ver</p>
+            </button>
+            <button onclick="abrirVentana('modal-mision-dia'); renderizarModalMisionDia();" id="card-mision-dia" class="p-4 rounded-3xl bg-gradient-to-br from-verde/20 to-medio border border-verde/40 hover:border-verde transition shadow-xl flex flex-col items-center text-center gap-1 relative overflow-hidden">
+                <span id="badge-mision-dia-disponible" class="hidden absolute top-2 right-2 w-3 h-3 rounded-full bg-dorado animate-pulse"></span>
+                <div class="w-11 h-11 rounded-2xl bg-verde/20 text-verde flex items-center justify-center text-xl"><i class="fa fa-bullseye"></i></div>
+                <h3 class="font-black text-xs text-white">Misión del Día</h3>
+                <p id="texto-estado-mision-dia" class="text-[9px] text-slate-400">Toca para ver</p>
+            </button>
+        </div>
+
         <!-- PESTAÑAS DE MÓDULOS DE JUEGO -->
         <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
 <button onclick="abrirVentana('modal-gp', 'gp'); renderizarVistasGP();" id="card-metas-gp" class="tarjeta-led led-dorado p-4 rounded-2xl bg-dorado/20 border border-dorado/30 text-dorado flex items-center justify-between text-lg group hover:scale-110 transition-all duration-300">
@@ -846,6 +912,25 @@
                     <p class="text-[10px] text-slate-400">Beneficios y Rigs</p>
                 </div>
             </button>
+            <button onclick="abrirVentana('modal-casa-cambios'); renderizarModalCasaCambios();" id="card-casa-cambios" class="tarjeta-led led-verde p-4 rounded-2xl bg-medio border border-verde/40 hover:border-verde transition text-left space-y-2 shadow group">
+                <div class="w-10 h-10 rounded-xl bg-verde/20 text-verde flex items-center justify-center text-lg group-hover:scale-110 transition">
+                    <i class="fa fa-right-left"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-xs text-white">Casa de Cambios</h3>
+                    <p class="text-[10px] text-slate-400">Monedas ↔ Gemas</p>
+                </div>
+            </button>
+            <button onclick="abrirVentana('modal-pase-vip'); renderizarModalPaseVip();" id="card-pase-vip" class="tarjeta-led led-morado p-4 rounded-2xl bg-medio border border-morado/40 hover:border-morado transition text-left space-y-2 shadow group">
+                <div class="w-10 h-10 rounded-xl bg-morado/20 text-morado flex items-center justify-center text-lg group-hover:scale-110 transition">
+                    <i class="fa fa-medal"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-xs text-white">Pase VIP</h3>
+                    <p class="text-[10px] text-slate-400">Recompensas de Temporada</p>
+                </div>
+            </button>
+
             <button onclick="abrirVentanaCalendario()" id="card-calendario" class="tarjeta-led led-esmeralda p-4 rounded-2xl bg-medio border border-emerald-500/40 hover:border-emerald-500 transition text-left space-y-2 shadow group">
                 <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
                     <i class="fa fa-calendar-days"></i>
@@ -1267,6 +1352,119 @@
         </div>
     </div>
 
+    <!-- OVERLAY MODO MANTENIMIENTO -->
+    <div id="overlay-mantenimiento" class="hidden fixed inset-0 z-[35] bg-oscuro flex-col items-center justify-center p-6 text-center">
+        <div class="text-6xl mb-4">🛠️</div>
+        <h2 class="text-xl font-black text-dorado mb-2">En Mantenimiento</h2>
+        <p id="texto-mensaje-mantenimiento" class="text-sm text-slate-400 max-w-xs">Estamos mejorando la app. Vuelve en un ratito 🙌</p>
+        <button onclick="solicitarPasswordAdmin()" class="mt-8 text-[10px] text-slate-600 hover:text-slate-400 underline">Acceso administrador</button>
+    </div>
+
+    <!-- MODAL OFERTA RELÁMPAGO -->
+    <div id="modal-oferta-relampago" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-naranja/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl text-center">
+            <div class="flex justify-between items-center text-left">
+                <h3 class="font-black text-sm text-naranja flex items-center gap-2"><i class="fa fa-bolt"></i> Oferta Relámpago</h3>
+                <button onclick="cerrarVentana('modal-oferta-relampago')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <div id="imagen-oferta-relampago" class="w-full h-32 rounded-2xl bg-oscuro border border-borde flex items-center justify-center overflow-hidden bg-cover bg-center">
+                <i class="fa fa-image text-3xl text-slate-600"></i>
+            </div>
+            <h4 id="nombre-oferta-relampago" class="font-black text-white text-sm"></h4>
+            <div class="flex items-center justify-center gap-3">
+                <span id="precio-original-oferta" class="text-slate-500 line-through text-xs"></span>
+                <span id="precio-oferta-relampago" class="text-dorado font-black text-lg"></span>
+            </div>
+            <p id="texto-cronometro-oferta-modal" class="text-[10px] text-naranja font-mono"></p>
+            <button onclick="comprarOfertaRelampago()" id="btn-comprar-oferta-relampago" class="w-full py-2.5 bg-naranja text-white font-black rounded-xl text-xs shadow">Comprar Ahora</button>
+        </div>
+    </div>
+
+    <!-- MODAL REGALO DIARIO -->
+    <div id="modal-regalo-diario" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-pink-500/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl text-center">
+            <div class="flex justify-between items-center">
+                <h3 class="font-black text-sm text-pink-400 flex items-center gap-2"><i class="fa fa-gift"></i> Regalo Diario</h3>
+                <button onclick="cerrarVentana('modal-regalo-diario')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <div id="contenedor-caja-regalo-diario" class="py-6">
+                <div id="caja-regalo-diario-icono" class="text-7xl transition-transform duration-300 cursor-pointer select-none" onclick="abrirCajaRegaloDiario()">🎁</div>
+                <p id="texto-caja-regalo-diario" class="text-xs text-slate-400 mt-3">Toca la caja para abrirla</p>
+            </div>
+            <p id="texto-cronometro-regalo-diario" class="text-[10px] text-slate-500 font-mono"></p>
+        </div>
+    </div>
+
+    <!-- MODAL MISIÓN DEL DÍA -->
+    <div id="modal-mision-dia" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-verde/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="font-black text-sm text-verde flex items-center gap-2"><i class="fa fa-bullseye"></i> Misión del Día</h3>
+                <button onclick="cerrarVentana('modal-mision-dia')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <div id="contenedor-mision-dia" class="space-y-3"></div>
+            <p class="text-[9px] text-slate-500 text-center">La misión cambia cada día a las 00:00.</p>
+        </div>
+    </div>
+
+    <!-- MODAL CASA DE CAMBIOS -->
+    <div id="modal-casa-cambios" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-verde/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="font-black text-sm text-verde flex items-center gap-2"><i class="fa fa-right-left"></i> Casa de Cambios</h3>
+                <button onclick="cerrarVentana('modal-casa-cambios')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <p id="texto-tasa-casa-cambios" class="text-[10px] text-slate-400 text-center"></p>
+
+            <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-2">
+                <span class="font-bold text-white text-xs flex items-center gap-2"><i class="fa fa-coins text-dorado"></i> Monedas → 💎 Gemas</span>
+                <input type="number" min="0" id="input-cambio-monedas" placeholder="Monedas a cambiar" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-sm" oninput="previsualizarCambioMonedasAGemas()">
+                <p id="preview-cambio-monedas-gemas" class="text-[10px] text-slate-400">Obtendrás 0 gemas</p>
+                <button onclick="cambiarMonedasPorGemas()" class="w-full py-2 bg-dorado text-black font-black rounded-xl text-xs">Cambiar a Gemas</button>
+            </div>
+
+            <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-2">
+                <span class="font-bold text-white text-xs flex items-center gap-2"><i class="fa fa-gem text-morado"></i> Gemas → 🪙 Monedas</span>
+                <input type="number" min="0" id="input-cambio-gemas" placeholder="Gemas a cambiar" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-sm" oninput="previsualizarCambioGemasAMonedas()">
+                <p id="preview-cambio-gemas-monedas" class="text-[10px] text-slate-400">Obtendrás 0 monedas</p>
+                <button onclick="cambiarGemasPorMonedas()" class="w-full py-2 bg-morado text-white font-black rounded-xl text-xs">Cambiar a Monedas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PASE VIP DE TEMPORADA -->
+    <div id="modal-pase-vip" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-morado/40 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-medal"></i> Pase VIP de Temporada</h3>
+                <button onclick="cerrarVentana('modal-pase-vip')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <div id="contenedor-cabecera-pase-vip" class="text-center"></div>
+            <div id="contenedor-niveles-pase-vip" class="space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- MODAL PERSONALIZACIÓN (Marco de Perfil + Tema de Color) -->
+    <div id="modal-personalizacion" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-morado/40 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center">
+                <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-palette"></i> Personalización</h3>
+                <button onclick="cerrarVentana('modal-personalizacion')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="space-y-2">
+                <h4 class="font-black text-xs text-white uppercase tracking-wider">🖼️ Marco de Perfil</h4>
+                <p class="text-[10px] text-slate-400">Se desbloquean según tu nivel VIP.</p>
+                <div id="contenedor-marcos-perfil" class="grid grid-cols-3 gap-3"></div>
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-borde">
+                <h4 class="font-black text-xs text-white uppercase tracking-wider">🎨 Tema de Color</h4>
+                <div id="contenedor-temas-color" class="grid grid-cols-5 gap-2"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL INFORMACIÓN Y EVENTOS -->
     <div id="modal-informacion" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border border-sky-500/40 w-full max-w-lg rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -1521,6 +1719,69 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="p-4 bg-oscuro rounded-2xl border border-naranja/30 space-y-3">
+                    <h4 class="font-black text-xs text-naranja uppercase tracking-wider"><i class="fa fa-bolt"></i> Oferta Relámpago</h4>
+                    <p class="text-[10px] text-slate-400">Aparece como banner mientras esté vigente. Al tocar "Activar/Reiniciar" arranca la cuenta regresiva desde las horas que pongas.</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="admin-oferta-nombre" placeholder="Nombre del producto" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        <input type="text" id="admin-oferta-imagen" placeholder="URL de imagen" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        <input type="number" min="0" id="admin-oferta-precio-original" placeholder="Precio original" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        <input type="number" min="0" id="admin-oferta-precio-descuento" placeholder="Precio con descuento" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        <input type="number" min="0.5" step="0.5" id="admin-oferta-horas" placeholder="Duración en horas" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs col-span-2">
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="activarOfertaRelampagoAdmin()" class="flex-1 py-2 bg-naranja text-white font-black rounded-xl text-xs">⚡ Activar / Reiniciar</button>
+                        <button onclick="cancelarOfertaRelampagoAdmin()" class="px-3 py-2 bg-rojo/20 text-rojo border border-rojo/40 font-bold rounded-xl text-xs">Cancelar</button>
+                    </div>
+                    <p id="admin-oferta-estado" class="text-[10px] text-slate-500"></p>
+                </div>
+
+                <div class="p-4 bg-oscuro rounded-2xl border border-morado/30 space-y-3">
+                    <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-calendar-star"></i> Eventos Temáticos Automáticos</h4>
+                    <p class="text-[10px] text-slate-400">Cambia el título de la app solo, en las fechas que definas (ej: Fiestas Patrias, Navidad). Solo importa el día y mes, no el año.</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="admin-evento-nombre" placeholder="Título del evento" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs col-span-2">
+                        <input type="text" id="admin-evento-emoji" placeholder="Emoji (ej: 🎉)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        <input type="date" id="admin-evento-inicio" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]">
+                        <input type="date" id="admin-evento-fin" placeholder="Fin" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-[10px] col-span-2">
+                    </div>
+                    <button onclick="agregarEventoTematicoAdmin()" class="w-full py-2 bg-morado text-white font-black rounded-xl text-xs"><i class="fa fa-plus"></i> Agregar Evento</button>
+                    <div id="admin-lista-eventos-tematicos" class="space-y-2 pt-1"></div>
+                </div>
+
+                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
+                    <h4 class="font-black text-xs text-verde uppercase tracking-wider"><i class="fa fa-right-left"></i> Casa de Cambios</h4>
+                    <p class="text-[10px] text-slate-400">Cuántas monedas equivalen a 1 gema (se usa para cambiar en los dos sentidos).</p>
+                    <input type="number" min="1" id="admin-tasa-cambio" placeholder="Ej: 100" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarTasaCambioAdmin()">
+                </div>
+
+                <div class="p-4 bg-oscuro rounded-2xl border border-morado/30 space-y-3">
+                    <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-medal"></i> Pase VIP de Temporada</h4>
+                    <p class="text-[10px] text-slate-400">Recompensa = Nivel VIP × "Monedas por nivel". Cada 5 niveles da 1 gema extra.</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="admin-pase-vip-activo" class="sr-only peer" onchange="guardarConfigPaseVipAdmin()">
+                        <div class="w-11 h-6 bg-claro peer-focus:outline-none rounded-full peer peer-checked:bg-morado relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                        <span class="ml-2 text-[10px] font-bold text-slate-400">Temporada Activa</span>
+                    </label>
+                    <input type="text" id="admin-pase-vip-nombre" placeholder="Nombre de la temporada (ej: Temporada Fiestas Patrias)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarConfigPaseVipAdmin()">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Fecha fin</label><input type="date" id="admin-pase-vip-fecha" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
+                        <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Nivel máx.</label><input type="number" min="1" id="admin-pase-vip-nivelmax" placeholder="30" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
+                        <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Monedas/nivel</label><input type="number" min="1" id="admin-pase-vip-monedasnivel" placeholder="20" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-oscuro rounded-2xl border border-rojo/30 space-y-3">
+                    <h4 class="font-black text-xs text-rojo uppercase tracking-wider"><i class="fa fa-triangle-exclamation"></i> Modo Mantenimiento</h4>
+                    <p class="text-[10px] text-slate-400">Bloquea el acceso a todos los jugadores con un mensaje. Tú sigues pudiendo entrar tocando "Acceso administrador" en esa misma pantalla.</p>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="admin-modo-mantenimiento" class="sr-only peer" onchange="guardarModoMantenimientoAdmin()">
+                        <div class="w-11 h-6 bg-claro peer-focus:outline-none rounded-full peer peer-checked:bg-rojo relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+                        <span class="ml-2 text-[10px] font-bold text-slate-400">Activar Mantenimiento</span>
+                    </label>
+                    <input type="text" id="admin-mensaje-mantenimiento" placeholder="Mensaje para los jugadores" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarModoMantenimientoAdmin()">
                 </div>
 
                 <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
@@ -2113,7 +2374,28 @@
                 poblarSelectNivelesAdmin();
                 renderizarFormularioAdminMisiones();
             }
-            if(tab === 'general') { cargarHorariosEnAdmin(); renderizarVisibilidadTarjetasAdmin(); renderizarImagenesTarjetasAdmin(); renderizarListaNovedadesAdmin(); }
+            if(tab === 'general') {
+                cargarHorariosEnAdmin(); renderizarVisibilidadTarjetasAdmin(); renderizarImagenesTarjetasAdmin(); renderizarListaNovedadesAdmin();
+                const chkMant = document.getElementById('admin-modo-mantenimiento');
+                const inpMant = document.getElementById('admin-mensaje-mantenimiento');
+                if (chkMant) chkMant.checked = localStorage.getItem('modo_mantenimiento_activo') === 'true';
+                if (inpMant) inpMant.value = localStorage.getItem('mensaje_mantenimiento_app') || '';
+
+                const inpTasa = document.getElementById('admin-tasa-cambio');
+                if (inpTasa) inpTasa.value = obtenerTasaCambio();
+
+                const configPase = obtenerConfigPaseVip();
+                if (configPase) {
+                    document.getElementById('admin-pase-vip-activo').checked = !!configPase.activo;
+                    document.getElementById('admin-pase-vip-nombre').value = configPase.nombre || '';
+                    document.getElementById('admin-pase-vip-fecha').value = configPase.fechaFin || '';
+                    document.getElementById('admin-pase-vip-nivelmax').value = configPase.nivelMax || 30;
+                    document.getElementById('admin-pase-vip-monedasnivel').value = configPase.monedasPorNivel || 20;
+                }
+
+                actualizarEstadoOfertaAdmin();
+                renderizarListaEventosTematicosAdmin();
+            }
             if(tab === 'champions') { cargardatosFormularioChampions(); cambiarSubTabChampionsAdmin('cuadro'); }
             if(tab === 'tienda') cargarDatosTragamonedasEnAdmin();
             if(tab === 'ruleta') generarFormularioRuleta();
@@ -2451,6 +2733,9 @@
             'tercer_puesto_champions_app', 'tinka_costo_app', 'titulo_evento_app',
             'texto_footer_app', 'visibilidad_tarjetas_app', 'imagenes_tarjetas_app',
             'historial_campeones_champions_app', 'novedades_app',
+            'modo_mantenimiento_activo', 'mensaje_mantenimiento_app',
+            'tasa_cambio_monedas_por_gema', 'config_pase_vip_app',
+            'oferta_relampago_app', 'eventos_tematicos_app',
             'top_semanal_app', 'cuartos_champions_v2_app', 'semis_champions_v2_app',
             'final_champions_v2_app',
             'horario_ini_gp', 'horario_fin_gp', 'horario_ini_gm', 'horario_fin_gm',
@@ -2771,7 +3056,16 @@
             const clave = claveMes(anio, mes);
             const mesData = datosCalendario[clave];
             if(mesData && mesData.dias && mesData.dias[dia]) return mesData.dias[dia];
-            return { imagen: '', recomendacion: '', bloqueado: false, monedasPremio: 50, reclamado: false };
+            return { imagen: '', recomendacion: '', bloqueado: false, monedasPremio: calcularPremioPorDefectoDia(dia), reclamado: false };
+        }
+
+        // Premio por defecto para un día SIN personalizar: crece poco a poco durante el mes,
+        // con un bonus cada 7 días (como una racha semanal). Si el admin edita el día a mano,
+        // ese valor manda y esta fórmula deja de aplicarse para ese día.
+        function calcularPremioPorDefectoDia(dia) {
+            const base = 30 + dia * 4;
+            const bonusSemanal = (dia % 7 === 0) ? 60 : 0;
+            return base + bonusSemanal;
         }
 
         function guardarDatosDia(anio, mes, dia, imagen, recomendacion, bloqueado, monedasPremio) {
@@ -3344,6 +3638,9 @@
         function actualizarInterfazUsuario() {
             if (!usuarioActual) return;
             actualizarBadgeNotificacionesApp();
+            actualizarBadgesRegaloYMision();
+            aplicarTemaColor(localStorage.getItem(`tema_color_${usuarioActual}`) || 'dorado');
+            aplicarMarcoPerfil();
             
             saldo = parseInt(localStorage.getItem(`saldo_${usuarioActual}`)) || 100;
             gemas = parseInt(localStorage.getItem(`gemas_${usuarioActual}`)) || 0;
@@ -3651,6 +3948,7 @@
             alert(`🎉 ¡Recompensa de Meta GP reclamada (+${meta.recompensas} monedas)!`);
             enviarNotificacionTelegram(`El usuario ${usuarioActual} reclamó la Meta GP #${idx + 1} (+${meta.recompensas} monedas) 🪙`);
             agregarNotificacionApp(`🪙 ¡Reclamaste la Meta GP #${idx + 1}! +${meta.recompensas} monedas`, 'fa-star');
+            registrarProgresoMisionDiaria('reclamo');
         }
 
         function renderizarVistasGM() {
@@ -3732,6 +4030,7 @@
             alert(`🎉 ¡Recompensa de Mata al GM reclamada (+${meta.recompensas} monedas)!`);
             enviarNotificacionTelegram(`El usuario ${usuarioActual} reclamó el Desafío GM #${idx + 1} (+${meta.recompensas} monedas) ⚔️`);
             agregarNotificacionApp(`⚔️ ¡Reclamaste el Desafío GM #${idx + 1}! +${meta.recompensas} monedas`, 'fa-shield');
+            registrarProgresoMisionDiaria('reclamo');
         }
         
 
@@ -3790,6 +4089,7 @@
                 girandoRuleta = false;
                 enviarNotificacionTelegram(`El usuario ${usuarioActual} ganó ${premioGanado.monedas} monedas en la Ruleta Patrias 🎡`);
                 agregarNotificacionApp(`🎡 ¡Ganaste ${premioGanado.monedas} monedas en la Ruleta Patrias!`, 'fa-dharmachakra');
+                registrarProgresoMisionDiaria('ruleta');
             }, 4000);
         }
 
@@ -4290,6 +4590,7 @@
 
                 enviarNotificacionTelegram(`El usuario ${usuarioActual} atrapó "${premio.nombre}" en la Garra de Premios (+${premio.monedas} monedas) 🎮`);
                 agregarNotificacionApp(`🎮 ¡Atrapaste "${premio.nombre}" en la Garra! +${premio.monedas} monedas`, 'fa-gamepad');
+                registrarProgresoMisionDiaria('garra');
 
                 if(btn) btn.disabled = false;
                 jugandoGarra = false;
@@ -4469,6 +4770,7 @@
             alert(`🎉 ¡Compra de "${compraPendiente.prod.nombre}" realizada con éxito!`);
             enviarNotificacionTelegramConImagen(`El usuario ${usuarioActual} compró "${compraPendiente.prod.nombre}" en la Tienda VIP 🛍️`, compraPendiente.prod.imagen);
             agregarNotificacionApp(`🛍️ ¡Compraste "${compraPendiente.prod.nombre}" en la Tienda VIP!`, 'fa-bag-shopping');
+            registrarProgresoMisionDiaria('tienda');
             cerrarModalConfirmarCompra();
             renderizarTiendaVista();
         }
@@ -5069,6 +5371,8 @@
         // ===== VISIBILIDAD DE TARJETAS DEL MENÚ (ocultar/mostrar sin eliminar) =====
         const TARJETAS_MENU_CONFIGURABLES = [
             { id: 'card-informacion', nombre: 'Información' },
+            { id: 'card-casa-cambios', nombre: 'Casa de Cambios' },
+            { id: 'card-pase-vip', nombre: 'Pase VIP' },
             { id: 'card-metas-gp', nombre: 'Metas GP' },
             { id: 'card-mata-gm', nombre: 'Mata GM' },
             { id: 'card-top-semanal', nombre: 'Top Semanal' },
@@ -5651,6 +5955,649 @@
             alert('👑 Configuración VIP guardada correctamente.');
         }
 
+        // ===== REGALO DIARIO (caja sorpresa, 1 vez al día) =====
+        function obtenerFechaHoyStr() { return new Date().toISOString().slice(0, 10); }
+
+        function puedeReclamarRegaloDiario() {
+            if (!usuarioActual) return false;
+            return localStorage.getItem(`regalo_diario_fecha_${usuarioActual}`) !== obtenerFechaHoyStr();
+        }
+
+        function renderizarModalRegaloDiario() {
+            const disponible = puedeReclamarRegaloDiario();
+            const icono = document.getElementById('caja-regalo-diario-icono');
+            const texto = document.getElementById('texto-caja-regalo-diario');
+            if (!icono || !texto) return;
+            icono.style.transform = 'scale(1)';
+            if (disponible) {
+                icono.textContent = '🎁';
+                icono.style.opacity = '1';
+                icono.style.pointerEvents = 'auto';
+                texto.textContent = 'Toca la caja para abrirla';
+                document.getElementById('texto-cronometro-regalo-diario').textContent = '';
+            } else {
+                icono.textContent = '✅';
+                icono.style.opacity = '0.5';
+                icono.style.pointerEvents = 'none';
+                texto.textContent = 'Ya reclamaste tu regalo de hoy';
+                actualizarCronometroRegaloDiario();
+            }
+        }
+
+        function actualizarCronometroRegaloDiario() {
+            const cronometro = document.getElementById('texto-cronometro-regalo-diario');
+            if (!cronometro) return;
+            const ahora = new Date();
+            const manana = new Date(ahora);
+            manana.setHours(24, 0, 0, 0);
+            const restante = manana - ahora;
+            const h = Math.floor(restante / 3600000);
+            const m = Math.floor((restante % 3600000) / 60000);
+            const s = Math.floor((restante % 60000) / 1000);
+            cronometro.textContent = `Vuelve en ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+        setInterval(() => {
+            const modal = document.getElementById('modal-regalo-diario');
+            if (modal && !modal.classList.contains('hidden')) actualizarCronometroRegaloDiario();
+        }, 1000);
+
+        function abrirCajaRegaloDiario() {
+            if (!puedeReclamarRegaloDiario()) return;
+            const icono = document.getElementById('caja-regalo-diario-icono');
+            const texto = document.getElementById('texto-caja-regalo-diario');
+            icono.style.transform = 'scale(1.3) rotate(15deg)';
+
+            const premios = [
+                { tipo: 'monedas', cantidad: 30 + Math.floor(Math.random() * 40) },
+                { tipo: 'monedas', cantidad: 70 + Math.floor(Math.random() * 50) },
+                { tipo: 'monedas', cantidad: 150 },
+                { tipo: 'gemas', cantidad: 1 }
+            ];
+            const pesos = [45, 35, 15, 5];
+            let acumulado = 0; const r = Math.random() * 100; let elegido = premios[0];
+            for (let i = 0; i < premios.length; i++) { acumulado += pesos[i]; if (r <= acumulado) { elegido = premios[i]; break; } }
+
+            setTimeout(() => {
+                let textoResultado = '';
+                if (elegido.tipo === 'monedas') {
+                    saldo += elegido.cantidad;
+                    localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
+                    icono.textContent = '🪙';
+                    textoResultado = `¡Ganaste ${elegido.cantidad} monedas! 🪙`;
+                } else {
+                    gemas += elegido.cantidad;
+                    localStorage.setItem(`gemas_${usuarioActual}`, gemas); sincronizarSaldoNube();
+                    icono.textContent = '💎';
+                    textoResultado = `¡Ganaste ${elegido.cantidad} gema! 💎`;
+                }
+                icono.style.transform = 'scale(1.5)';
+                texto.textContent = textoResultado;
+                localStorage.setItem(`regalo_diario_fecha_${usuarioActual}`, obtenerFechaHoyStr());
+                actualizarInterfazUsuario();
+                agregarNotificacionApp(`🎁 Regalo Diario: ${textoResultado}`, 'fa-gift');
+                setTimeout(() => {
+                    icono.style.transform = 'scale(1)';
+                    icono.style.opacity = '0.5';
+                    icono.style.pointerEvents = 'none';
+                }, 700);
+            }, 400);
+        }
+
+        // ===== MISIÓN DEL DÍA (cambia cada 24h) =====
+        const MISIONES_DIARIAS_POOL = [
+            { tipo: 'ruleta', texto: 'Gira la Ruleta Patrias', meta: 1, icono: 'fa-dharmachakra', recompensa: 50 },
+            { tipo: 'tienda', texto: 'Compra algo en la Tienda VIP', meta: 1, icono: 'fa-bag-shopping', recompensa: 60 },
+            { tipo: 'garra', texto: 'Gana un premio en la Garra', meta: 1, icono: 'fa-gamepad', recompensa: 60 },
+            { tipo: 'reclamo', texto: 'Reclama una Meta GP o un Desafío GM', meta: 1, icono: 'fa-star', recompensa: 50 },
+            { tipo: 'monedas', texto: 'Junta 100 monedas hoy', meta: 100, icono: 'fa-coins', recompensa: 40 }
+        ];
+
+        function obtenerMisionDeHoy() {
+            if (!usuarioActual) return null;
+            const hoyStr = obtenerFechaHoyStr();
+            const clave = `mision_dia_${usuarioActual}_${hoyStr}`;
+            let mision = JSON.parse(localStorage.getItem(clave) || 'null');
+            if (!mision) {
+                const base = MISIONES_DIARIAS_POOL[Math.floor(Math.random() * MISIONES_DIARIAS_POOL.length)];
+                mision = { ...base, progreso: 0, completada: false, reclamada: false, fecha: hoyStr };
+                if (mision.tipo === 'monedas') mision.saldoInicial = saldo;
+                localStorage.setItem(clave, JSON.stringify(mision));
+            }
+            return mision;
+        }
+
+        function guardarMisionDeHoy(mision) {
+            if (!usuarioActual) return;
+            localStorage.setItem(`mision_dia_${usuarioActual}_${mision.fecha}`, JSON.stringify(mision));
+        }
+
+        // Se llama desde cada acción del juego (ruleta, tienda, garra, reclamos) para avanzar la misión si corresponde.
+        function registrarProgresoMisionDiaria(tipoAccion) {
+            if (!usuarioActual) return;
+            const mision = obtenerMisionDeHoy();
+            if (!mision || mision.completada || mision.tipo !== tipoAccion) return;
+            mision.progreso = Math.min(mision.meta, mision.progreso + 1);
+            if (mision.progreso >= mision.meta) mision.completada = true;
+            guardarMisionDeHoy(mision);
+            actualizarBadgesRegaloYMision();
+        }
+
+        // La misión de "juntar monedas" se revisa por diferencia de saldo, no por una acción puntual.
+        function verificarProgresoMisionMonedas() {
+            if (!usuarioActual) return;
+            const mision = obtenerMisionDeHoy();
+            if (!mision || mision.completada || mision.tipo !== 'monedas') return;
+            const ganadas = Math.max(0, saldo - (mision.saldoInicial ?? saldo));
+            mision.progreso = Math.min(mision.meta, ganadas);
+            if (mision.progreso >= mision.meta) mision.completada = true;
+            guardarMisionDeHoy(mision);
+        }
+
+        function renderizarModalMisionDia() {
+            verificarProgresoMisionMonedas();
+            const mision = obtenerMisionDeHoy();
+            const cont = document.getElementById('contenedor-mision-dia');
+            if (!cont || !mision) return;
+            const pct = Math.min(100, Math.round((mision.progreso / mision.meta) * 100));
+            cont.innerHTML = `
+                <div class="p-4 bg-oscuro rounded-2xl border ${mision.completada ? 'border-verde' : 'border-borde'} space-y-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa ${mision.icono} text-verde"></i>
+                        <span class="font-bold text-white text-xs">${mision.texto}</span>
+                    </div>
+                    <div class="w-full h-2 bg-claro rounded-full overflow-hidden">
+                        <div class="h-full bg-verde rounded-full transition-all" style="width:${pct}%"></div>
+                    </div>
+                    <p class="text-[10px] text-slate-400">${mision.progreso}/${mision.meta} · Recompensa: ${mision.recompensa} monedas</p>
+                </div>
+                ${mision.reclamada
+                    ? '<div class="text-center text-xs text-verde font-bold py-2"><i class="fa fa-circle-check"></i> Ya reclamaste esta misión</div>'
+                    : mision.completada
+                        ? `<button onclick="reclamarMisionDelDia()" class="w-full py-2.5 bg-verde text-black font-black rounded-xl text-xs">🎁 Reclamar ${mision.recompensa} monedas</button>`
+                        : '<p class="text-center text-[10px] text-slate-500">Completa la misión para poder reclamar.</p>'
+                }`;
+        }
+
+        function reclamarMisionDelDia() {
+            const mision = obtenerMisionDeHoy();
+            if (!mision || !mision.completada || mision.reclamada) return;
+            mision.reclamada = true;
+            guardarMisionDeHoy(mision);
+            saldo += mision.recompensa;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`🎯 ¡Completaste la Misión del Día! +${mision.recompensa} monedas`, 'fa-bullseye');
+            enviarNotificacionTelegram(`El usuario ${usuarioActual} completó la Misión del Día (+${mision.recompensa} monedas) 🎯`);
+            renderizarModalMisionDia();
+            actualizarBadgesRegaloYMision();
+        }
+
+        // Pone/quita los puntitos de "disponible" en las tarjetas de Regalo Diario y Misión del Día.
+        function actualizarBadgesRegaloYMision() {
+            if (!usuarioActual) return;
+            const badgeRegalo = document.getElementById('badge-regalo-diario-disponible');
+            const textoRegalo = document.getElementById('texto-estado-regalo-diario');
+            if (badgeRegalo && textoRegalo) {
+                const disponible = puedeReclamarRegaloDiario();
+                badgeRegalo.classList.toggle('hidden', !disponible);
+                textoRegalo.textContent = disponible ? '¡Disponible!' : 'Ya lo abriste hoy';
+            }
+            verificarProgresoMisionMonedas();
+            const mision = obtenerMisionDeHoy();
+            const badgeMision = document.getElementById('badge-mision-dia-disponible');
+            const textoMision = document.getElementById('texto-estado-mision-dia');
+            if (badgeMision && textoMision && mision) {
+                badgeMision.classList.toggle('hidden', !(mision.completada && !mision.reclamada));
+                textoMision.textContent = mision.reclamada ? 'Completada ✅' : (mision.completada ? '¡Lista para reclamar!' : `${mision.progreso}/${mision.meta}`);
+            }
+        }
+
+        // ===== MODO MANTENIMIENTO =====
+        function aplicarModoMantenimiento() {
+            const overlay = document.getElementById('overlay-mantenimiento');
+            if (!overlay) return;
+            const activo = localStorage.getItem('modo_mantenimiento_activo') === 'true';
+            if (activo) {
+                const msg = localStorage.getItem('mensaje_mantenimiento_app') || 'Estamos mejorando la app. Vuelve en un ratito 🙌';
+                const elMsg = document.getElementById('texto-mensaje-mantenimiento');
+                if (elMsg) elMsg.textContent = msg;
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            } else {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+        }
+
+        // Lee los campos del admin, guarda y aplica el Modo Mantenimiento al instante.
+        function guardarTasaCambioAdmin() {
+            const val = parseInt(document.getElementById('admin-tasa-cambio')?.value) || 100;
+            localStorage.setItem('tasa_cambio_monedas_por_gema', val);
+        }
+
+        function guardarConfigPaseVipAdmin() {
+            const config = {
+                activo: document.getElementById('admin-pase-vip-activo')?.checked || false,
+                nombre: document.getElementById('admin-pase-vip-nombre')?.value?.trim() || 'Pase VIP de Temporada',
+                fechaFin: document.getElementById('admin-pase-vip-fecha')?.value || '',
+                nivelMax: parseInt(document.getElementById('admin-pase-vip-nivelmax')?.value) || 30,
+                monedasPorNivel: parseInt(document.getElementById('admin-pase-vip-monedasnivel')?.value) || 20
+            };
+            localStorage.setItem('config_pase_vip_app', JSON.stringify(config));
+        }
+
+        function guardarModoMantenimientoAdmin() {
+            const activo = document.getElementById('admin-modo-mantenimiento')?.checked || false;
+            const msg = document.getElementById('admin-mensaje-mantenimiento')?.value?.trim();
+            localStorage.setItem('modo_mantenimiento_activo', activo ? 'true' : 'false');
+            if (msg) localStorage.setItem('mensaje_mantenimiento_app', msg);
+            aplicarModoMantenimiento();
+        }
+
+        // ===== CASA DE CAMBIOS (monedas <-> gemas) =====
+        function obtenerTasaCambio() {
+            return parseInt(localStorage.getItem('tasa_cambio_monedas_por_gema')) || 100;
+        }
+
+        function renderizarModalCasaCambios() {
+            const tasa = obtenerTasaCambio();
+            const txt = document.getElementById('texto-tasa-casa-cambios');
+            if (txt) txt.textContent = `Tasa actual: ${tasa} monedas = 1 gema 💎`;
+            document.getElementById('input-cambio-monedas').value = '';
+            document.getElementById('input-cambio-gemas').value = '';
+            previsualizarCambioMonedasAGemas();
+            previsualizarCambioGemasAMonedas();
+        }
+
+        function previsualizarCambioMonedasAGemas() {
+            const tasa = obtenerTasaCambio();
+            const val = parseInt(document.getElementById('input-cambio-monedas')?.value) || 0;
+            const gemasObtenidas = Math.floor(val / tasa);
+            document.getElementById('preview-cambio-monedas-gemas').textContent = `Obtendrás ${gemasObtenidas} gema${gemasObtenidas === 1 ? '' : 's'}`;
+        }
+
+        function previsualizarCambioGemasAMonedas() {
+            const tasa = obtenerTasaCambio();
+            const val = parseInt(document.getElementById('input-cambio-gemas')?.value) || 0;
+            const monedasObtenidas = val * tasa;
+            document.getElementById('preview-cambio-gemas-monedas').textContent = `Obtendrás ${monedasObtenidas} monedas`;
+        }
+
+        function cambiarMonedasPorGemas() {
+            const tasa = obtenerTasaCambio();
+            const val = parseInt(document.getElementById('input-cambio-monedas')?.value) || 0;
+            const gemasObtenidas = Math.floor(val / tasa);
+            if (gemasObtenidas <= 0) { alert(`Necesitas al menos ${tasa} monedas para cambiar por 1 gema.`); return; }
+            const costoReal = gemasObtenidas * tasa;
+            if (saldo < costoReal) { alert('No te alcanzan las monedas.'); return; }
+            saldo -= costoReal;
+            gemas += gemasObtenidas;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            localStorage.setItem(`gemas_${usuarioActual}`, gemas);
+            sincronizarSaldoNube();
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`🔄 Cambiaste ${costoReal} monedas por ${gemasObtenidas} gema${gemasObtenidas === 1 ? '' : 's'}`, 'fa-right-left');
+            renderizarModalCasaCambios();
+        }
+
+        function cambiarGemasPorMonedas() {
+            const tasa = obtenerTasaCambio();
+            const val = parseInt(document.getElementById('input-cambio-gemas')?.value) || 0;
+            if (val <= 0) { alert('Ingresa una cantidad de gemas válida.'); return; }
+            if (gemas < val) { alert('No te alcanzan las gemas.'); return; }
+            const monedasObtenidas = val * tasa;
+            gemas -= val;
+            saldo += monedasObtenidas;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            localStorage.setItem(`gemas_${usuarioActual}`, gemas);
+            sincronizarSaldoNube();
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`🔄 Cambiaste ${val} gema${val === 1 ? '' : 's'} por ${monedasObtenidas} monedas`, 'fa-right-left');
+            renderizarModalCasaCambios();
+        }
+
+        // ===== PASE VIP DE TEMPORADA =====
+        function obtenerConfigPaseVip() {
+            try { return JSON.parse(localStorage.getItem('config_pase_vip_app')) || null; }
+            catch(e) { return null; }
+        }
+
+        function obtenerIdTemporadaPaseVip(config) {
+            return `${config.nombre}|${config.fechaFin}`;
+        }
+
+        function obtenerReclamosPaseVip() {
+            if (!usuarioActual) return { temporadaId: '', niveles: [] };
+            try { return JSON.parse(localStorage.getItem(`pase_vip_reclamos_${usuarioActual}`)) || { temporadaId: '', niveles: [] }; }
+            catch(e) { return { temporadaId: '', niveles: [] }; }
+        }
+
+        function renderizarModalPaseVip() {
+            const config = obtenerConfigPaseVip();
+            const contCabecera = document.getElementById('contenedor-cabecera-pase-vip');
+            const contNiveles = document.getElementById('contenedor-niveles-pase-vip');
+            if (!contCabecera || !contNiveles) return;
+
+            if (!config || !config.activo) {
+                contCabecera.innerHTML = '<p class="text-xs text-slate-400 italic py-6">No hay una temporada activa por ahora.</p>';
+                contNiveles.innerHTML = '';
+                return;
+            }
+
+            const idTemporada = obtenerIdTemporadaPaseVip(config);
+            let reclamos = obtenerReclamosPaseVip();
+            if (reclamos.temporadaId !== idTemporada) reclamos = { temporadaId: idTemporada, niveles: [] };
+
+            const fechaFin = new Date(config.fechaFin);
+            const diasRestantes = Math.max(0, Math.ceil((fechaFin - new Date()) / 86400000));
+            contCabecera.innerHTML = `
+                <h4 class="font-black text-white text-sm">🏅 ${config.nombre}</h4>
+                <p class="text-[10px] text-slate-400 mt-1">${diasRestantes > 0 ? `Termina en ${diasRestantes} día${diasRestantes === 1 ? '' : 's'}` : 'La temporada terminó'}</p>
+                <p class="text-[10px] text-morado mt-1">Tu nivel VIP actual: ${nivelVipUsuario}</p>`;
+
+            let filas = '';
+            for (let n = 1; n <= config.nivelMax; n++) {
+                const monedas = n * config.monedasPorNivel;
+                const gemas = (n % 5 === 0) ? 1 : 0;
+                const desbloqueado = nivelVipUsuario >= n;
+                const reclamado = reclamos.niveles.includes(n);
+                filas += `
+                <div class="flex items-center justify-between p-2.5 rounded-xl border ${reclamado ? 'bg-verde/10 border-verde/30' : desbloqueado ? 'bg-oscuro border-morado/40' : 'bg-oscuro border-borde opacity-60'}">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-morado/20 text-morado flex items-center justify-center text-[10px] font-black">${n}</span>
+                        <span class="text-[11px] text-white">${monedas} monedas${gemas ? ' + 💎' + gemas : ''}</span>
+                    </div>
+                    ${reclamado
+                        ? '<span class="text-[10px] text-verde font-bold"><i class="fa fa-check"></i> Reclamado</span>'
+                        : desbloqueado
+                            ? `<button onclick="reclamarNivelPaseVip(${n}, ${monedas}, ${gemas})" class="px-2.5 py-1 bg-morado text-white font-bold rounded-lg text-[10px]">Reclamar</button>`
+                            : '<i class="fa fa-lock text-slate-600 text-xs"></i>'
+                    }
+                </div>`;
+            }
+            contNiveles.innerHTML = filas;
+        }
+
+        function reclamarNivelPaseVip(nivel, monedas, gemasPremio) {
+            const config = obtenerConfigPaseVip();
+            if (!config || !config.activo) return;
+            const idTemporada = obtenerIdTemporadaPaseVip(config);
+            let reclamos = obtenerReclamosPaseVip();
+            if (reclamos.temporadaId !== idTemporada) reclamos = { temporadaId: idTemporada, niveles: [] };
+            if (reclamos.niveles.includes(nivel) || nivelVipUsuario < nivel) return;
+
+            reclamos.niveles.push(nivel);
+            localStorage.setItem(`pase_vip_reclamos_${usuarioActual}`, JSON.stringify(reclamos));
+
+            saldo += monedas;
+            if (gemasPremio) gemas += gemasPremio;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            localStorage.setItem(`gemas_${usuarioActual}`, gemas);
+            sincronizarSaldoNube();
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`🏅 ¡Reclamaste el nivel ${nivel} del Pase VIP! +${monedas} monedas${gemasPremio ? ' +💎' + gemasPremio : ''}`, 'fa-medal');
+            renderizarModalPaseVip();
+        }
+
+        // ===== TEMAS DE COLOR =====
+        const TEMAS_COLOR_APP = {
+            dorado: { nombre: 'Dorado', primario: '#F59E0B', rgb: '245, 158, 11' },
+            azul:   { nombre: 'Azul',   primario: '#2563EB', rgb: '37, 99, 235' },
+            rojo:   { nombre: 'Rojo',   primario: '#DC2626', rgb: '220, 38, 38' },
+            morado: { nombre: 'Morado', primario: '#933EEA', rgb: '147, 62, 234' },
+            verde:  { nombre: 'Verde',  primario: '#16A34A', rgb: '22, 163, 74' }
+        };
+
+        function aplicarTemaColor(nombreTema) {
+            const tema = TEMAS_COLOR_APP[nombreTema] || TEMAS_COLOR_APP.dorado;
+            document.documentElement.style.setProperty('--tema-primario', tema.primario);
+            document.documentElement.style.setProperty('--tema-primario-rgb', tema.rgb);
+        }
+
+        function seleccionarTemaColor(nombreTema) {
+            if (!usuarioActual) return;
+            localStorage.setItem(`tema_color_${usuarioActual}`, nombreTema);
+            aplicarTemaColor(nombreTema);
+            renderizarModalPersonalizacion();
+        }
+
+        // ===== MARCOS DE PERFIL =====
+        const MARCOS_PERFIL_APP = [
+            { id: 'clasico', nombre: 'Clásico', nivel: 1, clase: 'marco-clasico', icono: '⭐' },
+            { id: 'plata', nombre: 'Plata', nivel: 5, clase: 'marco-plata', icono: '🥈' },
+            { id: 'neon', nombre: 'Neón', nivel: 10, clase: 'marco-neon', icono: '💜' },
+            { id: 'fuego', nombre: 'Fuego', nivel: 20, clase: 'marco-fuego', icono: '🔥' },
+            { id: 'diamante', nombre: 'Diamante', nivel: 30, clase: 'marco-diamante', icono: '💎' },
+            { id: 'arcoiris', nombre: 'Arcoíris', nivel: 40, clase: 'marco-arcoiris', icono: '🌈' }
+        ];
+        const CLASES_MARCOS_PERFIL = MARCOS_PERFIL_APP.map(m => m.clase);
+
+        function aplicarMarcoPerfil() {
+            const avatar = document.getElementById('avatar-perfil-contenedor');
+            if (!avatar || !usuarioActual) return;
+            avatar.classList.remove(...CLASES_MARCOS_PERFIL);
+            const marcoGuardado = localStorage.getItem(`marco_perfil_${usuarioActual}`) || 'clasico';
+            const marco = MARCOS_PERFIL_APP.find(m => m.id === marcoGuardado) || MARCOS_PERFIL_APP[0];
+            avatar.classList.add(marco.clase);
+        }
+
+        function seleccionarMarcoPerfil(id) {
+            const marco = MARCOS_PERFIL_APP.find(m => m.id === id);
+            if (!marco || nivelVipUsuario < marco.nivel) return;
+            localStorage.setItem(`marco_perfil_${usuarioActual}`, id);
+            aplicarMarcoPerfil();
+            renderizarModalPersonalizacion();
+        }
+
+        function renderizarModalPersonalizacion() {
+            const marcoGuardado = localStorage.getItem(`marco_perfil_${usuarioActual}`) || 'clasico';
+            const contMarcos = document.getElementById('contenedor-marcos-perfil');
+            if (contMarcos) {
+                contMarcos.innerHTML = MARCOS_PERFIL_APP.map(m => {
+                    const desbloqueado = nivelVipUsuario >= m.nivel;
+                    const seleccionado = marcoGuardado === m.id;
+                    return `
+                    <button onclick="seleccionarMarcoPerfil('${m.id}')" ${desbloqueado ? '' : 'disabled'} class="p-2.5 rounded-xl border ${seleccionado ? 'border-morado bg-morado/20' : 'border-borde bg-oscuro'} ${desbloqueado ? '' : 'opacity-50'} flex flex-col items-center gap-1">
+                        <span class="text-xl">${desbloqueado ? m.icono : '🔒'}</span>
+                        <span class="text-[9px] text-white font-bold">${m.nombre}</span>
+                        <span class="text-[8px] text-slate-500">${desbloqueado ? (seleccionado ? 'Elegido' : 'Nivel ' + m.nivel) : 'Nivel ' + m.nivel}</span>
+                    </button>`;
+                }).join('');
+            }
+
+            const temaGuardado = localStorage.getItem(`tema_color_${usuarioActual}`) || 'dorado';
+            const contTemas = document.getElementById('contenedor-temas-color');
+            if (contTemas) {
+                contTemas.innerHTML = Object.entries(TEMAS_COLOR_APP).map(([id, t]) => `
+                    <button onclick="seleccionarTemaColor('${id}')" class="flex flex-col items-center gap-1">
+                        <span class="w-8 h-8 rounded-full block ${temaGuardado === id ? 'ring-2 ring-white' : ''}" style="background:${t.primario}"></span>
+                        <span class="text-[8px] text-slate-400">${t.nombre}</span>
+                    </button>`).join('');
+            }
+        }
+
+        // ===== OFERTA RELÁMPAGO =====
+        function obtenerOfertaRelampago() {
+            try { return JSON.parse(localStorage.getItem('oferta_relampago_app')) || null; }
+            catch(e) { return null; }
+        }
+
+        function ofertaRelampagoVigente(oferta) {
+            return !!(oferta && oferta.activo && oferta.finTimestamp && Date.now() < oferta.finTimestamp);
+        }
+
+        // Revisa si la oferta sigue vigente y muestra/oculta el banner de la pantalla principal.
+        function actualizarBannerOfertaRelampago() {
+            const oferta = obtenerOfertaRelampago();
+            const banner = document.getElementById('banner-oferta-relampago');
+            if (!banner) return;
+            if (ofertaRelampagoVigente(oferta)) {
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+                document.getElementById('texto-resumen-oferta-relampago').textContent = `${oferta.nombre} — ahora ${oferta.precioOferta} monedas`;
+                const restante = oferta.finTimestamp - Date.now();
+                const h = Math.floor(restante / 3600000);
+                const m = Math.floor((restante % 3600000) / 60000);
+                document.getElementById('texto-cronometro-oferta-banner').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+            } else {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }
+        }
+        setInterval(actualizarBannerOfertaRelampago, 30000);
+
+        function renderizarModalOfertaRelampago() {
+            const oferta = obtenerOfertaRelampago();
+            if (!ofertaRelampagoVigente(oferta)) {
+                cerrarVentana('modal-oferta-relampago');
+                return;
+            }
+            document.getElementById('nombre-oferta-relampago').textContent = oferta.nombre;
+            document.getElementById('precio-original-oferta').textContent = `${oferta.precioOriginal} 🪙`;
+            document.getElementById('precio-oferta-relampago').textContent = `${oferta.precioOferta} 🪙`;
+            const imgDiv = document.getElementById('imagen-oferta-relampago');
+            if (oferta.imagen) { imgDiv.style.backgroundImage = `url('${oferta.imagen}')`; imgDiv.innerHTML = ''; }
+            else { imgDiv.style.backgroundImage = ''; imgDiv.innerHTML = '<i class="fa fa-image text-3xl text-slate-600"></i>'; }
+            actualizarCronometroModalOferta();
+        }
+
+        function actualizarCronometroModalOferta() {
+            const oferta = obtenerOfertaRelampago();
+            const el = document.getElementById('texto-cronometro-oferta-modal');
+            if (!el || !ofertaRelampagoVigente(oferta)) return;
+            const restante = oferta.finTimestamp - Date.now();
+            const h = Math.floor(restante / 3600000);
+            const m = Math.floor((restante % 3600000) / 60000);
+            const s = Math.floor((restante % 60000) / 1000);
+            el.textContent = `Termina en ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+        setInterval(() => {
+            const modal = document.getElementById('modal-oferta-relampago');
+            if (modal && !modal.classList.contains('hidden')) actualizarCronometroModalOferta();
+        }, 1000);
+
+        function comprarOfertaRelampago() {
+            const oferta = obtenerOfertaRelampago();
+            if (!ofertaRelampagoVigente(oferta)) { alert('Esta oferta ya terminó.'); actualizarBannerOfertaRelampago(); return; }
+            if (saldo < oferta.precioOferta) { alert('No te alcanzan las monedas.'); return; }
+            saldo -= oferta.precioOferta;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            sincronizarSaldoNube();
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`⚡ ¡Compraste "${oferta.nombre}" en Oferta Relámpago! -${oferta.precioOferta} monedas`, 'fa-bolt');
+            enviarNotificacionTelegramConImagen(`El usuario ${usuarioActual} compró "${oferta.nombre}" en la Oferta Relámpago ⚡ (-${oferta.precioOferta} monedas)`, oferta.imagen);
+            alert(`🎉 ¡Compraste "${oferta.nombre}" con éxito!`);
+            cerrarVentana('modal-oferta-relampago');
+        }
+
+        function activarOfertaRelampagoAdmin() {
+            const nombre = document.getElementById('admin-oferta-nombre')?.value?.trim();
+            const imagen = document.getElementById('admin-oferta-imagen')?.value?.trim();
+            const precioOriginal = parseInt(document.getElementById('admin-oferta-precio-original')?.value) || 0;
+            const precioOferta = parseInt(document.getElementById('admin-oferta-precio-descuento')?.value) || 0;
+            const horas = parseFloat(document.getElementById('admin-oferta-horas')?.value) || 0;
+            if (!nombre || !precioOferta || !horas) { alert('Completa al menos el nombre, precio con descuento y las horas de duración.'); return; }
+
+            const oferta = { activo: true, nombre, imagen, precioOriginal, precioOferta, finTimestamp: Date.now() + horas * 3600000 };
+            localStorage.setItem('oferta_relampago_app', JSON.stringify(oferta));
+            actualizarBannerOfertaRelampago();
+            actualizarEstadoOfertaAdmin();
+            enviarNotificacionTelegram(`⚡ ¡Nueva Oferta Relámpago activa! "${nombre}" a ${precioOferta} monedas por ${horas}h.`);
+        }
+
+        function cancelarOfertaRelampagoAdmin() {
+            const oferta = obtenerOfertaRelampago();
+            if (oferta) { oferta.activo = false; localStorage.setItem('oferta_relampago_app', JSON.stringify(oferta)); }
+            actualizarBannerOfertaRelampago();
+            actualizarEstadoOfertaAdmin();
+        }
+
+        function actualizarEstadoOfertaAdmin() {
+            const el = document.getElementById('admin-oferta-estado');
+            if (!el) return;
+            const oferta = obtenerOfertaRelampago();
+            el.textContent = ofertaRelampagoVigente(oferta)
+                ? `🟢 Vigente: "${oferta.nombre}" — termina ${new Date(oferta.finTimestamp).toLocaleString('es-PE')}`
+                : '⚪ No hay oferta activa ahora mismo.';
+        }
+
+        // ===== EVENTOS TEMÁTICOS AUTOMÁTICOS (cambian el título de la app solos, por fecha) =====
+        function obtenerEventosTematicos() {
+            try { return JSON.parse(localStorage.getItem('eventos_tematicos_app')) || []; }
+            catch(e) { return []; }
+        }
+
+        function guardarEventosTematicos(lista) {
+            localStorage.setItem('eventos_tematicos_app', JSON.stringify(lista));
+        }
+
+        // Busca si hoy (día-mes, sin importar el año) cae dentro del rango de algún evento configurado.
+        function obtenerEventoTematicoActivo() {
+            const eventos = obtenerEventosTematicos();
+            const hoy = new Date();
+            const hoyMD = String(hoy.getMonth() + 1).padStart(2, '0') + '-' + String(hoy.getDate()).padStart(2, '0');
+            return eventos.find(ev => {
+                if (!ev.inicio || !ev.fin) return false;
+                if (ev.inicio <= ev.fin) return hoyMD >= ev.inicio && hoyMD <= ev.fin;
+                return hoyMD >= ev.inicio || hoyMD <= ev.fin; // rango que cruza fin de año
+            }) || null;
+        }
+
+        // Si hay un evento vigente hoy, pisa el título normal de la app con el del evento.
+        function aplicarEventoTematicoAutomatico() {
+            const evento = obtenerEventoTematicoActivo();
+            if (!evento) return;
+            const tituloFinal = `${evento.emoji || '🎉'} ${evento.nombre} ${evento.emoji || '🎉'}`;
+            const elHeader = document.getElementById('header-titulo-app');
+            const elCarga = document.getElementById('titulo-evento-app');
+            if (elHeader) elHeader.textContent = tituloFinal;
+            if (elCarga) elCarga.textContent = tituloFinal;
+            document.title = tituloFinal;
+        }
+        setInterval(aplicarEventoTematicoAutomatico, 3600000); // revisa cada hora por si cambia el día
+
+        function agregarEventoTematicoAdmin() {
+            const nombre = document.getElementById('admin-evento-nombre')?.value?.trim();
+            const emoji = document.getElementById('admin-evento-emoji')?.value?.trim() || '🎉';
+            const inicio = document.getElementById('admin-evento-inicio')?.value;
+            const fin = document.getElementById('admin-evento-fin')?.value;
+            if (!nombre || !inicio || !fin) { alert('Completa el título y las dos fechas.'); return; }
+
+            const lista = obtenerEventosTematicos();
+            lista.push({ nombre, emoji, inicio: inicio.slice(5), fin: fin.slice(5) });
+            guardarEventosTematicos(lista);
+
+            document.getElementById('admin-evento-nombre').value = '';
+            document.getElementById('admin-evento-emoji').value = '';
+            document.getElementById('admin-evento-inicio').value = '';
+            document.getElementById('admin-evento-fin').value = '';
+            renderizarListaEventosTematicosAdmin();
+            aplicarEventoTematicoAutomatico();
+        }
+
+        function eliminarEventoTematicoAdmin(idx) {
+            const lista = obtenerEventosTematicos();
+            lista.splice(idx, 1);
+            guardarEventosTematicos(lista);
+            renderizarListaEventosTematicosAdmin();
+        }
+
+        function renderizarListaEventosTematicosAdmin() {
+            const cont = document.getElementById('admin-lista-eventos-tematicos');
+            if (!cont) return;
+            const lista = obtenerEventosTematicos();
+            cont.innerHTML = lista.length === 0
+                ? '<p class="text-[10px] text-slate-500 text-center py-3">No hay eventos configurados.</p>'
+                : lista.map((ev, idx) => `
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde flex items-center justify-between gap-2 text-xs">
+                        <div class="min-w-0">
+                            <span class="font-black text-white block">${ev.emoji} ${ev.nombre}</span>
+                            <span class="text-[9px] text-slate-500 block">${ev.inicio} al ${ev.fin} (cada año)</span>
+                        </div>
+                        <button onclick="eliminarEventoTematicoAdmin(${idx})" class="px-2.5 py-1.5 bg-rojo/20 text-rojo border border-rojo/40 font-bold rounded-xl text-[10px] shrink-0">Eliminar</button>
+                    </div>`).join('');
+        }
+
         function verificarRachaDiaria() {
             if(!usuarioActual) return;
             const hoy = new Date();
@@ -5723,6 +6670,9 @@
 
             aplicarVisibilidadTarjetas();
             aplicarImagenesTarjetas();
+            aplicarModoMantenimiento();
+            aplicarEventoTematicoAutomatico();
+            actualizarBannerOfertaRelampago();
         }
 
         async function guardarCambios() {
