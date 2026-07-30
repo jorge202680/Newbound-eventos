@@ -1896,7 +1896,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "2.8.1";
+        const VERSION_APP_ACTUAL = "2.9.0";
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
             const badge = document.getElementById('badge-version-header');
@@ -1942,14 +1942,18 @@
         // servidor (pidiéndola sin usar caché del navegador). Si son distintas, significa
         // que este dispositivo se quedó con una copia vieja guardada — y se refresca solo
         // para traer la actualización, en vez de quedarse desactualizado en silencio.
+        // Se llama una vez al cargar la página y también de forma periódica (ver window.onload),
+        // por eso el "enfriamiento" es corto: solo evita reintentos en bucle si el servidor
+        // sigue devolviendo una versión vieja, pero no bloquea futuras revisiones para siempre.
         function comprobarVersionServidorYAutoActualizar() {
-            if (sessionStorage.getItem('ya_reintento_actualizar_version') === '1') return;
+            const ultimoIntentoTs = parseInt(sessionStorage.getItem('ultimo_intento_actualizar_version_ts') || '0', 10);
+            if (Date.now() - ultimoIntentoTs < 60000) return;
             fetch(window.location.pathname + '?_v=' + Date.now(), { cache: 'no-store' })
                 .then(r => r.text())
                 .then(htmlServidor => {
                     const m = htmlServidor.match(/VERSION_APP_ACTUAL\s*=\s*"([^"]+)"/);
                     if (m && m[1] && m[1] !== VERSION_APP_ACTUAL) {
-                        sessionStorage.setItem('ya_reintento_actualizar_version', '1');
+                        sessionStorage.setItem('ultimo_intento_actualizar_version_ts', String(Date.now()));
                         console.warn(`Versión desactualizada: este dispositivo tenía v${VERSION_APP_ACTUAL}, el servidor ya tiene v${m[1]}. Refrescando...`);
                         window.location.reload(true);
                     }
@@ -6182,6 +6186,7 @@
             setInterval(actualizarCronometrosTarjetas, 1000);
             setInterval(renderizarBoostsFlotantes, 1000);
             setInterval(verificarCierreInscripcionChampions, 15000);
+            setInterval(comprobarVersionServidorYAutoActualizar, 180000);
         };
     </script>
 </body>
