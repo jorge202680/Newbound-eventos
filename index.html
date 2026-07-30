@@ -463,6 +463,22 @@
             0%, 100% { box-shadow: 0 0 16px 5px rgba(147,51,234,0.95); }
             50% { box-shadow: 0 0 26px 9px rgba(245,158,11,0.95); }
         }
+        .casillero-trag-bonus-led {
+            background-color: #FBBF24 !important;
+            color: #000 !important;
+            border-color: #FBBF24 !important;
+            transform: scale(1.12);
+            z-index: 6;
+            box-shadow: 0 0 18px 6px rgba(251,191,36,0.95), 0 0 34px 10px rgba(147,51,234,0.6), inset 0 0 6px rgba(255,255,255,0.6) !important;
+            transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+        }
+        .btn-doblar-trag {
+            animation: pulseDoblar 1.1s ease-in-out infinite;
+        }
+        @keyframes pulseDoblar {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.55); }
+            50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+        }
         .boton-fruta-trag {
             background: linear-gradient(180deg, #1E293B, #0B0F19);
             border: 1px solid #334155;
@@ -932,7 +948,7 @@
                 </div>
                 <button id="btn-soltar-bola" onclick="soltarBola()" class="w-full py-3 bg-gradient-to-r from-morado to-indigo-600 text-white font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">SOLTAR BOLA</button>
                 <div id="resultado-bolas" class="hidden text-xs font-black"></div>
-                <button id="btn-cerrar-bonus-bolas" onclick="cerrarVentana('modal-bonus-bolas')" class="hidden w-full py-2.5 bg-dorado text-black font-black text-xs rounded-xl shadow">CONTINUAR</button>
+                <button id="btn-cerrar-bonus-bolas" onclick="cerrarBonusBolasConCobro()" class="hidden w-full py-2.5 bg-dorado text-black font-black text-xs rounded-xl shadow">CONTINUAR</button>
             </div>
         </div>
 
@@ -1896,7 +1912,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "2.9.0";
+        const VERSION_APP_ACTUAL = "2.10.0";
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
             const badge = document.getElementById('badge-version-header');
@@ -3721,6 +3737,7 @@
 
         function girarTragamonedas() {
             if(girandoTrag) return;
+            if(montoGanadoPendienteTrag > 0) cobrarGananciaTrag('resultado-trag');
             const costo = configTragamonedas.costo || 10;
             if(saldo < costo) {
                 alert('⚠️ Saldo insuficiente para girar el tragamonedas.');
@@ -3764,29 +3781,129 @@
 
                     if(simbolo === 'BONUS') {
                         document.getElementById(`casillero-trag-${indiceFinal}`)?.classList.add('casillero-trag-bonus-activo');
-                        if(resTrag) { resTrag.classList.remove('hidden'); resTrag.innerHTML = `<span class="text-dorado font-black">🎁 ¡BONUS! Se activó Bolas de la Suerte…</span>`; }
-                        enviarNotificacionTelegram(`¡BONUS! El usuario ${usuarioActual} activó Bolas de la Suerte en el Tragamonedas VIP 🎁`);
-                        setTimeout(() => iniciarMinijuegoBolas(configTragamonedas.premio || 100), 500);
+                        if(resTrag) { resTrag.classList.remove('hidden'); resTrag.innerHTML = `<span class="text-dorado font-black">🎁 ¡BONUS! Encendiendo racha de LEDs…</span>`; }
+                        enviarNotificacionTelegram(`¡BONUS! El usuario ${usuarioActual} activó el Bonus del Tragamonedas VIP 🎁`);
+                        setTimeout(() => ejecutarBonusLED(configTragamonedas.premio || 100), 500);
                     } else {
                         const premioBase = VALORES_SIMBOLOS_TRAG[simbolo] || 10;
                         const acertoSeleccion = frutasSeleccionadasTrag.has(simbolo);
                         const bonoSeleccion = acertoSeleccion ? Math.round(premioBase * 0.2) : 0;
                         const premioGanado = premioBase + bonoSeleccion;
-                        saldo += premioGanado;
-                        localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
-                        actualizarInterfazUsuario();
-                        actualizarDisplayTragamonedas();
                         agregarExpUsuario(15);
-                        if(resTrag) {
-                            resTrag.classList.remove('hidden');
-                            resTrag.innerHTML = acertoSeleccion
-                                ? `<span class="text-verde font-bold">🎯 ¡Acertaste tu fruta seleccionada! ${simbolo} +${premioGanado} monedas (${premioBase} + ${bonoSeleccion} bono)</span>`
-                                : `<span class="text-verde font-bold">${simbolo} ¡Ganaste ${premioGanado} monedas!</span>`;
-                        }
+                        const mensajeBase = acertoSeleccion
+                            ? `🎯 ¡Acertaste tu fruta seleccionada! ${simbolo} (${premioBase} + ${bonoSeleccion} bono)`
+                            : `${simbolo} ¡Ganaste!`;
+                        mostrarResultadoConDoblar(premioGanado, mensajeBase, 'resultado-trag');
                     }
                 }
             }, 60);
         }
+
+        // ===== DOBLAR O NADA (gamble feature) =====
+        // Se muestra después de cualquier ganancia del tragamonedas (giro normal, bonus de LEDs
+        // o Bolas de la Suerte). El jugador puede cobrar lo ganado, o arriesgarlo a un 50/50
+        // para duplicarlo — como en las tragamonedas reales. Máximo 5 rondas seguidas por ganancia.
+        let montoGanadoPendienteTrag = 0;
+        let rondaDoblarTrag = 0;
+        const MAX_RONDAS_DOBLAR_TRAG = 5;
+
+        function mostrarResultadoConDoblar(monto, mensajeBase, contenedorId) {
+            montoGanadoPendienteTrag = Math.round(monto);
+            rondaDoblarTrag = 0;
+            renderizarResultadoConDoblar(mensajeBase, contenedorId);
+        }
+
+        function renderizarResultadoConDoblar(mensajeBase, contenedorId) {
+            const cont = document.getElementById(contenedorId);
+            if(!cont) return;
+            cont.classList.remove('hidden');
+
+            if(montoGanadoPendienteTrag <= 0) {
+                cont.innerHTML = `<span class="text-slate-400">${mensajeBase} — sin premio esta vez</span>`;
+                return;
+            }
+
+            const puedeDoblar = rondaDoblarTrag < MAX_RONDAS_DOBLAR_TRAG;
+            cont.innerHTML = `
+                <div class="text-verde font-bold mb-2">${mensajeBase} ¡Ganaste ${montoGanadoPendienteTrag} monedas!</div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="cobrarGananciaTrag('${contenedorId}')" class="flex-1 py-2 rounded-xl bg-verde text-black font-black text-[10px]">💰 Cobrar ${montoGanadoPendienteTrag}</button>
+                    ${puedeDoblar ? `<button type="button" onclick="doblarGananciaTrag('${contenedorId}', '${mensajeBase.replace(/'/g, "\\'")}')" class="btn-doblar-trag flex-1 py-2 rounded-xl bg-rojo text-white font-black text-[10px]">🎲 Doblar o Nada</button>` : ''}
+                </div>
+                ${!puedeDoblar ? `<div class="text-[9px] text-slate-400 mt-1">Llegaste al máximo de rondas — cobra tu premio.</div>` : ''}
+            `;
+        }
+
+        function cobrarGananciaTrag(contenedorId) {
+            if(montoGanadoPendienteTrag > 0) {
+                saldo += montoGanadoPendienteTrag;
+                localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
+                actualizarInterfazUsuario();
+                actualizarDisplayTragamonedas();
+            }
+            const cont = document.getElementById(contenedorId);
+            if(cont) cont.innerHTML = `<span class="text-verde font-bold">💰 Cobraste ${montoGanadoPendienteTrag} monedas.</span>`;
+            montoGanadoPendienteTrag = 0;
+        }
+
+        function doblarGananciaTrag(contenedorId, mensajeBase) {
+            const cont = document.getElementById(contenedorId);
+            if(cont) cont.innerHTML = `<span class="text-dorado font-bold">🎲 Girando la suerte…</span>`;
+            setTimeout(() => {
+                rondaDoblarTrag++;
+                const gano = Math.random() < 0.5;
+                if(gano) {
+                    montoGanadoPendienteTrag *= 2;
+                    agregarExpUsuario(5);
+                    renderizarResultadoConDoblar(`✅ ¡Duplicaste! ${mensajeBase}`, contenedorId);
+                } else {
+                    montoGanadoPendienteTrag = 0;
+                    if(cont) cont.innerHTML = `<span class="text-rojo font-bold">💥 Perdiste la apuesta — sin premio esta vez.</span>`;
+                }
+            }, 900);
+        }
+
+        // ===== BONUS DEL TRAGAMONEDAS: RACHA DE LEDs =====
+        // Al caer en el símbolo BONUS, se encienden varios casilleros extra en cadena por el
+        // borde (más LEDs de los normales), cada uno suma monedas al premio del bonus. Al
+        // terminar la racha se pasa a Bolas de la Suerte para multiplicar ese total, y el
+        // premio final se puede cobrar o doblar.
+        function ejecutarBonusLED(premioBase) {
+            const resTrag = document.getElementById('resultado-trag');
+            const totalCasilleros = POSICIONES_TRAG_30.length;
+            const cantidadLeds = 6 + Math.floor(Math.random() * 5); // entre 6 y 10 LEDs extra
+            const usados = new Set();
+            let premioAcumulado = 0;
+            let i = 0;
+
+            const intervalo = setInterval(() => {
+                let idx;
+                do { idx = Math.floor(Math.random() * totalCasilleros); } while(usados.has(idx));
+                usados.add(idx);
+
+                const el = document.getElementById(`casillero-trag-${idx}`);
+                el?.classList.add('casillero-trag-bonus-led');
+
+                const suma = 5 + Math.floor(Math.random() * 26); // 5 a 30 monedas por LED
+                premioAcumulado += suma;
+
+                if(resTrag) {
+                    resTrag.classList.remove('hidden');
+                    resTrag.innerHTML = `<span class="text-dorado font-black">🎁 ¡Racha BONUS! +${cantidadLeds - i} LEDs restantes… acumulado: ${premioAcumulado} monedas</span>`;
+                }
+
+                i++;
+                if(i >= cantidadLeds) {
+                    clearInterval(intervalo);
+                    setTimeout(() => {
+                        document.querySelectorAll('.casillero-trag-bonus-led').forEach(el => el.classList.remove('casillero-trag-bonus-led'));
+                        enviarNotificacionTelegram(`¡BONUS de LEDs! ${usuarioActual} acumuló ${premioAcumulado} monedas antes de Bolas de la Suerte 🎁`);
+                        setTimeout(() => iniciarMinijuegoBolas(premioAcumulado || premioBase), 400);
+                    }, 500);
+                }
+            }, 220);
+        }
+
 
         // ===== BONUS DEL TRAGAMONEDAS: BOLAS DE LA SUERTE =====
         let premioBonusPendiente = 0;
@@ -3842,22 +3959,16 @@
             setTimeout(() => {
                 const multiplicador = multiplicadores[casillero];
                 const premioFinal = Math.round(premioBonusPendiente * multiplicador);
-                if(premioFinal > 0) {
-                    saldo += premioFinal;
-                    localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
-                    actualizarInterfazUsuario();
-                    actualizarDisplayTragamonedas();
-                    agregarExpUsuario(30);
-                }
-                if(resultado) {
-                    resultado.classList.remove('hidden');
-                    resultado.innerHTML = premioFinal > 0
-                        ? `<span class="text-dorado">🎉 Cayó en x${multiplicador} — ¡Ganaste ${premioFinal} monedas!</span>`
-                        : `<span class="text-slate-400">Cayó en x${multiplicador} — sin premio esta vez</span>`;
-                }
+                agregarExpUsuario(30);
                 if(premioFinal > 0) enviarNotificacionTelegram(`${usuarioActual} ganó ${premioFinal} monedas en Bolas de la Suerte 🔴`);
+                mostrarResultadoConDoblar(premioFinal, `🎉 Cayó en x${multiplicador}.`, 'resultado-bolas');
                 if(btnContinuar) btnContinuar.classList.remove('hidden');
             }, 2100);
+        }
+
+        function cerrarBonusBolasConCobro() {
+            if(montoGanadoPendienteTrag > 0) cobrarGananciaTrag('resultado-bolas');
+            cerrarVentana('modal-bonus-bolas');
         }
 
         // ===== MINIJUEGO INDEPENDIENTE: FÚTBOL - PATEA Y GANA (2 veces por semana) =====
@@ -5315,10 +5426,10 @@
             const footerTexto = document.getElementById('input-texto-footer')?.value;
             const logoUrl = document.getElementById('input-logo-carga-url')?.value;
             const gifUrlGeneral = document.getElementById('input-gif-companero-url')?.value;
-            if(tituloEvento !== undefined) localStorage.setItem('titulo_evento_app', tituloEvento);
-            if(footerTexto !== undefined) localStorage.setItem('texto_footer_app', footerTexto);
-            if(logoUrl !== undefined) localStorage.setItem('logo_carga_app', logoUrl);
-            if(gifUrlGeneral !== undefined) localStorage.setItem('input_gif_companero_url', gifUrlGeneral);
+            if(tituloEvento) localStorage.setItem('titulo_evento_app', tituloEvento);
+            if(footerTexto) localStorage.setItem('texto_footer_app', footerTexto);
+            if(logoUrl) localStorage.setItem('logo_carga_app', logoUrl);
+            if(gifUrlGeneral) localStorage.setItem('input_gif_companero_url', gifUrlGeneral);
 
             localStorage.setItem('imagenes_tarjetas_app', JSON.stringify(leerImagenesTarjetasAdmin()));
             aplicarImagenesTarjetas();
@@ -5328,9 +5439,9 @@
             localStorage.setItem('config_trag_app', JSON.stringify(configTragamonedas));
 
             leerInputsChampionsAdmin();
-            tercerPuestoChampions = document.getElementById('admin-champ-tercero')?.value || '';
-            imagenPremioChampions = document.getElementById('admin-champ-premio-img')?.value || '';
-            imagenFondoChampions = document.getElementById('admin-champ-fondo-img')?.value || '';
+            tercerPuestoChampions = document.getElementById('admin-champ-tercero')?.value || tercerPuestoChampions;
+            imagenPremioChampions = document.getElementById('admin-champ-premio-img')?.value || imagenPremioChampions;
+            imagenFondoChampions = document.getElementById('admin-champ-fondo-img')?.value || imagenFondoChampions;
             localStorage.setItem('imagen_fondo_champions_app', imagenFondoChampions);
             localStorage.setItem('cuartos_champions_v2_app', JSON.stringify(datosChampions));
             localStorage.setItem('semis_champions_v2_app', JSON.stringify(datosChampionsSemis));
@@ -5346,7 +5457,7 @@
             infoTorneoChampions.tp = document.getElementById('admin-info-tp')?.value || infoTorneoChampions.tp;
             infoTorneoChampions.fechahora = document.getElementById('admin-info-fechahora')?.value || infoTorneoChampions.fechahora;
             infoTorneoChampions.server = document.getElementById('admin-info-server')?.value || infoTorneoChampions.server;
-            infoTorneoChampions.cierreInscripcion = document.getElementById('admin-info-cierre-inscripcion')?.value || '';
+            infoTorneoChampions.cierreInscripcion = document.getElementById('admin-info-cierre-inscripcion')?.value || infoTorneoChampions.cierreInscripcion;
             localStorage.setItem('info_torneo_champions_app', JSON.stringify(infoTorneoChampions));
             verificarCierreInscripcionChampions();
 
@@ -5389,7 +5500,7 @@
             configMusica.activada = document.getElementById('admin-musica-activada')?.checked ?? true;
             ['carga', 'general', 'gp', 'gm', 'tienda', 'champions', 'ruleta', 'tragamonedas'].forEach(s => {
                 const val = document.getElementById(`admin-musica-${s}`)?.value;
-                if(val !== undefined) configMusica[s] = val;
+                if(val) configMusica[s] = val;
             });
             localStorage.setItem('config_musica_app', JSON.stringify(configMusica));
 
