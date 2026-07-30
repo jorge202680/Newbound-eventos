@@ -682,6 +682,19 @@
                 <i class="fa fa-bolt text-dorado text-xs" id="icono-boost-header"></i>
                 <span id="texto-boost-header" class="text-[10px] font-black text-dorado font-mono"></span>
             </div>
+            <div class="relative">
+                <button onclick="alternarPanelNotificacionesApp()" id="btn-campanita-notif" class="w-9 h-9 rounded-xl bg-claro border border-borde text-slate-300 hover:text-white flex items-center justify-center transition shadow-sm relative" title="Notificaciones">
+                    <i class="fa fa-bell text-xs"></i>
+                    <span id="badge-notif-contador" class="hidden absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-rojo text-white text-[9px] font-black flex items-center justify-center">0</span>
+                </button>
+                <div id="panel-notificaciones-app" class="hidden fixed top-16 right-2 left-2 sm:left-auto sm:right-4 w-auto sm:w-80 max-w-full max-h-[70vh] overflow-y-auto bg-medio border border-borde rounded-2xl shadow-2xl z-50 p-2 space-y-1.5">
+                    <div class="flex justify-between items-center px-2 py-1">
+                        <span class="font-black text-xs text-white">Notificaciones</span>
+                        <button onclick="limpiarNotificacionesApp()" class="text-[9px] text-slate-400 hover:text-rojo font-bold">Limpiar todo</button>
+                    </div>
+                    <div id="lista-notificaciones-app" class="space-y-1.5"></div>
+                </div>
+            </div>
             <button onclick="alternarMusicaUsuario()" id="btn-musica-toggle" class="w-9 h-9 rounded-xl bg-claro border border-borde text-slate-300 hover:text-white flex items-center justify-center transition shadow-sm" title="Música">
                 <i class="fa fa-volume-high text-xs" id="icono-musica-toggle"></i>
             </button>
@@ -769,6 +782,18 @@
                 <span id="meta-global-estado" class="font-bold"></span>
             </div>
         </section>
+
+        <!-- BANNER INFORMACIÓN Y EVENTOS -->
+        <button onclick="abrirVentana('modal-informacion'); renderizarModalInformacion();" id="card-informacion" class="w-full p-4 rounded-3xl bg-medio border border-sky-500/40 hover:border-sky-500 transition shadow-xl flex items-center gap-3 group">
+            <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg group-hover:scale-110 transition shrink-0">
+                <i class="fa fa-circle-info"></i>
+            </div>
+            <div class="text-left">
+                <h3 class="font-black text-xs text-white">Información</h3>
+                <p class="text-[10px] text-slate-400">Último Ganador y Eventos Nuevos</p>
+            </div>
+            <i class="fa fa-chevron-right text-slate-500 ml-auto text-xs"></i>
+        </button>
 
         <!-- PESTAÑAS DE MÓDULOS DE JUEGO -->
         <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
@@ -1242,6 +1267,37 @@
         </div>
     </div>
 
+    <!-- MODAL INFORMACIÓN Y EVENTOS -->
+    <div id="modal-informacion" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-sky-500/40 w-full max-w-lg rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-borde pb-3">
+                <h3 class="font-black text-sm text-sky-400 flex items-center gap-2"><i class="fa fa-circle-info"></i> Información y Eventos</h3>
+                <button onclick="cerrarVentana('modal-informacion')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="p-4 bg-oscuro rounded-2xl border border-verde/30 space-y-2">
+                <h4 class="font-black text-xs text-verde uppercase tracking-wider flex items-center gap-2"><i class="fa fa-bullhorn"></i> Novedades</h4>
+                <div id="contenedor-novedades-info" class="space-y-2">
+                    <p class="text-xs text-slate-400 italic">No hay novedades publicadas por ahora.</p>
+                </div>
+            </div>
+
+            <div class="p-4 bg-oscuro rounded-2xl border border-dorado/30 space-y-2">
+                <h4 class="font-black text-xs text-dorado uppercase tracking-wider flex items-center gap-2"><i class="fa fa-trophy"></i> Último Campeón</h4>
+                <div id="contenedor-ultimo-campeon-info" class="flex items-center gap-3">
+                    <p class="text-xs text-slate-400 italic">Todavía no hay un campeón registrado.</p>
+                </div>
+            </div>
+
+            <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-2">
+                <h4 class="font-black text-xs text-sky-400 uppercase tracking-wider flex items-center gap-2"><i class="fa fa-clock-rotate-left"></i> Campeones Anteriores</h4>
+                <div id="contenedor-historial-campeones-info" class="space-y-2">
+                    <p class="text-xs text-slate-400 italic">Aún no hay historial de campeones.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL CALENDARIO -->
     <div id="modal-calendario" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border border-emerald-500/40 w-full max-w-4xl rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -1465,6 +1521,17 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
+                    <h4 class="font-black text-xs text-verde uppercase tracking-wider"><i class="fa fa-bullhorn"></i> Novedades / Últimas Actualizaciones</h4>
+                    <p class="text-[10px] text-slate-400">Se muestran en la ventana "Información" para todos los jugadores. Ej: "Se agregó la Garra de Premios 🎮".</p>
+                    <div class="grid grid-cols-1 gap-2">
+                        <input type="text" id="admin-novedad-titulo" placeholder="Título (ej: ¡Nueva función!)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        <textarea id="admin-novedad-desc" rows="2" placeholder="Descripción corta (opcional)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
+                        <button onclick="agregarNovedadAdmin()" class="w-full py-2 bg-verde text-black font-black rounded-xl text-xs shadow"><i class="fa fa-plus"></i> Publicar Novedad</button>
+                    </div>
+                    <div id="admin-lista-novedades" class="space-y-2 pt-1"></div>
                 </div>
 
                 <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
@@ -1913,6 +1980,12 @@
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
         const VERSION_APP_ACTUAL = "2.10.0";
+        // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
+        // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
+        const NOVEDAD_VERSION_ACTUAL = {
+            titulo: '📢 Nueva Ventana de Información y Notificaciones',
+            descripcion: 'Se agregó la ventana de Información (con Novedades y Último Campeón) y la campanita 🔔 de notificaciones dentro de la app.'
+        };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
             const badge = document.getElementById('badge-version-header');
@@ -1937,6 +2010,7 @@
                 badge.title = `Versión anterior: ${info.anterior === '—' ? '—' : 'v' + info.anterior} · Última actualización: ${fechaLegible}`;
             }
             if (huboActualizacion) mostrarBannerNuevaActualizacion(info);
+            registrarNovedadAutomaticaDeVersion();
             comprobarVersionServidorYAutoActualizar();
         }
 
@@ -2039,7 +2113,7 @@
                 poblarSelectNivelesAdmin();
                 renderizarFormularioAdminMisiones();
             }
-            if(tab === 'general') { cargarHorariosEnAdmin(); renderizarVisibilidadTarjetasAdmin(); renderizarImagenesTarjetasAdmin(); }
+            if(tab === 'general') { cargarHorariosEnAdmin(); renderizarVisibilidadTarjetasAdmin(); renderizarImagenesTarjetasAdmin(); renderizarListaNovedadesAdmin(); }
             if(tab === 'champions') { cargardatosFormularioChampions(); cambiarSubTabChampionsAdmin('cuadro'); }
             if(tab === 'tienda') cargarDatosTragamonedasEnAdmin();
             if(tab === 'ruleta') generarFormularioRuleta();
@@ -2376,6 +2450,7 @@
             'premios_garra_app', 'premios_ruleta_app', 'premios_futbol_mini_app',
             'tercer_puesto_champions_app', 'tinka_costo_app', 'titulo_evento_app',
             'texto_footer_app', 'visibilidad_tarjetas_app', 'imagenes_tarjetas_app',
+            'historial_campeones_champions_app', 'novedades_app',
             'top_semanal_app', 'cuartos_champions_v2_app', 'semis_champions_v2_app',
             'final_champions_v2_app',
             'horario_ini_gp', 'horario_fin_gp', 'horario_ini_gm', 'horario_fin_gm',
@@ -2664,6 +2739,7 @@
             renderizarTopSemanal();
             alert(`🎉 ¡Premio del Top Semanal reclamado (+${item.premio} monedas)!`);
             enviarNotificacionTelegram(`El usuario ${usuarioActual} reclamó el premio del Top Semanal (puesto ${pos}, +${item.premio} monedas) 🏆`);
+            agregarNotificacionApp(`🏆 ¡Reclamaste el premio del Top Semanal (puesto ${pos})! +${item.premio} monedas`, 'fa-trophy');
         }
 
         let configMusica = JSON.parse(localStorage.getItem('config_musica_app')) || {
@@ -3025,6 +3101,91 @@
             });
         }
 
+        // ===== NOTIFICACIONES DENTRO DE LA APP (campanita) =====
+        function obtenerNotificacionesApp() {
+            if (!usuarioActual) return [];
+            try { return JSON.parse(localStorage.getItem(`notificaciones_app_${usuarioActual}`)) || []; }
+            catch(e) { return []; }
+        }
+
+        // Agrega una notificación al historial del usuario actual y refresca el globito/panel si están visibles.
+        function agregarNotificacionApp(mensaje, icono) {
+            if (!usuarioActual) return;
+            const lista = obtenerNotificacionesApp();
+            lista.unshift({ mensaje, icono: icono || 'fa-bell', fecha: new Date().toISOString(), leida: false });
+            const recortada = lista.slice(0, 30);
+            localStorage.setItem(`notificaciones_app_${usuarioActual}`, JSON.stringify(recortada));
+            actualizarBadgeNotificacionesApp();
+        }
+
+        function actualizarBadgeNotificacionesApp() {
+            const badge = document.getElementById('badge-notif-contador');
+            if (!badge) return;
+            const noLeidas = obtenerNotificacionesApp().filter(n => !n.leida).length;
+            if (noLeidas > 0) {
+                badge.textContent = noLeidas > 9 ? '9+' : noLeidas;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function formatearTiempoRelativoNotif(fechaIso) {
+            const diffMs = Date.now() - new Date(fechaIso).getTime();
+            const min = Math.floor(diffMs / 60000);
+            if (min < 1) return 'Ahora';
+            if (min < 60) return `Hace ${min} min`;
+            const horas = Math.floor(min / 60);
+            if (horas < 24) return `Hace ${horas} h`;
+            const dias = Math.floor(horas / 24);
+            return `Hace ${dias} d`;
+        }
+
+        function renderizarNotificacionesApp() {
+            const cont = document.getElementById('lista-notificaciones-app');
+            if (!cont) return;
+            const lista = obtenerNotificacionesApp();
+            cont.innerHTML = lista.length === 0
+                ? '<p class="text-center text-[11px] text-slate-400 italic py-4">No tienes notificaciones todavía.</p>'
+                : lista.map(n => `
+                    <div class="flex items-start gap-2 p-2 rounded-xl ${n.leida ? 'bg-oscuro' : 'bg-azul/10 border border-azul/30'}">
+                        <i class="fa ${n.icono} text-dorado text-xs mt-0.5"></i>
+                        <div class="min-w-0">
+                            <p class="text-[11px] text-white leading-snug">${n.mensaje}</p>
+                            <p class="text-[9px] text-slate-500 mt-0.5">${formatearTiempoRelativoNotif(n.fecha)}</p>
+                        </div>
+                    </div>`).join('');
+        }
+
+        // Abre/cierra el panel y marca todo como leído al abrirlo (así se apaga el globito rojo).
+        function alternarPanelNotificacionesApp() {
+            const panel = document.getElementById('panel-notificaciones-app');
+            if (!panel) return;
+            const seVaAbrir = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden');
+            if (seVaAbrir) {
+                renderizarNotificacionesApp();
+                const lista = obtenerNotificacionesApp().map(n => ({ ...n, leida: true }));
+                if (usuarioActual) localStorage.setItem(`notificaciones_app_${usuarioActual}`, JSON.stringify(lista));
+                actualizarBadgeNotificacionesApp();
+            }
+        }
+
+        function limpiarNotificacionesApp() {
+            if (!usuarioActual) return;
+            localStorage.setItem(`notificaciones_app_${usuarioActual}`, JSON.stringify([]));
+            renderizarNotificacionesApp();
+            actualizarBadgeNotificacionesApp();
+        }
+
+        // Cierra el panel si el usuario toca afuera de él.
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('panel-notificaciones-app');
+            const btn = document.getElementById('btn-campanita-notif');
+            if (!panel || panel.classList.contains('hidden')) return;
+            if (!panel.contains(e.target) && !btn.contains(e.target)) panel.classList.add('hidden');
+        });
+
         function enviarNotificacionTelegram(mensaje) {
             const token = localStorage.getItem('telegram_bot_token') || document.getElementById('telegram-bot-token')?.value;
             const chatId = localStorage.getItem('telegram_chat_id') || document.getElementById('telegram-chat-id')?.value;
@@ -3182,6 +3343,7 @@
 
         function actualizarInterfazUsuario() {
             if (!usuarioActual) return;
+            actualizarBadgeNotificacionesApp();
             
             saldo = parseInt(localStorage.getItem(`saldo_${usuarioActual}`)) || 100;
             gemas = parseInt(localStorage.getItem(`gemas_${usuarioActual}`)) || 0;
@@ -3386,6 +3548,7 @@
             }
             if (subioDeNivel) {
                 enviarNotificacionTelegram(`¡El usuario ${usuarioActual} subió a VIP ${nivelVipUsuario}! 👑`);
+                agregarNotificacionApp(`👑 ¡Subiste a VIP ${nivelVipUsuario}!`, 'fa-crown');
             } else if (nivelVipUsuario >= 50) {
                 expVipUsuario = Math.min(expVipUsuario, nivelVipUsuario * 1000);
             }
@@ -3487,6 +3650,7 @@
             renderizarVistasGP(); 
             alert(`🎉 ¡Recompensa de Meta GP reclamada (+${meta.recompensas} monedas)!`);
             enviarNotificacionTelegram(`El usuario ${usuarioActual} reclamó la Meta GP #${idx + 1} (+${meta.recompensas} monedas) 🪙`);
+            agregarNotificacionApp(`🪙 ¡Reclamaste la Meta GP #${idx + 1}! +${meta.recompensas} monedas`, 'fa-star');
         }
 
         function renderizarVistasGM() {
@@ -3567,6 +3731,7 @@
             renderizarVistasGM(); 
             alert(`🎉 ¡Recompensa de Mata al GM reclamada (+${meta.recompensas} monedas)!`);
             enviarNotificacionTelegram(`El usuario ${usuarioActual} reclamó el Desafío GM #${idx + 1} (+${meta.recompensas} monedas) ⚔️`);
+            agregarNotificacionApp(`⚔️ ¡Reclamaste el Desafío GM #${idx + 1}! +${meta.recompensas} monedas`, 'fa-shield');
         }
         
 
@@ -3624,6 +3789,7 @@
                 if(btn) btn.disabled = false;
                 girandoRuleta = false;
                 enviarNotificacionTelegram(`El usuario ${usuarioActual} ganó ${premioGanado.monedas} monedas en la Ruleta Patrias 🎡`);
+                agregarNotificacionApp(`🎡 ¡Ganaste ${premioGanado.monedas} monedas en la Ruleta Patrias!`, 'fa-dharmachakra');
             }, 4000);
         }
 
@@ -3783,6 +3949,7 @@
                         document.getElementById(`casillero-trag-${indiceFinal}`)?.classList.add('casillero-trag-bonus-activo');
                         if(resTrag) { resTrag.classList.remove('hidden'); resTrag.innerHTML = `<span class="text-dorado font-black">🎁 ¡BONUS! Encendiendo racha de LEDs…</span>`; }
                         enviarNotificacionTelegram(`¡BONUS! El usuario ${usuarioActual} activó el Bonus del Tragamonedas VIP 🎁`);
+                        agregarNotificacionApp('🎁 ¡Activaste el Bonus del Tragamonedas VIP!', 'fa-gift');
                         setTimeout(() => ejecutarBonusLED(configTragamonedas.premio || 100), 500);
                     } else {
                         const premioBase = VALORES_SIMBOLOS_TRAG[simbolo] || 10;
@@ -3898,6 +4065,7 @@
                     setTimeout(() => {
                         document.querySelectorAll('.casillero-trag-bonus-led').forEach(el => el.classList.remove('casillero-trag-bonus-led'));
                         enviarNotificacionTelegram(`¡BONUS de LEDs! ${usuarioActual} acumuló ${premioAcumulado} monedas antes de Bolas de la Suerte 🎁`);
+                        agregarNotificacionApp(`🎁 ¡Acumulaste ${premioAcumulado} monedas en el Bonus de LEDs!`, 'fa-gift');
                         setTimeout(() => iniciarMinijuegoBolas(premioAcumulado || premioBase), 400);
                     }, 500);
                 }
@@ -3960,7 +4128,7 @@
                 const multiplicador = multiplicadores[casillero];
                 const premioFinal = Math.round(premioBonusPendiente * multiplicador);
                 agregarExpUsuario(30);
-                if(premioFinal > 0) enviarNotificacionTelegram(`${usuarioActual} ganó ${premioFinal} monedas en Bolas de la Suerte 🔴`);
+                if(premioFinal > 0) { enviarNotificacionTelegram(`${usuarioActual} ganó ${premioFinal} monedas en Bolas de la Suerte 🔴`); agregarNotificacionApp(`🔴 ¡Ganaste ${premioFinal} monedas en Bolas de la Suerte!`, 'fa-circle-dot'); }
                 mostrarResultadoConDoblar(premioFinal, `🎉 Cayó en x${multiplicador}.`, 'resultado-bolas');
                 if(btnContinuar) btnContinuar.classList.remove('hidden');
             }, 2100);
@@ -4057,6 +4225,7 @@
                         resultado.innerHTML = `<span class="text-dorado">⚽ ¡GOL! Ganaste "${premio.nombre}" (+${premio.monedas} monedas)</span>`;
                     }
                     enviarNotificacionTelegram(`${usuarioActual} pateó y ganó "${premio.nombre}" (+${premio.monedas} monedas) en el minijuego de Fútbol ⚽`);
+                    agregarNotificacionApp(`⚽ ¡Ganaste "${premio.nombre}" en Fútbol! +${premio.monedas} monedas`, 'fa-futbol');
 
                     const restantes = Math.max(0, 2 - data.usos);
                     const txt = document.getElementById('futbol-mini-intentos-txt');
@@ -4120,6 +4289,7 @@
                 }
 
                 enviarNotificacionTelegram(`El usuario ${usuarioActual} atrapó "${premio.nombre}" en la Garra de Premios (+${premio.monedas} monedas) 🎮`);
+                agregarNotificacionApp(`🎮 ¡Atrapaste "${premio.nombre}" en la Garra! +${premio.monedas} monedas`, 'fa-gamepad');
 
                 if(btn) btn.disabled = false;
                 jugandoGarra = false;
@@ -4298,6 +4468,7 @@
 
             alert(`🎉 ¡Compra de "${compraPendiente.prod.nombre}" realizada con éxito!`);
             enviarNotificacionTelegramConImagen(`El usuario ${usuarioActual} compró "${compraPendiente.prod.nombre}" en la Tienda VIP 🛍️`, compraPendiente.prod.imagen);
+            agregarNotificacionApp(`🛍️ ¡Compraste "${compraPendiente.prod.nombre}" en la Tienda VIP!`, 'fa-bag-shopping');
             cerrarModalConfirmarCompra();
             renderizarTiendaVista();
         }
@@ -4744,13 +4915,160 @@
             cargardatosFormularioChampions();
         }
 
+        // Antes de limpiar la Gran Final para una nueva edición, si ya hay un campeón definido
+        // (alguien con más marcador que el otro), lo guardamos en el historial de campeones.
         function limpiarFinalChampionsAdmin() {
+            const a = datosChampionsFinal[0] || { nombre: '', score: 0 };
+            const b = datosChampionsFinal[1] || { nombre: '', score: 0 };
+            if (a.nombre && b.nombre && a.score !== b.score) {
+                const campeon = a.score > b.score ? a.nombre : b.nombre;
+                guardarCampeonEnHistorial(campeon);
+            }
             datosChampionsFinal = [{ nombre: '', score: 0 }, { nombre: '', score: 0 }];
             cargardatosFormularioChampions();
         }
 
+        function obtenerNovedadesApp() {
+            try { return JSON.parse(localStorage.getItem('novedades_app')) || []; }
+            catch(e) { return []; }
+        }
+
+        function guardarNovedadesApp(lista) {
+            localStorage.setItem('novedades_app', JSON.stringify(lista.slice(0, 20)));
+        }
+
+        // Publica sola la novedad de la versión actual (NOVEDAD_VERSION_ACTUAL), una sola vez
+        // por versión — así no hay que ir a escribirla a mano en el panel admin cada vez.
+        function registrarNovedadAutomaticaDeVersion() {
+            if (!NOVEDAD_VERSION_ACTUAL || !NOVEDAD_VERSION_ACTUAL.titulo) return;
+            const lista = obtenerNovedadesApp();
+            const yaExiste = lista.some(n => n.version === VERSION_APP_ACTUAL);
+            if (yaExiste) return;
+            lista.unshift({
+                titulo: NOVEDAD_VERSION_ACTUAL.titulo,
+                descripcion: NOVEDAD_VERSION_ACTUAL.descripcion || '',
+                fecha: new Date().toISOString(),
+                version: VERSION_APP_ACTUAL,
+                automatica: true
+            });
+            guardarNovedadesApp(lista);
+        }
+
+        // Agrega una novedad desde el panel admin (queda primera en la lista) y refresca ambas vistas.
+        function agregarNovedadAdmin() {
+            const tituloEl = document.getElementById('admin-novedad-titulo');
+            const descEl = document.getElementById('admin-novedad-desc');
+            const titulo = tituloEl?.value?.trim();
+            const desc = descEl?.value?.trim();
+            if (!titulo) { alert('Escribe un título para la novedad.'); return; }
+
+            const lista = obtenerNovedadesApp();
+            lista.unshift({ titulo, descripcion: desc || '', fecha: new Date().toISOString() });
+            guardarNovedadesApp(lista);
+
+            tituloEl.value = '';
+            descEl.value = '';
+            renderizarListaNovedadesAdmin();
+        }
+
+        function eliminarNovedadAdmin(idx) {
+            const lista = obtenerNovedadesApp();
+            lista.splice(idx, 1);
+            guardarNovedadesApp(lista);
+            renderizarListaNovedadesAdmin();
+        }
+
+        function renderizarListaNovedadesAdmin() {
+            const cont = document.getElementById('admin-lista-novedades');
+            if (!cont) return;
+            const lista = obtenerNovedadesApp();
+            cont.innerHTML = lista.length === 0
+                ? '<p class="text-[10px] text-slate-500 text-center py-3">Aún no hay novedades publicadas.</p>'
+                : lista.map((n, idx) => {
+                    const fecha = new Date(n.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'short', year: 'numeric' });
+                    return `
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde flex items-start justify-between gap-2 text-xs">
+                        <div class="min-w-0">
+                            <span class="font-black text-white block">${n.titulo}</span>
+                            ${n.descripcion ? `<span class="text-[10px] text-slate-400 block mt-0.5">${n.descripcion}</span>` : ''}
+                            <span class="text-[9px] text-slate-500 block mt-1">${fecha}</span>
+                        </div>
+                        <button onclick="eliminarNovedadAdmin(${idx})" class="px-2.5 py-1.5 bg-rojo/20 text-rojo border border-rojo/40 font-bold rounded-xl text-[10px] shrink-0">Eliminar</button>
+                    </div>`;
+                }).join('');
+        }
+
+        function obtenerHistorialCampeones() {
+            try { return JSON.parse(localStorage.getItem('historial_campeones_champions_app')) || []; }
+            catch(e) { return []; }
+        }
+
+        // Agrega un campeón al historial (el más reciente queda primero) y lo sincroniza globalmente.
+        function guardarCampeonEnHistorial(nombreCampeon) {
+            const historial = obtenerHistorialCampeones();
+            historial.unshift({
+                nombre: nombreCampeon,
+                imagen: imagenPremioChampions || '',
+                fecha: new Date().toISOString()
+            });
+            const historialRecortado = historial.slice(0, 10);
+            localStorage.setItem('historial_campeones_champions_app', JSON.stringify(historialRecortado));
+        }
+
+        // Pinta la ventana de Información: novedades + último campeón + historial reciente.
+        function renderizarModalInformacion() {
+            const novedades = obtenerNovedadesApp();
+            const contNovedades = document.getElementById('contenedor-novedades-info');
+            if (contNovedades) {
+                contNovedades.innerHTML = novedades.length === 0
+                    ? '<p class="text-xs text-slate-400 italic">No hay novedades publicadas por ahora.</p>'
+                    : novedades.slice(0, 8).map(n => {
+                        const fecha = new Date(n.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'short', year: 'numeric' });
+                        return `<div class="p-2.5 bg-medio rounded-xl border border-borde">
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="font-bold text-white text-xs">${n.titulo}</span>
+                                <span class="text-[9px] text-slate-500 shrink-0">${fecha}</span>
+                            </div>
+                            ${n.descripcion ? `<p class="text-[10px] text-slate-400 mt-0.5">${n.descripcion}</p>` : ''}
+                        </div>`;
+                    }).join('');
+            }
+
+            const historial = obtenerHistorialCampeones();
+            const contUltimo = document.getElementById('contenedor-ultimo-campeon-info');
+            const contHistorial = document.getElementById('contenedor-historial-campeones-info');
+            if (!contUltimo || !contHistorial) return;
+
+            if (historial.length === 0) {
+                contUltimo.innerHTML = '<p class="text-xs text-slate-400 italic">Todavía no hay un campeón registrado.</p>';
+                contHistorial.innerHTML = '<p class="text-xs text-slate-400 italic">Aún no hay historial de campeones.</p>';
+                return;
+            }
+
+            const ultimo = historial[0];
+            const fechaUltimo = new Date(ultimo.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' });
+            contUltimo.innerHTML = `
+                ${ultimo.imagen ? `<img src="${ultimo.imagen}" class="w-14 h-14 rounded-xl object-cover border border-dorado/40 shrink-0">` : `<div class="w-14 h-14 rounded-xl bg-dorado/20 flex items-center justify-center text-dorado text-2xl shrink-0"><i class="fa fa-crown"></i></div>`}
+                <div>
+                    <p class="font-black text-white text-sm">🎉 ${ultimo.nombre}</p>
+                    <p class="text-[10px] text-slate-400">Campeón el ${fechaUltimo}</p>
+                </div>`;
+
+            const anteriores = historial.slice(1);
+            contHistorial.innerHTML = anteriores.length === 0
+                ? '<p class="text-xs text-slate-400 italic">Aún no hay más campeones anteriores.</p>'
+                : anteriores.map(h => {
+                    const fecha = new Date(h.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'short', year: 'numeric' });
+                    return `<div class="flex items-center justify-between p-2 bg-medio rounded-xl border border-borde">
+                        <span class="text-white font-bold text-xs"><i class="fa fa-medal text-slate-400"></i> ${h.nombre}</span>
+                        <span class="text-[10px] text-slate-400">${fecha}</span>
+                    </div>`;
+                }).join('');
+        }
+
         // ===== VISIBILIDAD DE TARJETAS DEL MENÚ (ocultar/mostrar sin eliminar) =====
         const TARJETAS_MENU_CONFIGURABLES = [
+            { id: 'card-informacion', nombre: 'Información' },
             { id: 'card-metas-gp', nombre: 'Metas GP' },
             { id: 'card-mata-gm', nombre: 'Mata GM' },
             { id: 'card-top-semanal', nombre: 'Top Semanal' },
