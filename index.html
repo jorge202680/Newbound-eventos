@@ -883,7 +883,10 @@
                 </div>
                 <p class="text-xs text-slate-400">Participa en el torneo de eliminación directa con llaves interactivas de Cuartos, Semis y Gran Final. ¡Inscribete y gana premios épicos!</p>
                 <div class="p-3 bg-oscuro rounded-2xl border border-borde flex items-center justify-between text-xs">
-                    <span class="text-slate-300 font-bold">Estado: <strong class="text-dorado">Fase de Inscripción Abierta</strong></span>
+                    <div>
+                        <span class="text-slate-300 font-bold">Estado: <strong class="text-dorado">Fase de Inscripción Abierta</strong></span>
+                        <div id="cronometro-champions-inscripcion" class="text-[9px] text-slate-400 font-mono mt-0.5"></div>
+                    </div>
                     <button onclick="abrirModalInscripcionChampions()" class="px-4 py-2 bg-azul text-white font-black rounded-xl shadow hover:opacity-90 transition">Inscribirse</button>
                 </div>
             </div>
@@ -1193,6 +1196,7 @@
                     <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">TP</span><span id="info-val-tp" class="font-bold text-white">-</span></div>
                     <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Fecha y Hora</span><span id="info-val-fechahora" class="font-bold text-white">-</span></div>
                     <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Servidor / Sala</span><span id="info-val-server" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-rojo/40 col-span-2"><span class="text-slate-400 block text-[10px] uppercase">⏰ Cierre de Inscripciones</span><span id="info-val-cierre-inscripcion" class="font-bold text-white">-</span></div>
                 </div>
             </div>
 
@@ -1636,6 +1640,15 @@
                             <div><label class="text-slate-400 block mb-1">Fecha y Hora:</label><input type="datetime-local" id="admin-info-fechahora" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                             <div><label class="text-slate-400 block mb-1">Servidor / Sala:</label><input type="text" id="admin-info-server" placeholder="Ej. Server VIP 1" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                         </div>
+                    </div>
+
+                    <div class="p-4 bg-oscuro rounded-2xl border border-rojo/40 space-y-3">
+                        <h4 class="font-black text-xs text-rojo uppercase tracking-wider">⏰ Cierre de Inscripciones</h4>
+                        <div>
+                            <label class="text-slate-400 block mb-1 text-xs">Hora Límite de Inscripción:</label>
+                            <input type="datetime-local" id="admin-info-cierre-inscripcion" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        </div>
+                        <p class="text-[10px] text-slate-400">Al llegar esta hora, los cupos vacíos de Cuartos de Final se rellenan automáticamente con "BOSS" y cada enfrentamiento recibe su hora de juego (5 min de diferencia entre cada uno, intercalados a partir de esta hora).</p>
                     </div>
                 </div>
 
@@ -2515,7 +2528,8 @@
         let imagenFondoChampions = localStorage.getItem('imagen_fondo_champions_app') || '';
         let tercerPuestoChampions = localStorage.getItem('tercer_puesto_champions_app') || '';
         
-        let infoTorneoChampions = JSON.parse(localStorage.getItem('info_torneo_champions_app')) || { modo: 'Deathmatch 1v1', avatar: 'Libre', aire: 'Normal', movil: 'Aleatorio', mapa: 'Grand Canyon', tp: 'Permitido', fechahora: '', server: 'Server VIP 1' };
+        let infoTorneoChampions = JSON.parse(localStorage.getItem('info_torneo_champions_app')) || { modo: 'Deathmatch 1v1', avatar: 'Libre', aire: 'Normal', movil: 'Aleatorio', mapa: 'Grand Canyon', tp: 'Permitido', fechahora: '', server: 'Server VIP 1', cierreInscripcion: '' };
+        if (infoTorneoChampions.cierreInscripcion === undefined) infoTorneoChampions.cierreInscripcion = '';
 
         const metasGPValores = [50000, 100000, 150000, 200000, 300000, 400000, 500000];
         const metasGMValores = [5, 10, 15, 50, 80];
@@ -4182,6 +4196,7 @@
         }
 
         function renderizarCuadroChampions() {
+            verificarCierreInscripcionChampions();
             const cIzq = document.getElementById('bracket-cuartos-izq');
             const cDer = document.getElementById('bracket-cuartos-der');
             const sIzq = document.getElementById('bracket-semi-izq');
@@ -4196,7 +4211,9 @@
                     const b = datosChampions[i*2+1] || { nombre: '', score: 0 };
                     const ganaA = !!(a.nombre && b.nombre && a.score > b.score);
                     const ganaB = !!(a.nombre && b.nombre && b.score > a.score);
-                    html += `<div class="mb-3">${filaEquipoBracket(a.nombre, a.score, ganaA, !a.nombre)}${filaEquipoBracket(b.nombre, b.score, ganaB, !b.nombre)}</div>`;
+                    const horaMatch = calcularHoraEnfrentamiento(i);
+                    const horaHtml = horaMatch ? `<div class="text-[9px] text-dorado font-bold text-center mb-1">🕐 ${horaMatch.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>` : '';
+                    html += `<div class="mb-3">${horaHtml}${filaEquipoBracket(a.nombre, a.score, ganaA, !a.nombre)}${filaEquipoBracket(b.nombre, b.score, ganaB, !b.nombre)}</div>`;
                 });
                 cont.innerHTML = html;
             }
@@ -4270,6 +4287,15 @@
             document.getElementById('info-val-tp').textContent = infoTorneoChampions.tp;
             document.getElementById('info-val-fechahora').textContent = infoTorneoChampions.fechahora ? new Date(infoTorneoChampions.fechahora).toLocaleString() : 'Por Definir';
             document.getElementById('info-val-server').textContent = infoTorneoChampions.server;
+            const elCierre = document.getElementById('info-val-cierre-inscripcion');
+            if(elCierre) {
+                if(infoTorneoChampions.cierreInscripcion) {
+                    const cierreMs = new Date(infoTorneoChampions.cierreInscripcion).getTime();
+                    elCierre.textContent = new Date(infoTorneoChampions.cierreInscripcion).toLocaleString() + (Date.now() >= cierreMs ? ' (Cerrado)' : '');
+                } else {
+                    elCierre.textContent = 'Por Definir';
+                }
+            }
         }
 
         function poblarSelectPronosticoChampions() {
@@ -4316,7 +4342,46 @@
             cerrarVentana('modal-inscripcion-champions');
         }
 
+        // ===== CIERRE DE INSCRIPCIÓN AUTOMÁTICO (auto-relleno con BOSS + horarios de enfrentamientos) =====
+        function calcularHoraEnfrentamiento(indiceMatch) {
+            if(!infoTorneoChampions.cierreInscripcion) return null;
+            const base = new Date(infoTorneoChampions.cierreInscripcion).getTime();
+            if(isNaN(base)) return null;
+            return new Date(base + indiceMatch * 5 * 60000);
+        }
+
+        function verificarCierreInscripcionChampions() {
+            const cierre = infoTorneoChampions.cierreInscripcion;
+            if(!cierre) return;
+            const cierreMs = new Date(cierre).getTime();
+            if(isNaN(cierreMs) || Date.now() < cierreMs) return;
+
+            const flagKey = `boss_autollenado_champions_${cierreMs}`;
+            if(localStorage.getItem(flagKey) === 'true') return;
+            localStorage.setItem(flagKey, 'true');
+
+            let huboRelleno = false;
+            datosChampions.forEach(slot => {
+                if(!slot.nombre) { slot.nombre = 'BOSS'; slot.score = 0; huboRelleno = true; }
+            });
+
+            if(huboRelleno) {
+                localStorage.setItem('cuartos_champions_v2_app', JSON.stringify(datosChampions));
+                if(typeof renderizarCuadroChampions === 'function') renderizarCuadroChampions();
+                if(typeof cargardatosFormularioChampions === 'function') cargardatosFormularioChampions();
+                if(typeof enviarNotificacionTelegram === 'function') enviarNotificacionTelegram('⏰ Se cerraron las inscripciones del Torneo Champions Supreme. Los cupos vacíos se completaron automáticamente con BOSS.');
+            }
+        }
+
         function enviarInscripcionChampions() {
+            verificarCierreInscripcionChampions();
+            const cierre = infoTorneoChampions.cierreInscripcion;
+            if(cierre && Date.now() >= new Date(cierre).getTime()) {
+                alert('⚠️ El tiempo de inscripción para este torneo ya finalizó.');
+                cerrarModalInscripcionChampions();
+                return;
+            }
+
             const nick = document.getElementById('input-nick-inscripcion')?.value.trim();
             if(!nick) {
                 alert('⚠️ Ingresa un nick válido.');
@@ -4545,6 +4610,7 @@
             if(document.getElementById('admin-info-mapa')) document.getElementById('admin-info-mapa').value = infoTorneoChampions.mapa;
             if(document.getElementById('admin-info-tp')) document.getElementById('admin-info-tp').value = infoTorneoChampions.tp;
             if(document.getElementById('admin-info-fechahora')) document.getElementById('admin-info-fechahora').value = infoTorneoChampions.fechahora;
+            if(document.getElementById('admin-info-cierre-inscripcion')) document.getElementById('admin-info-cierre-inscripcion').value = infoTorneoChampions.cierreInscripcion || '';
             if(document.getElementById('admin-info-server')) document.getElementById('admin-info-server').value = infoTorneoChampions.server;
 
             if(document.getElementById('admin-champ-premio-img')) document.getElementById('admin-champ-premio-img').value = imagenPremioChampions || '';
@@ -5276,7 +5342,9 @@
             infoTorneoChampions.tp = document.getElementById('admin-info-tp')?.value || infoTorneoChampions.tp;
             infoTorneoChampions.fechahora = document.getElementById('admin-info-fechahora')?.value || infoTorneoChampions.fechahora;
             infoTorneoChampions.server = document.getElementById('admin-info-server')?.value || infoTorneoChampions.server;
+            infoTorneoChampions.cierreInscripcion = document.getElementById('admin-info-cierre-inscripcion')?.value || '';
             localStorage.setItem('info_torneo_champions_app', JSON.stringify(infoTorneoChampions));
+            verificarCierreInscripcionChampions();
 
             premiosRuleta.forEach((premio, i) => {
                 const nom = document.getElementById(`admin-ruleta-nombre-${i}`)?.value;
@@ -5444,6 +5512,22 @@
                     el.className = 'text-[9px] text-rojo font-mono mt-0.5';
                 }
             });
+
+            const elChamp = document.getElementById('cronometro-champions-inscripcion');
+            if(elChamp) {
+                const cierreStr = infoTorneoChampions.cierreInscripcion;
+                if(!cierreStr) { elChamp.textContent = ''; }
+                else {
+                    const cierre = new Date(cierreStr).getTime();
+                    if(ahora < cierre) {
+                        elChamp.textContent = `⏳ Cierra en ${formatoDuracion(cierre - ahora)}`;
+                        elChamp.className = 'text-[9px] text-azul font-mono mt-0.5 font-bold';
+                    } else {
+                        elChamp.textContent = `🔒 Inscripciones cerradas (cupos vacíos completados con BOSS)`;
+                        elChamp.className = 'text-[9px] text-rojo font-mono mt-0.5';
+                    }
+                }
+            }
         }
 
         // ===== INSIGNIA DE BONUS EN EL HEADER: multiplicador VIP activo =====
@@ -6093,9 +6177,11 @@
             actualizarBadgesTarjetas();
             actualizarCronometrosTarjetas();
             renderizarBoostsFlotantes();
+            verificarCierreInscripcionChampions();
             setInterval(actualizarBadgesTarjetas, 15000);
             setInterval(actualizarCronometrosTarjetas, 1000);
             setInterval(renderizarBoostsFlotantes, 1000);
+            setInterval(verificarCierreInscripcionChampions, 15000);
         };
     </script>
 </body>
