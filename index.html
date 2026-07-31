@@ -3468,6 +3468,16 @@
                 alert(`🔒 Solo ${item.nick} puede reclamar este premio.`);
                 return;
             }
+            // El ranking es en vivo y puede seguir cambiando: solo se puede reclamar
+            // una vez que termine el horario configurado para el Top Semanal.
+            const finStr = localStorage.getItem('horario_fin_top');
+            if (finStr) {
+                const tiempoFin = new Date(finStr).getTime();
+                if (Date.now() < tiempoFin) {
+                    alert(`🔒 Todavía no puedes reclamar: el Top Semanal termina el ${new Date(tiempoFin).toLocaleString()}. El ranking puede seguir cambiando hasta entonces.`);
+                    return;
+                }
+            }
             const semanaId = obtenerSemanaId();
             const claveReclamo = `reclamado_top_${usuarioActual}_${semanaId}_${pos}`;
             if (localStorage.getItem(claveReclamo) === 'true') {
@@ -5911,12 +5921,16 @@
                 const tieneJugador = item.nick && item.nick !== 'Sin datos';
                 const esMio = tieneJugador && usuarioActual && item.nick.toLowerCase() === usuarioActual.toLowerCase();
                 const yaReclamado = esMio && localStorage.getItem(`reclamado_top_${usuarioActual}_${semanaId}_${item.pos}`) === 'true';
+                const finStr = localStorage.getItem('horario_fin_top');
+                const eventoTerminado = !finStr || Date.now() >= new Date(finStr).getTime();
                 let btnHtml = '';
                 if (tieneJugador) {
                     if (yaReclamado) {
                         btnHtml = `<span class="text-[10px] text-verde font-bold block mt-1">✅ Reclamado</span>`;
-                    } else if (esMio) {
+                    } else if (esMio && eventoTerminado) {
                         btnHtml = `<button onclick="reclamarPremioTopSemanal(${item.pos})" class="mt-1 px-2 py-1 bg-verde text-black font-black rounded-lg text-[10px] shadow animate-pulse">✨ Reclamar</button>`;
+                    } else if (esMio && !eventoTerminado) {
+                        btnHtml = `<span class="text-[9px] text-naranja font-bold block mt-1">⏳ Se reclama al terminar: ${new Date(finStr).toLocaleDateString('es-PE', {day:'numeric', month:'short'})} ${new Date(finStr).toLocaleTimeString('es-PE', {hour:'2-digit', minute:'2-digit'})}</span>`;
                     } else {
                         btnHtml = `<span class="text-[9px] text-slate-500 block mt-1">Solo ${item.nick} puede reclamar</span>`;
                     }
