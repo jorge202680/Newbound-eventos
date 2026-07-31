@@ -1712,6 +1712,15 @@
 
             <!-- TAB GENERAL -->
             <div id="tab-contenido-general" class="space-y-4">
+                <div class="p-4 bg-oscuro rounded-2xl border border-rojo/40 space-y-3">
+                    <h4 class="font-black text-xs text-rojo uppercase tracking-wider"><i class="fa fa-shield-halved"></i> Seguridad — Contraseña de Administrador</h4>
+                    <p class="text-[10px] text-slate-400">Esta es la contraseña real que protege el panel (la del modal "Acceso Restringido"), no la de tu cuenta de jugador.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="space-y-1"><label class="text-slate-400 block">Nueva contraseña:</label><input type="password" id="input-nueva-password-admin" placeholder="Mínimo 6 caracteres" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                        <div class="space-y-1"><label class="text-slate-400 block">Repetir nueva contraseña:</label><input type="password" id="input-nueva-password-admin-confirmar" placeholder="Repite la contraseña" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                    </div>
+                    <button onclick="cambiarPasswordAdminNube()" class="w-full py-2.5 bg-rojo text-white font-black rounded-xl shadow hover:opacity-90 transition"><i class="fa fa-key"></i> Cambiar Contraseña de Administrador</button>
+                </div>
                 <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
                     <h4 class="font-black text-xs text-dorado uppercase tracking-wider">Apariencia y Horarios de Eventos</h4>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -2270,7 +2279,7 @@
  // Nombre de USUARIO (el mismo con el que entras a la app, no el correo de arriba)
  // que debe ver el botón de administrador. Solo quien esté logueado con este
  // nombre de usuario en la app lo verá — los demás usuarios ni lo notan.
- const NOMBRE_USUARIO_ADMIN = "TuNombreDeUsuario";
+ const NOMBRE_USUARIO_ADMIN = "admin";
 
  function actualizarVisibilidadBotonAdmin() {
      const esAdmin = usuarioActual && usuarioActual.toLowerCase() === NOMBRE_USUARIO_ADMIN.toLowerCase();
@@ -2392,6 +2401,40 @@
         function abrirPanel() {
             abrirVentana('panel-admin-modal');
             cambiarTabAdmin('general');
+        }
+
+        function cambiarPasswordAdminNube() {
+            const nueva = document.getElementById('input-nueva-password-admin')?.value || '';
+            const confirmar = document.getElementById('input-nueva-password-admin-confirmar')?.value || '';
+
+            if (nueva.length < 6) {
+                alert('❌ La contraseña debe tener al menos 6 caracteres.');
+                return;
+            }
+            if (nueva !== confirmar) {
+                alert('❌ Las dos contraseñas no coinciden.');
+                return;
+            }
+            if (!authFirebase || !authFirebase.currentUser) {
+                alert('❌ No hay una sesión de administrador activa. Cierra y vuelve a abrir el panel con tu contraseña actual antes de cambiarla.');
+                return;
+            }
+            authFirebase.currentUser.updatePassword(nueva)
+                .then(() => {
+                    alert('✅ Contraseña de administrador actualizada. Úsala la próxima vez que entres al panel.');
+                    const inp1 = document.getElementById('input-nueva-password-admin');
+                    const inp2 = document.getElementById('input-nueva-password-admin-confirmar');
+                    if (inp1) inp1.value = '';
+                    if (inp2) inp2.value = '';
+                })
+                .catch(err => {
+                    console.warn('No se pudo cambiar la contraseña de admin:', err);
+                    if (err.code === 'auth/requires-recent-login') {
+                        alert('⚠️ Por seguridad, Firebase pide que hayas iniciado sesión hace poco para cambiar la contraseña. Cierra el panel, vuelve a abrirlo con tu contraseña actual, e inténtalo de nuevo enseguida.');
+                    } else {
+                        alert(`❌ No se pudo cambiar la contraseña (${err.message || err.code || 'error de conexión'}).`);
+                    }
+                });
         }
 
         function cerrarPanel() {
