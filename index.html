@@ -14,6 +14,7 @@
 <!-- Firebase (SDK compat: el resto del código usa firebase.firestore()) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -737,7 +738,7 @@
             <button onclick="alternarMusicaUsuario()" id="btn-musica-toggle" class="w-9 h-9 rounded-xl bg-claro border border-borde text-slate-300 hover:text-white flex items-center justify-center transition shadow-sm" title="Música">
                 <i class="fa fa-volume-high text-xs" id="icono-musica-toggle"></i>
             </button>
-            <button onclick="solicitarPasswordAdmin()" class="w-9 h-9 rounded-xl bg-claro border border-borde text-slate-300 hover:text-white flex items-center justify-center transition shadow-sm" title="Panel de Administrador">
+            <button onclick="solicitarPasswordAdmin()" class="btn-acceso-admin-app hidden w-9 h-9 rounded-xl bg-claro border border-borde text-slate-300 hover:text-white flex items-center justify-center transition shadow-sm" title="Panel de Administrador">
                 <i class="fa fa-gear text-xs"></i>
             </button>
             <button onclick="solicitarCerrarSesion()" class="w-9 h-9 rounded-xl bg-claro border border-borde text-slate-300 hover:text-rojo hover:border-rojo flex items-center justify-center transition shadow-sm" title="Salir">
@@ -2262,7 +2263,21 @@
     </footer>
 
     <script>
- const PASSWORD_ADMIN_SECRETA = "admin123";
+ // Reemplaza esto por el correo EXACTO del usuario admin que crees en
+ // Firebase → Authentication → Users. El correo no es secreto (solo identifica
+ // la cuenta); la contraseña real la valida Firebase, no este archivo.
+ const ADMIN_EMAIL_SECRETO = "tu-correo-admin@ejemplo.com";
+ // Nombre de USUARIO (el mismo con el que entras a la app, no el correo de arriba)
+ // que debe ver el botón de administrador. Solo quien esté logueado con este
+ // nombre de usuario en la app lo verá — los demás usuarios ni lo notan.
+ const NOMBRE_USUARIO_ADMIN = "TuNombreDeUsuario";
+
+ function actualizarVisibilidadBotonAdmin() {
+     const esAdmin = usuarioActual && usuarioActual.toLowerCase() === NOMBRE_USUARIO_ADMIN.toLowerCase();
+     document.querySelectorAll('.btn-acceso-admin-app').forEach(el => {
+         el.classList.toggle('hidden', !esAdmin);
+     });
+ }
 
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
@@ -2353,12 +2368,25 @@
 
         function verificarPasswordAdmin() {
             const pass = document.getElementById('input-password-admin-val')?.value;
-            if(pass === PASSWORD_ADMIN_SECRETA) {
-                cerrarPasswordAdmin();
-                abrirPanel();
-            } else {
-                alert('❌ Contraseña de Administrador incorrecta.');
+            if (!pass) { alert('❌ Escribe la contraseña.'); return; }
+            if (!firebaseListo || !authFirebase) {
+                alert('❌ No se pudo verificar: la nube no está conectada en este dispositivo.');
+                return;
             }
+            const btnVerificar = document.querySelector('#modal-password-admin button[onclick="verificarPasswordAdmin()"]');
+            if (btnVerificar) { btnVerificar.disabled = true; btnVerificar.textContent = 'Verificando...'; }
+            authFirebase.signInWithEmailAndPassword(ADMIN_EMAIL_SECRETO, pass)
+                .then(() => {
+                    cerrarPasswordAdmin();
+                    abrirPanel();
+                })
+                .catch(err => {
+                    console.warn('Acceso admin denegado:', err);
+                    alert('❌ Contraseña de Administrador incorrecta.');
+                })
+                .finally(() => {
+                    if (btnVerificar) { btnVerificar.disabled = false; btnVerificar.textContent = 'Verificar'; }
+                });
         }
 
         function abrirPanel() {
@@ -2368,6 +2396,9 @@
 
         function cerrarPanel() {
             cerrarVentana('panel-admin-modal');
+            // Cierra también la sesión de Firebase Auth: si no, el permiso de escritura
+            // del admin queda activo en este navegador aunque el panel esté oculto.
+            if (authFirebase) authFirebase.signOut().catch(e => console.warn('No se pudo cerrar sesión admin:', e));
         }
 
         function solicitarCerrarSesion() {
@@ -2537,11 +2568,16 @@
 
         let firebaseListo = false;
         let dbFirebase = null;
+        let authFirebase = null;
         try {
             if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "TU_API_KEY_AQUI" && typeof firebase !== 'undefined') {
                 firebase.initializeApp(firebaseConfig);
                 dbFirebase = firebase.firestore();
                 dbFirebase.settings({ experimentalAutoDetectLongPolling: true, useFetchStreams: false });
+                authFirebase = firebase.auth();
+                // Persistencia solo de esta pestaña/sesión: si cierran el navegador o el dispositivo
+                // es compartido, no queda una sesión de admin abierta esperando a que alguien la use.
+                authFirebase.setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(e => console.warn('No se pudo fijar persistencia de sesión:', e));
                 firebaseListo = true;
             }
         } catch (e) {
@@ -3676,6 +3712,7 @@
 
         function actualizarInterfazUsuario() {
             if (!usuarioActual) return;
+            actualizarVisibilidadBotonAdmin();
             actualizarBadgeNotificacionesApp();
             actualizarBadgesRegaloYMision();
             aplicarTemaColor(localStorage.getItem(`tema_color_${usuarioActual}`) || 'dorado');
@@ -4965,6 +5002,10 @@
         }
 
         function abrirModalInscripcionChampions() {
+            if(usuarioActual && datosChampions.some(d => d.cuenta && d.cuenta === usuarioActual.toLowerCase())) {
+                alert('⚠️ Ya estás inscrito en este torneo con tu cuenta. No puedes registrarte más de una vez.');
+                return;
+            }
             const inputNick = document.getElementById('input-nick-inscripcion');
             if(inputNick) inputNick.value = usuarioActual || '';
             abrirVentana('modal-inscripcion-champions');
@@ -4974,12 +5015,15 @@
             cerrarVentana('modal-inscripcion-champions');
         }
 
-        // ===== CIERRE DE INSCRIPCIÓN AUTOMÁTICO (auto-relleno con BOSS + horarios de enfrentamientos) =====
+        // ===== CIERRE DE INSCRIPCIÓN AUTOMÁTICO (auto-relleno con BOSS + horario de inicio) =====
+        // Todos los partidos de Cuartos (primera ronda) arrancan a la misma hora: la del
+        // cierre de inscripción. El parámetro se mantiene por compatibilidad pero ya no
+        // se usa para escalonar horarios.
         function calcularHoraEnfrentamiento(indiceMatch) {
             if(!infoTorneoChampions.cierreInscripcion) return null;
             const base = new Date(infoTorneoChampions.cierreInscripcion).getTime();
             if(isNaN(base)) return null;
-            return new Date(base + indiceMatch * 5 * 60000);
+            return new Date(base);
         }
 
         function verificarCierreInscripcionChampions() {
@@ -5014,6 +5058,19 @@
                 return;
             }
 
+            if(!usuarioActual) {
+                alert('⚠️ Debes iniciar sesión para inscribirte.');
+                return;
+            }
+
+            // Evita que la misma cuenta ocupe varios cupos registrándose con nombres distintos.
+            const yaInscrito = datosChampions.some(d => d.cuenta && d.cuenta === usuarioActual.toLowerCase());
+            if(yaInscrito) {
+                alert('⚠️ Ya estás inscrito en este torneo con tu cuenta. No puedes registrarte más de una vez.');
+                cerrarModalInscripcionChampions();
+                return;
+            }
+
             const nick = document.getElementById('input-nick-inscripcion')?.value.trim();
             if(!nick) {
                 alert('⚠️ Ingresa un nick válido.');
@@ -5028,6 +5085,7 @@
             }
 
             slotVacio.nombre = nick;
+            slotVacio.cuenta = usuarioActual.toLowerCase();
             localStorage.setItem('cuartos_champions_v2_app', JSON.stringify(datosChampions));
             alert('🎉 ¡Inscripción al Torneo Champions Supreme exitosa!');
             enviarNotificacionTelegram(`¡Nuevo inscrito al Torneo Champions!%0AJugador: ${nick}`);
@@ -5147,7 +5205,10 @@
             for(let i=0; i<8; i++) {
                 const nom = document.getElementById(`admin-cuartos-nombre-${i}`)?.value;
                 const sco = document.getElementById(`admin-cuartos-score-${i}`)?.value;
-                if(nom !== undefined) datosChampions[i].nombre = nom;
+                if(nom !== undefined) {
+                    datosChampions[i].nombre = nom;
+                    if(!nom.trim()) delete datosChampions[i].cuenta; // libera el cupo si el admin borra el nombre
+                }
                 if(sco !== undefined) datosChampions[i].score = parseInt(sco) || 0;
             }
             for(let i=0; i<4; i++) {
