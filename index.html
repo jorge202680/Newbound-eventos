@@ -1493,14 +1493,14 @@
     </div>
 
     <!-- MODAL PASE VIP DE TEMPORADA -->
-    <div id="modal-pase-vip" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
-        <div class="bg-medio border border-morado/40 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <div id="modal-pase-vip" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-2 sm:p-4">
+        <div class="bg-medio border border-morado/40 w-full max-w-5xl rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xl max-h-[94vh] overflow-y-auto">
             <div class="flex justify-between items-center">
                 <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-medal"></i> Pase VIP de Temporada</h3>
                 <button onclick="cerrarVentana('modal-pase-vip')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
             </div>
-            <div id="contenedor-cabecera-pase-vip" class="text-center"></div>
-            <div id="contenedor-niveles-pase-vip" class="space-y-2"></div>
+            <div id="contenedor-cabecera-pase-vip" class="text-center space-y-3"></div>
+            <div id="contenedor-niveles-pase-vip" class="overflow-x-auto pb-2"></div>
         </div>
     </div>
 
@@ -1899,7 +1899,7 @@
                         <i id="seccion-admin-gen-5-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
                     </button>
                     <div id="seccion-admin-gen-5" class="hidden px-4 pb-4 space-y-3">
-                        <p class="text-[10px] text-slate-400">Recompensa = Nivel VIP × "Monedas por nivel". Cada 5 niveles da 1 gema extra.</p>
+                        <p class="text-[10px] text-slate-400">Cada columna es una meta de victorias (WIN) a alcanzar. Por cada meta se configuran 3 recompensas: FREE, PASE y PASE ESPECIAL.</p>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="admin-pase-vip-activo" class="sr-only peer" onchange="guardarConfigPaseVipAdmin()">
                         <div class="w-11 h-6 bg-claro peer-focus:outline-none rounded-full peer peer-checked:bg-morado relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
@@ -1908,9 +1908,15 @@
                     <input type="text" id="admin-pase-vip-nombre" placeholder="Nombre de la temporada (ej: Temporada Fiestas Patrias)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarConfigPaseVipAdmin()">
                     <div class="grid grid-cols-3 gap-2">
                         <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Fecha fin</label><input type="date" id="admin-pase-vip-fecha" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
-                        <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Nivel máx.</label><input type="number" min="1" id="admin-pase-vip-nivelmax" placeholder="30" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
-                        <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Monedas/nivel</label><input type="number" min="1" id="admin-pase-vip-monedasnivel" placeholder="20" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
+                        <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Precio Pase (💎)</label><input type="number" min="0" id="admin-pase-vip-precio-pase" placeholder="50" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
+                        <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Precio Especial (💎)</label><input type="number" min="0" id="admin-pase-vip-precio-especial" placeholder="120" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
                     </div>
+
+                    <div class="flex items-center justify-between pt-2 border-t border-borde/60">
+                        <span class="text-[10px] font-black text-slate-300 uppercase tracking-wider">Metas (columnas de WIN)</span>
+                        <button type="button" onclick="agregarMetaPaseVipAdmin()" class="px-2.5 py-1.5 bg-morado text-white font-bold rounded-lg text-[10px]"><i class="fa fa-plus"></i> Añadir meta</button>
+                    </div>
+                    <div id="contenedor-admin-metas-pase-vip" class="space-y-3"></div>
                     </div>
                 </div>
 
@@ -2649,9 +2655,10 @@
                     document.getElementById('admin-pase-vip-activo').checked = !!configPase.activo;
                     document.getElementById('admin-pase-vip-nombre').value = configPase.nombre || '';
                     document.getElementById('admin-pase-vip-fecha').value = configPase.fechaFin || '';
-                    document.getElementById('admin-pase-vip-nivelmax').value = configPase.nivelMax || 30;
-                    document.getElementById('admin-pase-vip-monedasnivel').value = configPase.monedasPorNivel || 20;
+                    document.getElementById('admin-pase-vip-precio-pase').value = configPase.precioPase ?? 50;
+                    document.getElementById('admin-pase-vip-precio-especial').value = configPase.precioEspecial ?? 120;
                 }
+                if (typeof renderizarAdminMetasPaseVip === 'function') renderizarAdminMetasPaseVip();
 
                 actualizarEstadoOfertaAdmin();
                 renderizarListaEventosTematicosAdmin();
@@ -3150,6 +3157,11 @@
         let cristales = usuarioActual ? (parseInt(localStorage.getItem(`cristales_${usuarioActual}`)) || 0) : 0;
         let nivelVipUsuario = usuarioActual ? (parseInt(localStorage.getItem(`nivel_vip_${usuarioActual}`)) || 1) : 1;
         let expVipUsuario = usuarioActual ? (parseInt(localStorage.getItem(`exp_vip_${usuarioActual}`)) || 0) : 0;
+
+        // ===== VICTORIAS TOTALES (avance del Pase VIP por metas) =====
+        let victoriasUsuario = usuarioActual ? (parseInt(localStorage.getItem(`victorias_totales_${usuarioActual}`)) || 0) : 0;
+        // Nivel de pase que el jugador tiene comprado esta temporada: 'free' | 'pase' | 'especial'
+        let nivelPaseVipUsuario = usuarioActual ? (localStorage.getItem(`nivel_pase_vip_${usuarioActual}`) || 'free') : 'free';
 
         // ===== TARJETA VIP Y MULTIPLICADOR COMPRADO (x3 / x5 / x10) =====
         let tarjetasVip = usuarioActual ? (parseInt(localStorage.getItem(`tarjetas_vip_${usuarioActual}`)) || 0) : 0;
@@ -3924,6 +3936,8 @@
             cristales = parseInt(localStorage.getItem(`cristales_${usuarioActual}`)) || 0;
             nivelVipUsuario = parseInt(localStorage.getItem(`nivel_vip_${usuarioActual}`)) || 1;
             expVipUsuario = parseInt(localStorage.getItem(`exp_vip_${usuarioActual}`)) || 0;
+            victoriasUsuario = parseInt(localStorage.getItem(`victorias_totales_${usuarioActual}`)) || 0;
+            nivelPaseVipUsuario = localStorage.getItem(`nivel_pase_vip_${usuarioActual}`) || 'free';
 
             let descuento = Math.min(nivelVipUsuario, 50);
             let multiplicador = 1.0;
@@ -4360,6 +4374,7 @@
                 localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
                 actualizarInterfazUsuario();
                 agregarExpUsuario(30);
+                registrarVictoriaJuego();
 
                 const res = document.getElementById('resultado-ruleta');
                 if(res) {
@@ -4532,6 +4547,7 @@
                         if(resTrag) { resTrag.classList.remove('hidden'); resTrag.innerHTML = `<span class="text-dorado font-black">🎁 ¡BONUS! Encendiendo racha de LEDs…</span>`; }
                         enviarNotificacionTelegram(`¡BONUS! El usuario ${usuarioActual} activó el Bonus del Tragamonedas VIP 🎁`);
                         agregarNotificacionApp('🎁 ¡Activaste el Bonus del Tragamonedas VIP!', 'fa-gift');
+                        registrarVictoriaJuego();
                         setTimeout(() => ejecutarBonusLED(configTragamonedas.premio || 100), 500);
                     } else {
                         const premioBase = VALORES_SIMBOLOS_TRAG[simbolo] || 10;
@@ -4539,6 +4555,7 @@
                         const bonoSeleccion = acertoSeleccion ? Math.round(premioBase * 0.2) : 0;
                         const premioGanado = premioBase + bonoSeleccion;
                         agregarExpUsuario(15);
+                        registrarVictoriaJuego();
                         const mensajeBase = acertoSeleccion
                             ? `🎯 ¡Acertaste tu fruta seleccionada! ${simbolo} (${premioBase} + ${bonoSeleccion} bono)`
                             : `${simbolo} ¡Ganaste!`;
@@ -6514,14 +6531,116 @@
         }
 
         function guardarConfigPaseVipAdmin() {
+            const anterior = obtenerConfigPaseVip();
             const config = {
                 activo: document.getElementById('admin-pase-vip-activo')?.checked || false,
                 nombre: document.getElementById('admin-pase-vip-nombre')?.value?.trim() || 'Pase VIP de Temporada',
                 fechaFin: document.getElementById('admin-pase-vip-fecha')?.value || '',
-                nivelMax: parseInt(document.getElementById('admin-pase-vip-nivelmax')?.value) || 30,
-                monedasPorNivel: parseInt(document.getElementById('admin-pase-vip-monedasnivel')?.value) || 20
+                precioPase: parseInt(document.getElementById('admin-pase-vip-precio-pase')?.value) || 0,
+                precioEspecial: parseInt(document.getElementById('admin-pase-vip-precio-especial')?.value) || 0,
+                metas: (anterior && Array.isArray(anterior.metas) && anterior.metas.length) ? anterior.metas : metasPaseVipPorDefecto()
             };
             localStorage.setItem('config_pase_vip_app', JSON.stringify(config));
+            if (typeof renderizarModalPaseVip === 'function') renderizarModalPaseVip();
+        }
+
+        // ===== EDITOR DE METAS DEL PASE VIP (panel admin) =====
+        function renderizarAdminMetasPaseVip() {
+            const cont = document.getElementById('contenedor-admin-metas-pase-vip');
+            if (!cont) return;
+            const config = obtenerConfigPaseVip() || { metas: metasPaseVipPorDefecto() };
+            const metas = Array.isArray(config.metas) && config.metas.length ? config.metas : metasPaseVipPorDefecto();
+
+            const bloqueTier = (metaIdx, tier, etiquetaTier) => {
+                const celda = metas[metaIdx][tier] || celdaMetaPaseVipVacia();
+                const previewId = `admin-meta-${metaIdx}-${tier}-preview`;
+                return `
+                <div class="p-2 bg-medio rounded-xl border border-borde space-y-1.5">
+                    <span class="text-[9px] font-black text-slate-400 uppercase">${etiquetaTier}</span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-lg bg-oscuro border border-borde flex items-center justify-center overflow-hidden shrink-0">
+                            <img id="${previewId}" src="${celda.imagen || ''}" class="w-full h-full object-cover ${celda.imagen ? '' : 'hidden'}">
+                            <i class="fa fa-image text-slate-600 text-xs ${celda.imagen ? 'hidden' : ''}" id="${previewId}-icono"></i>
+                        </div>
+                        <label class="flex-1 text-[9px] text-center py-1.5 bg-claro rounded-lg text-slate-300 cursor-pointer hover:text-white">
+                            <i class="fa fa-upload"></i> Imagen
+                            <input type="file" accept="image/*" class="hidden" onchange="subirImagenMetaPaseVipAdmin(${metaIdx}, '${tier}', this)">
+                        </label>
+                    </div>
+                    <input type="text" placeholder="Ej: X2, 1 SEMANA, ETERNO" value="${celda.texto || ''}" class="w-full px-2 py-1 rounded-lg bg-oscuro border border-borde text-white text-[10px]" onchange="actualizarCampoMetaPaseVipAdmin(${metaIdx}, '${tier}', 'texto', this.value)">
+                    <div class="grid grid-cols-2 gap-1">
+                        <input type="number" min="0" placeholder="🪙" value="${celda.monedas || 0}" class="w-full px-2 py-1 rounded-lg bg-oscuro border border-borde text-white text-[10px]" onchange="actualizarCampoMetaPaseVipAdmin(${metaIdx}, '${tier}', 'monedas', parseInt(this.value)||0)">
+                        <input type="number" min="0" placeholder="💎" value="${celda.gemas || 0}" class="w-full px-2 py-1 rounded-lg bg-oscuro border border-borde text-white text-[10px]" onchange="actualizarCampoMetaPaseVipAdmin(${metaIdx}, '${tier}', 'gemas', parseInt(this.value)||0)">
+                    </div>
+                </div>`;
+            };
+
+            cont.innerHTML = metas.map((meta, idx) => `
+                <div class="p-3 bg-oscuro rounded-2xl border border-morado/30 space-y-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] text-slate-400 shrink-0">Meta ${idx + 1} · WIN</span>
+                        <input type="number" min="1" value="${meta.umbral}" class="w-24 px-2 py-1 rounded-lg bg-medio border border-borde text-white text-xs font-black" onchange="actualizarCampoMetaPaseVipAdmin(${idx}, null, 'umbral', parseInt(this.value)||1)">
+                        <button type="button" onclick="eliminarMetaPaseVipAdmin(${idx})" class="ml-auto text-rojo text-xs hover:opacity-70"><i class="fa fa-trash"></i></button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        ${bloqueTier(idx, 'free', 'Free')}
+                        ${bloqueTier(idx, 'pase', 'Pase')}
+                        ${bloqueTier(idx, 'especial', 'Pase Especial')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function guardarMetasPaseVipAdmin(metas) {
+            const config = obtenerConfigPaseVip() || {};
+            config.metas = metas;
+            localStorage.setItem('config_pase_vip_app', JSON.stringify(config));
+            if (typeof renderizarModalPaseVip === 'function') renderizarModalPaseVip();
+        }
+
+        function agregarMetaPaseVipAdmin() {
+            const config = obtenerConfigPaseVip() || {};
+            const metas = Array.isArray(config.metas) && config.metas.length ? config.metas.slice() : metasPaseVipPorDefecto();
+            const ultimoUmbral = metas.length ? metas[metas.length - 1].umbral : 0;
+            metas.push({ umbral: ultimoUmbral + 100, free: celdaMetaPaseVipVacia(), pase: celdaMetaPaseVipVacia(), especial: celdaMetaPaseVipVacia() });
+            guardarMetasPaseVipAdmin(metas);
+            renderizarAdminMetasPaseVip();
+        }
+
+        function eliminarMetaPaseVipAdmin(idx) {
+            const config = obtenerConfigPaseVip();
+            if (!config || !Array.isArray(config.metas)) return;
+            const metas = config.metas.slice();
+            metas.splice(idx, 1);
+            guardarMetasPaseVipAdmin(metas);
+            renderizarAdminMetasPaseVip();
+        }
+
+        function actualizarCampoMetaPaseVipAdmin(idx, tier, campo, valor) {
+            const config = obtenerConfigPaseVip();
+            if (!config || !Array.isArray(config.metas) || !config.metas[idx]) return;
+            const metas = config.metas.slice();
+            if (tier === null) {
+                metas[idx] = { ...metas[idx], [campo]: valor };
+            } else {
+                metas[idx] = { ...metas[idx], [tier]: { ...(metas[idx][tier] || celdaMetaPaseVipVacia()), [campo]: valor } };
+            }
+            guardarMetasPaseVipAdmin(metas);
+        }
+
+        function subirImagenMetaPaseVipAdmin(idx, tier, inputFile) {
+            const archivo = inputFile.files && inputFile.files[0];
+            if (!archivo) return;
+            const lector = new FileReader();
+            lector.onload = (e) => {
+                const dataUrl = e.target.result;
+                actualizarCampoMetaPaseVipAdmin(idx, tier, 'imagen', dataUrl);
+                const preview = document.getElementById(`admin-meta-${idx}-${tier}-preview`);
+                const icono = document.getElementById(`admin-meta-${idx}-${tier}-preview-icono`);
+                if (preview) { preview.src = dataUrl; preview.classList.remove('hidden'); }
+                if (icono) icono.classList.add('hidden');
+            };
+            lector.readAsDataURL(archivo);
         }
 
         function guardarModoMantenimientoAdmin() {
@@ -6692,8 +6811,9 @@
                 activo: true,
                 nombre: automatica.nombre,
                 fechaFin: automatica.fechaFin,
-                nivelMax: (configActual && configActual.nivelMax) || 30,
-                monedasPorNivel: (configActual && configActual.monedasPorNivel) || 20
+                precioPase: (configActual && configActual.precioPase) ?? 50,
+                precioEspecial: (configActual && configActual.precioEspecial) ?? 120,
+                metas: (configActual && Array.isArray(configActual.metas) && configActual.metas.length) ? configActual.metas : metasPaseVipPorDefecto()
             };
             localStorage.setItem('config_pase_vip_app', JSON.stringify(nuevaConfig));
 
@@ -6703,9 +6823,36 @@
                 elActivo.checked = true;
                 document.getElementById('admin-pase-vip-nombre').value = nuevaConfig.nombre;
                 document.getElementById('admin-pase-vip-fecha').value = nuevaConfig.fechaFin;
-                document.getElementById('admin-pase-vip-nivelmax').value = nuevaConfig.nivelMax;
-                document.getElementById('admin-pase-vip-monedasnivel').value = nuevaConfig.monedasPorNivel;
+                document.getElementById('admin-pase-vip-precio-pase').value = nuevaConfig.precioPase;
+                document.getElementById('admin-pase-vip-precio-especial').value = nuevaConfig.precioEspecial;
+                if (typeof renderizarAdminMetasPaseVip === 'function') renderizarAdminMetasPaseVip();
             }
+            if (typeof renderizarModalPaseVip === 'function') renderizarModalPaseVip();
+        }
+
+        // Estructura por defecto de una casilla de recompensa (una celda del grid).
+        function celdaMetaPaseVipVacia() {
+            return { imagen: '', texto: '', monedas: 0, gemas: 0 };
+        }
+        // 6 metas de ejemplo iguales al mockup de referencia, listas para que el admin
+        // suba sus propias imágenes y ajuste los valores desde el panel.
+        function metasPaseVipPorDefecto() {
+            return [100, 150, 200, 300, 800, 1500].map(umbral => ({
+                umbral,
+                free: celdaMetaPaseVipVacia(),
+                pase: celdaMetaPaseVipVacia(),
+                especial: celdaMetaPaseVipVacia()
+            }));
+        }
+
+        // Se llama desde cualquier juego de la app cuando el jugador gana algo (tragamonedas,
+        // ruleta, tinka, cajas misteriosas, etc.). Suma al contador de victorias totales que
+        // avanza las metas del Pase VIP y refresca automáticamente lo que ya se puede reclamar.
+        function registrarVictoriaJuego(cantidad = 1) {
+            if (!usuarioActual) return;
+            victoriasUsuario += cantidad;
+            localStorage.setItem(`victorias_totales_${usuarioActual}`, victoriasUsuario);
+            reclamarTodosPaseVipDisponibles();
             if (typeof renderizarModalPaseVip === 'function') renderizarModalPaseVip();
         }
 
@@ -6724,6 +6871,11 @@
             catch(e) { return { temporadaId: '', niveles: [] }; }
         }
 
+        // Jerarquía de niveles del pase: FREE < PASE < PASE ESPECIAL. Un pase superior
+        // también da derecho a reclamar las casillas de los niveles inferiores.
+        const RANGO_PASE_VIP = { free: 0, pase: 1, especial: 2 };
+        const ETIQUETA_TIER_PASE_VIP = { free: 'FREE', pase: 'PASE', especial: 'PASE ESPECIAL' };
+
         function renderizarModalPaseVip() {
             const config = obtenerConfigPaseVip();
             const contCabecera = document.getElementById('contenedor-cabecera-pase-vip');
@@ -6736,64 +6888,107 @@
                 return;
             }
 
+            const metas = (Array.isArray(config.metas) && config.metas.length ? config.metas : metasPaseVipPorDefecto())
+                .slice().sort((a, b) => a.umbral - b.umbral);
+
             const idTemporada = obtenerIdTemporadaPaseVip(config);
             let reclamos = obtenerReclamosPaseVip();
             if (reclamos.temporadaId !== idTemporada) reclamos = { temporadaId: idTemporada, niveles: [] };
 
             const fechaFin = new Date(config.fechaFin);
             const diasRestantes = Math.max(0, Math.ceil((fechaFin - new Date()) / 86400000));
+
+            const botonCompra = (tier, precio) => {
+                const poseido = RANGO_PASE_VIP[nivelPaseVipUsuario] >= RANGO_PASE_VIP[tier];
+                if (poseido) return `<span class="px-3 py-1.5 rounded-xl bg-verde/15 border border-verde/40 text-verde text-[10px] font-black"><i class="fa fa-check"></i> ${ETIQUETA_TIER_PASE_VIP[tier]} activo</span>`;
+                return `<button onclick="comprarPaseVip('${tier}')" class="px-3 py-1.5 rounded-xl bg-morado text-white text-[10px] font-black hover:opacity-90">Desbloquear ${ETIQUETA_TIER_PASE_VIP[tier]} · 💎${precio || 0}</button>`;
+            };
+
             contCabecera.innerHTML = `
                 <h4 class="font-black text-white text-sm">🏅 ${config.nombre}</h4>
-                <p class="text-[10px] text-slate-400 mt-1">${diasRestantes > 0 ? `Termina en ${diasRestantes} día${diasRestantes === 1 ? '' : 's'}` : 'La temporada terminó'}</p>
-                <p class="text-[10px] text-morado mt-1">Tu nivel VIP actual: ${nivelVipUsuario}</p>`;
-
-            let filas = '';
-            for (let n = 1; n <= config.nivelMax; n++) {
-                const monedas = n * config.monedasPorNivel;
-                const gemas = (n % 5 === 0) ? 1 : 0;
-                const desbloqueado = nivelVipUsuario >= n;
-                const reclamado = reclamos.niveles.includes(n);
-                filas += `
-                <div class="flex items-center justify-between p-2.5 rounded-xl border ${reclamado ? 'bg-verde/10 border-verde/30' : desbloqueado ? 'bg-oscuro border-morado/40' : 'bg-oscuro border-borde opacity-60'}">
-                    <div class="flex items-center gap-2">
-                        <span class="w-7 h-7 rounded-lg bg-morado/20 text-morado flex items-center justify-center text-[10px] font-black">${n}</span>
-                        <span class="text-[11px] text-white">${monedas} monedas${gemas ? ' + 💎' + gemas : ''}</span>
-                    </div>
-                    ${reclamado
-                        ? '<span class="text-[10px] text-verde font-bold"><i class="fa fa-check"></i> Reclamado</span>'
-                        : desbloqueado
-                            ? `<button onclick="reclamarNivelPaseVip(${n}, ${monedas}, ${gemas})" class="px-2.5 py-1 bg-morado text-white font-bold rounded-lg text-[10px]">Reclamar</button>`
-                            : '<i class="fa fa-lock text-slate-600 text-xs"></i>'
-                    }
+                <p class="text-[10px] text-slate-400">${diasRestantes > 0 ? `Termina en ${diasRestantes} día${diasRestantes === 1 ? '' : 's'}` : 'La temporada terminó'}</p>
+                <p class="text-sm font-black text-dorado">🏆 ${victoriasUsuario} WIN</p>
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                    ${botonCompra('pase', config.precioPase)}
+                    ${botonCompra('especial', config.precioEspecial)}
                 </div>`;
-            }
-            contNiveles.innerHTML = filas;
+
+            const celdaHtml = (meta, idx, tier) => {
+                const celda = meta[tier] || celdaMetaPaseVipVacia();
+                const alcanzada = victoriasUsuario >= meta.umbral;
+                const poseeTier = tier === 'free' || RANGO_PASE_VIP[nivelPaseVipUsuario] >= RANGO_PASE_VIP[tier];
+                const claveReclamo = `${idx}:${tier}`;
+                const reclamado = reclamos.niveles.includes(claveReclamo);
+
+                let estadoInferior = '';
+                if (reclamado) {
+                    estadoInferior = `<span class="text-[8px] text-verde font-black"><i class="fa fa-check"></i> Reclamado</span>`;
+                } else if (alcanzada && poseeTier) {
+                    estadoInferior = `<button onclick="reclamarMetaPaseVip(${idx}, '${tier}')" class="text-[8px] px-2 py-0.5 bg-morado rounded-full text-white font-black">Reclamar</button>`;
+                } else if (!poseeTier) {
+                    estadoInferior = `<span class="text-[8px] text-slate-500"><i class="fa fa-lock"></i> Requiere pase</span>`;
+                } else {
+                    estadoInferior = `<span class="text-[8px] text-slate-500">Faltan ${meta.umbral - victoriasUsuario} WIN</span>`;
+                }
+
+                return `
+                <div class="w-20 sm:w-24 h-24 rounded-xl border shrink-0 flex flex-col items-center justify-center gap-1 p-1 relative ${reclamado ? 'border-verde bg-verde/10' : (alcanzada && poseeTier) ? 'border-dorado bg-dorado/10' : 'border-borde bg-oscuro opacity-70'}">
+                    <div class="w-9 h-9 rounded-lg overflow-hidden bg-claro flex items-center justify-center shrink-0">
+                        ${celda.imagen ? `<img src="${celda.imagen}" class="w-full h-full object-cover">` : `<i class="fa fa-gift text-slate-500 text-xs"></i>`}
+                    </div>
+                    <span class="text-[8px] text-white font-bold text-center leading-tight line-clamp-2">${celda.texto || ''}</span>
+                    ${estadoInferior}
+                </div>`;
+            };
+
+            const columnas = metas.map((meta, idx) => `
+                <div class="flex flex-col gap-2 items-center shrink-0">
+                    ${celdaHtml(meta, idx, 'free')}
+                    <div class="h-7 flex items-center justify-center px-2 rounded-full bg-dorado/15 border border-dorado/40 text-dorado text-[9px] font-black whitespace-nowrap">${meta.umbral} WIN</div>
+                    ${celdaHtml(meta, idx, 'pase')}
+                    ${celdaHtml(meta, idx, 'especial')}
+                </div>
+            `).join('');
+
+            const etiquetasFilas = `
+                <div class="flex flex-col gap-2 items-start shrink-0 w-16 sm:w-20 pr-1">
+                    <div class="h-24 flex items-center text-[9px] font-black text-slate-300 uppercase">Free</div>
+                    <div class="h-7"></div>
+                    <div class="h-24 flex items-center text-[9px] font-black text-morado uppercase">Pase</div>
+                    <div class="h-24 flex items-center text-[9px] font-black text-naranja uppercase">Pase<br>Especial</div>
+                </div>`;
+
+            contNiveles.innerHTML = `<div class="flex gap-2 min-w-max">${etiquetasFilas}${columnas}</div>`;
         }
 
-        // Reclama en automático todos los niveles del Pase VIP que el usuario ya tenga
-        // desbloqueados y no haya reclamado todavía (se llama al iniciar sesión y cada
-        // vez que sube de nivel VIP, para que el jugador no tenga que tocar "Reclamar").
+        // Reclama en automático todas las casillas del Pase VIP que el usuario ya tenga
+        // desbloqueadas (por victorias y por nivel de pase comprado) y no haya reclamado
+        // todavía, para que no tenga que tocar "Reclamar" cada vez que gana.
         function reclamarTodosPaseVipDisponibles() {
             if (!usuarioActual) return;
             const config = obtenerConfigPaseVip();
             if (!config || !config.activo) return;
+            const metas = Array.isArray(config.metas) && config.metas.length ? config.metas : metasPaseVipPorDefecto();
 
             const idTemporada = obtenerIdTemporadaPaseVip(config);
             let reclamos = obtenerReclamosPaseVip();
             if (reclamos.temporadaId !== idTemporada) reclamos = { temporadaId: idTemporada, niveles: [] };
 
-            let totalMonedas = 0, totalGemas = 0;
-            const nivelesNuevos = [];
-            for (let n = 1; n <= config.nivelMax && n <= nivelVipUsuario; n++) {
-                if (reclamos.niveles.includes(n)) continue;
-                const monedas = n * config.monedasPorNivel;
-                const gemasPremio = (n % 5 === 0) ? 1 : 0;
-                reclamos.niveles.push(n);
-                totalMonedas += monedas;
-                totalGemas += gemasPremio;
-                nivelesNuevos.push(n);
-            }
-            if (nivelesNuevos.length === 0) return;
+            let totalMonedas = 0, totalGemas = 0, totalCasillas = 0;
+            metas.forEach((meta, idx) => {
+                if (victoriasUsuario < meta.umbral) return;
+                ['free', 'pase', 'especial'].forEach(tier => {
+                    if (RANGO_PASE_VIP[nivelPaseVipUsuario] < RANGO_PASE_VIP[tier]) return;
+                    const clave = `${idx}:${tier}`;
+                    if (reclamos.niveles.includes(clave)) return;
+                    const celda = meta[tier] || celdaMetaPaseVipVacia();
+                    reclamos.niveles.push(clave);
+                    totalMonedas += celda.monedas || 0;
+                    totalGemas += celda.gemas || 0;
+                    totalCasillas++;
+                });
+            });
+            if (totalCasillas === 0) return;
 
             localStorage.setItem(`pase_vip_reclamos_${usuarioActual}`, JSON.stringify(reclamos));
             saldo += totalMonedas;
@@ -6802,29 +6997,55 @@
             localStorage.setItem(`gemas_${usuarioActual}`, gemas);
             sincronizarSaldoNube();
             actualizarInterfazUsuario();
-            const etiquetaNiveles = nivelesNuevos.length === 1 ? `nivel ${nivelesNuevos[0]}` : `niveles ${nivelesNuevos.join(', ')}`;
-            agregarNotificacionApp(`🏅 ¡Pase VIP! Reclamado en automático el ${etiquetaNiveles}: +${totalMonedas} monedas${totalGemas ? ' +💎' + totalGemas : ''}`, 'fa-medal');
+            agregarNotificacionApp(`🏅 ¡Pase VIP! Reclamado en automático (${totalCasillas} recompensa${totalCasillas === 1 ? '' : 's'}): +${totalMonedas} monedas${totalGemas ? ' +💎' + totalGemas : ''}`, 'fa-medal');
             if (typeof renderizarModalPaseVip === 'function') renderizarModalPaseVip();
         }
 
-        function reclamarNivelPaseVip(nivel, monedas, gemasPremio) {
+        function reclamarMetaPaseVip(idx, tier) {
             const config = obtenerConfigPaseVip();
             if (!config || !config.activo) return;
+            const metas = Array.isArray(config.metas) && config.metas.length ? config.metas : metasPaseVipPorDefecto();
+            const meta = metas[idx];
+            if (!meta) return;
+            if (victoriasUsuario < meta.umbral) return;
+            if (RANGO_PASE_VIP[nivelPaseVipUsuario] < RANGO_PASE_VIP[tier]) return;
+
             const idTemporada = obtenerIdTemporadaPaseVip(config);
             let reclamos = obtenerReclamosPaseVip();
             if (reclamos.temporadaId !== idTemporada) reclamos = { temporadaId: idTemporada, niveles: [] };
-            if (reclamos.niveles.includes(nivel) || nivelVipUsuario < nivel) return;
-
-            reclamos.niveles.push(nivel);
+            const clave = `${idx}:${tier}`;
+            if (reclamos.niveles.includes(clave)) return;
+            reclamos.niveles.push(clave);
             localStorage.setItem(`pase_vip_reclamos_${usuarioActual}`, JSON.stringify(reclamos));
 
-            saldo += monedas;
-            if (gemasPremio) gemas += gemasPremio;
+            const celda = meta[tier] || celdaMetaPaseVipVacia();
+            saldo += celda.monedas || 0;
+            if (celda.gemas) gemas += celda.gemas;
             localStorage.setItem(`saldo_${usuarioActual}`, saldo);
             localStorage.setItem(`gemas_${usuarioActual}`, gemas);
             sincronizarSaldoNube();
             actualizarInterfazUsuario();
-            agregarNotificacionApp(`🏅 ¡Reclamaste el nivel ${nivel} del Pase VIP! +${monedas} monedas${gemasPremio ? ' +💎' + gemasPremio : ''}`, 'fa-medal');
+            agregarNotificacionApp(`🏅 ¡Reclamaste ${ETIQUETA_TIER_PASE_VIP[tier]} · ${meta.umbral} WIN! +${celda.monedas || 0} monedas${celda.gemas ? ' +💎' + celda.gemas : ''}`, 'fa-medal');
+            renderizarModalPaseVip();
+        }
+
+        // Compra (desbloquea) el nivel PASE o PASE ESPECIAL de la temporada con gemas.
+        function comprarPaseVip(tier) {
+            if (!usuarioActual) return;
+            const config = obtenerConfigPaseVip();
+            if (!config || !config.activo) return;
+            if (RANGO_PASE_VIP[nivelPaseVipUsuario] >= RANGO_PASE_VIP[tier]) return;
+            const precio = tier === 'especial' ? (config.precioEspecial || 0) : (config.precioPase || 0);
+            if (gemas < precio) { alert('❌ No tienes suficientes gemas 💎 para desbloquear este pase.'); return; }
+            if (!confirm(`¿Desbloquear ${ETIQUETA_TIER_PASE_VIP[tier]} por 💎${precio}?`)) return;
+
+            gemas -= precio;
+            localStorage.setItem(`gemas_${usuarioActual}`, gemas);
+            nivelPaseVipUsuario = tier;
+            localStorage.setItem(`nivel_pase_vip_${usuarioActual}`, tier);
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`🏅 ¡Desbloqueaste ${ETIQUETA_TIER_PASE_VIP[tier]} de la temporada!`, 'fa-medal');
+            reclamarTodosPaseVipDisponibles();
             renderizarModalPaseVip();
         }
 
@@ -7771,6 +7992,7 @@
                 resultado.textContent = `🎉 ¡Acertaste ${aciertos} número(s)! Ganaste 🪙 ${premio} monedas.`;
                 reproducirSFX('ganar');
                 agregarExpUsuario(30);
+                registrarVictoriaJuego();
             } else {
                 resultado.className = 'p-3 rounded-2xl border text-center text-xs font-bold border-rojo bg-rojo/10 text-rojo';
                 resultado.textContent = `Acertaste ${aciertos} número(s). Esta vez no hubo premio, ¡vuelve a intentarlo!`;
@@ -7846,6 +8068,7 @@
                 reproducirSFX('ganar');
                 sumarPuntosMetaGlobal(3);
                 agregarExpUsuario(10);
+                registrarVictoriaJuego();
                 actualizarInterfazUsuario();
             }, 700);
         }
@@ -7903,6 +8126,8 @@
                 nivel: parseInt(localStorage.getItem(`nivel_vip_${usuarioActual}`)) || 1,
                 exp: parseInt(localStorage.getItem(`exp_vip_${usuarioActual}`)) || 0,
                 racha: parseInt(localStorage.getItem(`racha_dias_${usuarioActual}`)) || 0,
+                victorias: parseInt(localStorage.getItem(`victorias_totales_${usuarioActual}`)) || 0,
+                nivelPase: localStorage.getItem(`nivel_pase_vip_${usuarioActual}`) || 'free',
                 v: 1
             };
             const codigo = btoa(unescape(encodeURIComponent(JSON.stringify(datos))));
@@ -7931,6 +8156,8 @@
                 localStorage.setItem(`nivel_vip_${datos.u}`, datos.nivel || 1);
                 localStorage.setItem(`exp_vip_${datos.u}`, datos.exp || 0);
                 localStorage.setItem(`racha_dias_${datos.u}`, datos.racha || 0);
+                localStorage.setItem(`victorias_totales_${datos.u}`, datos.victorias || 0);
+                localStorage.setItem(`nivel_pase_vip_${datos.u}`, datos.nivelPase || 'free');
                 alert('✅ ¡Progreso restaurado correctamente! Vuelve a iniciar sesión con ese usuario si es necesario.');
                 if(usuarioActual === datos.u) actualizarInterfazUsuario();
             } catch(e) {
@@ -8028,6 +8255,8 @@
                     nivel: parseInt(localStorage.getItem(`nivel_vip_${usuarioActual}`)) || 1,
                     exp: parseInt(localStorage.getItem(`exp_vip_${usuarioActual}`)) || 0,
                     racha: parseInt(localStorage.getItem(`racha_dias_${usuarioActual}`)) || 0,
+                    victorias: parseInt(localStorage.getItem(`victorias_totales_${usuarioActual}`)) || 0,
+                    nivelPase: localStorage.getItem(`nivel_pase_vip_${usuarioActual}`) || 'free',
                     actualizado: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
                 if(!silencioso) mostrarMensajeNube('✅ Progreso sincronizado con la nube.', 'verde');
@@ -8048,6 +8277,8 @@
                 localStorage.setItem(`nivel_vip_${usuarioActual}`, d.nivel || 1);
                 localStorage.setItem(`exp_vip_${usuarioActual}`, d.exp || 0);
                 localStorage.setItem(`racha_dias_${usuarioActual}`, d.racha || 0);
+                localStorage.setItem(`victorias_totales_${usuarioActual}`, d.victorias || 0);
+                localStorage.setItem(`nivel_pase_vip_${usuarioActual}`, d.nivelPase || 'free');
                 actualizarInterfazUsuario();
                 mostrarMensajeNube('✅ Progreso restaurado desde la nube.', 'verde');
             } catch(e) {
@@ -8077,6 +8308,8 @@
                     localStorage.setItem(`nivel_vip_${usuarioActual}`, d.nivel || 1);
                     localStorage.setItem(`exp_vip_${usuarioActual}`, d.exp || 0);
                     localStorage.setItem(`racha_dias_${usuarioActual}`, d.racha || 0);
+                    localStorage.setItem(`victorias_totales_${usuarioActual}`, d.victorias || 0);
+                    localStorage.setItem(`nivel_pase_vip_${usuarioActual}`, d.nivelPase || 'free');
                     actualizarInterfazUsuario();
                 }
             } catch(e) { console.warn('No se pudo verificar el respaldo en la nube:', e); }
