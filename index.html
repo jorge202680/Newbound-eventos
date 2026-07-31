@@ -611,6 +611,17 @@
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.75; transform: scale(1.08); }
         }
+        .palanca-mango {
+            transition: transform 0.15s ease-in, top 0.15s ease-in;
+        }
+        .palanca-tirada .palanca-mango {
+            transform: translateY(0);
+            top: 78% !important;
+            transition: transform 0.12s ease-in, top 0.12s ease-in;
+        }
+        .palanca-riel {
+            background: repeating-linear-gradient(180deg, #475569 0px, #475569 2px, transparent 2px, transparent 6px);
+        }
     </style>
 </head>
 <body class="bg-oscuro text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-dorado selection:text-black">
@@ -978,6 +989,15 @@
                 <div>
                     <h3 class="font-black text-xs text-white">Cajas Misteriosas</h3>
                     <p class="text-[10px] text-slate-400">Abre y Gana Premios</p>
+                </div>
+            </button>
+<button onclick="abrirVentana('modal-pachinko'); renderizarPachinkoVista();" id="card-pachinko" class="tarjeta-led led-dorado p-4 rounded-2xl bg-medio border border-dorado/40 hover:border-dorado transition text-left space-y-2 shadow group">
+                <div class="w-10 h-10 rounded-xl bg-dorado/20 text-dorado flex items-center justify-center text-lg group-hover:scale-110 transition">
+                    <i class="fa fa-circle-dot"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-xs text-white">Pachinko</h3>
+                    <p class="text-[10px] text-slate-400">Suelta la Bola y Gana</p>
                 </div>
             </button>
                 </div>
@@ -1630,6 +1650,30 @@
                 <button id="btn-jugar-garra" onclick="jugarGarra()" class="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">INTENTAR (<span id="texto-precio-garra">🪙 15</span>)</button>
                 <div id="resultado-garra" class="hidden space-y-2"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL PACHINKO - SUELTA LA BOLA Y GANA -->
+    <div id="modal-pachinko" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-dorado/40 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl text-center">
+            <div class="flex justify-between items-center border-b border-borde pb-3">
+                <h3 class="font-black text-sm text-dorado flex items-center gap-2"><i class="fa fa-circle-dot"></i> Pachinko</h3>
+                <button onclick="cerrarVentana('modal-pachinko')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-[11px] text-slate-400">Tira de la palanca y mira cómo la bola rebota entre las clavijas hasta caer en un agujero numerado 🎯</p>
+            <div class="flex justify-between text-[10px] font-bold text-slate-300 px-1">
+                <span id="pachinko-bolas-restantes">Bolas: 5</span>
+                <span id="pachinko-acumulado" class="text-dorado">Acumulado: 🪙 0</span>
+            </div>
+            <div class="p-3 bg-oscuro rounded-2xl border border-borde flex gap-2 items-stretch">
+                <canvas id="canvas-pachinko" width="300" height="400" class="flex-1 min-w-0 h-auto rounded-xl bg-[#0B0F19]"></canvas>
+                <button id="palanca-pachinko" onclick="jugarPachinko()" class="w-12 shrink-0 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 border border-dorado/40 relative overflow-hidden active:brightness-125 transition disabled:opacity-40" aria-label="Tirar de la palanca">
+                    <div class="palanca-riel absolute left-1/2 -translate-x-1/2 top-3 bottom-3 w-1 rounded-full"></div>
+                    <div id="palanca-mango" class="palanca-mango absolute left-1/2 -translate-x-1/2 w-7 h-7 rounded-full bg-gradient-to-b from-rojo to-red-800 border-2 border-white/50 shadow-lg" style="top:6%;"></div>
+                </button>
+            </div>
+            <button id="btn-jugar-pachinko" onclick="jugarPachinko()" class="w-full py-3 bg-gradient-to-r from-dorado to-naranja text-black font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition disabled:opacity-40">TIRAR DE LA PALANCA (🪙 20 · 5 bolas)</button>
+            <div id="resultado-pachinko" class="hidden p-3 rounded-2xl border border-dorado/40 bg-medio text-center text-xs font-bold text-white"></div>
         </div>
     </div>
 
@@ -3346,6 +3390,26 @@
         let configGarra = JSON.parse(localStorage.getItem('config_garra_app')) || { costo: 15 };
         let jugandoGarra = false;
 
+        // ===== PACHINKO (bolas que caen entre clavijas, tipo "Perla del Oriente") =====
+        // Premios por agujero numerado, de izquierda a derecha. Los de las orillas pagan más
+        // (como en las máquinas físicas reales), el centro paga menos. El número mostrado
+        // en el agujero ES el premio en monedas, igual que en la máquina real.
+        let premiosPachinko = JSON.parse(localStorage.getItem('premios_pachinko_app')) || [
+            { monedas: 100 }, { monedas: 30 }, { monedas: 15 }, { monedas: 5 },
+            { monedas: 40 },
+            { monedas: 5 }, { monedas: 15 }, { monedas: 30 }, { monedas: 100 }
+        ];
+        let configPachinko = JSON.parse(localStorage.getItem('config_pachinko_app')) || { costo: 20, bolasPorRonda: 5 };
+        let jugandoPachinko = false;      // true mientras una bola está en vuelo
+        let pachinkoRondaActiva = false;  // true mientras dura la partida pagada (5 bolas)
+        let pachinkoBolasRestantes = 0;
+        let pachinkoAcumuladoRonda = 0;
+        let pachinkoTablero = null;       // se genera una vez (clavijas + agujeros) al abrir el modal
+        let pachinkoBolaAnim = null;      // id de requestAnimationFrame en curso
+        let pachinkoLedActivo = null;     // { idx } → agujero que debe parpadear como LED
+        let pachinkoLedAmbienteId = null; // interval del brillo LED de fondo del tablero
+
+
         const NOMBRES_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
         function claveMes(anio, mes) {
@@ -4914,6 +4978,331 @@
                 if(btn) btn.disabled = false;
                 jugandoGarra = false;
             }, 1800);
+        }
+
+        // Genera las clavijas (formación triangular tipo Galton board) y los casilleros
+        // de premio de abajo. Se calcula una sola vez por apertura del modal y se reutiliza
+        // en cada tiro para no recalcular geometría en cada frame.
+        function generarTableroPachinko() {
+            const ancho = 300, alto = 400;
+            const margenX = 22;
+            const anchoTablero = ancho - margenX * 2;
+            const numFilas = 8;
+            const numColumnas = 9; // clavijas en las filas "pares"
+            const espacioX = anchoTablero / (numColumnas - 1);
+            const yInicio = 55;
+            const yFin = alto - 95;
+            const espacioY = (yFin - yInicio) / (numFilas - 1);
+
+            const clavijas = [];
+            for (let f = 0; f < numFilas; f++) {
+                const esImpar = f % 2 === 1;
+                const offset = esImpar ? espacioX / 2 : 0;
+                const cols = esImpar ? numColumnas - 1 : numColumnas;
+                for (let c = 0; c < cols; c++) {
+                    clavijas.push({ x: margenX + offset + c * espacioX, y: yInicio + f * espacioY });
+                }
+            }
+
+            // Tira de LEDs ambiente arriba del tablero (puramente decorativa, como las luces
+            // azules que corren por el marco de la máquina física).
+            const numLeds = 14;
+            const ledsAmbiente = [];
+            for (let i = 0; i < numLeds; i++) {
+                ledsAmbiente.push({ x: margenX + (i * (anchoTablero / (numLeds - 1))), y: 14 });
+            }
+
+            const numCasilleros = premiosPachinko.length;
+            const anchoCasillero = anchoTablero / numCasilleros;
+
+            return { ancho, alto, margenX, anchoTablero, clavijas, ledsAmbiente, numCasilleros, anchoCasillero, yCasilleros: alto - 85 };
+        }
+
+        function dibujarTableroPachinko(bola) {
+            const canvas = document.getElementById('canvas-pachinko');
+            if (!canvas || !pachinkoTablero) return;
+            const ctx = canvas.getContext('2d');
+            const t = pachinkoTablero;
+            ctx.clearRect(0, 0, t.ancho, t.alto);
+
+            // Tira de LEDs ambiente (parpadean en cadena, tipo luces corriendo)
+            const ahoraLed = Date.now();
+            t.ledsAmbiente.forEach((led, i) => {
+                const fase = Math.sin(ahoraLed / 260 + i * 0.6);
+                const brillo = 0.35 + 0.45 * (fase > 0 ? fase : 0);
+                ctx.beginPath();
+                ctx.arc(led.x, led.y, 2.6, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(56,189,248,${0.45 + brillo})`;
+                ctx.shadowColor = '#38BDF8';
+                ctx.shadowBlur = 6 + brillo * 8;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            // Clavijas metálicas (bolitas de acero, como en la máquina física)
+            t.clavijas.forEach(cl => {
+                const gradClavija = ctx.createRadialGradient(cl.x - 1.2, cl.y - 1.2, 0.5, cl.x, cl.y, 4);
+                gradClavija.addColorStop(0, '#F1F5F9');
+                gradClavija.addColorStop(0.5, '#94A3B8');
+                gradClavija.addColorStop(1, '#334155');
+                ctx.beginPath();
+                ctx.arc(cl.x, cl.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = gradClavija;
+                ctx.fill();
+            });
+
+            // Agujeros numerados (el número mostrado ES el premio en monedas, como una máquina real)
+            const holeY = t.yCasilleros + 20;
+            const holeRadius = Math.min(t.anchoCasillero * 0.42, 17);
+            for (let i = 0; i < t.numCasilleros; i++) {
+                const centerX = t.margenX + i * t.anchoCasillero + t.anchoCasillero / 2;
+                const esOrilla = i === 0 || i === t.numCasilleros - 1;
+                const premio = premiosPachinko[i];
+                const conLed = pachinkoLedActivo && pachinkoLedActivo.idx === i;
+
+                // separador entre agujeros
+                ctx.strokeStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.moveTo(t.margenX + i * t.anchoCasillero, t.yCasilleros);
+                ctx.lineTo(t.margenX + i * t.anchoCasillero, t.alto - 4);
+                ctx.stroke();
+
+                // halo LED azul si este agujero acaba de ganar
+                if (conLed) {
+                    const pulso = 0.55 + 0.45 * Math.sin(ahoraLed / 70);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(centerX, holeY, holeRadius + 6, 0, Math.PI * 2);
+                    ctx.strokeStyle = `rgba(56,189,248,${pulso})`;
+                    ctx.lineWidth = 4;
+                    ctx.shadowColor = '#38BDF8';
+                    ctx.shadowBlur = 18;
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // hoyo (hueco oscuro con degradado, como una perforación real)
+                const grad = ctx.createRadialGradient(centerX, holeY, 1, centerX, holeY, holeRadius);
+                grad.addColorStop(0, '#000000');
+                grad.addColorStop(1, esOrilla ? '#3a2a05' : '#1e293b');
+                ctx.beginPath();
+                ctx.arc(centerX, holeY, holeRadius, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = conLed ? '#7DD3FC' : (esOrilla ? '#F59E0B' : '#475569');
+                ctx.stroke();
+
+                // número del agujero (= premio en monedas)
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = conLed ? '#7DD3FC' : (esOrilla ? '#F59E0B' : '#E2E8F0');
+                ctx.fillText(String(premio.monedas), centerX, holeY + 1);
+            }
+
+            // Bola
+            if (bola) {
+                ctx.beginPath();
+                ctx.fillStyle = '#FFFFFF';
+                ctx.arc(bola.x, bola.y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#F59E0B';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        function actualizarHudPachinko() {
+            const elBolas = document.getElementById('pachinko-bolas-restantes');
+            const elAcum = document.getElementById('pachinko-acumulado');
+            if (elBolas) elBolas.textContent = pachinkoRondaActiva ? `Bolas: ${pachinkoBolasRestantes}/${configPachinko.bolasPorRonda || 5}` : `Bolas: ${configPachinko.bolasPorRonda || 5}`;
+            if (elAcum) elAcum.textContent = `Acumulado: 🪙 ${pachinkoAcumuladoRonda}`;
+
+            const btn = document.getElementById('btn-jugar-pachinko');
+            if (btn) {
+                btn.textContent = pachinkoRondaActiva
+                    ? `TIRAR DE LA PALANCA (quedan ${pachinkoBolasRestantes} bolas)`
+                    : `TIRAR DE LA PALANCA (🪙 ${configPachinko.costo || 20} · ${configPachinko.bolasPorRonda || 5} bolas)`;
+            }
+        }
+
+        function renderizarPachinkoVista() {
+            pachinkoTablero = generarTableroPachinko();
+            pachinkoLedActivo = null;
+            pachinkoRondaActiva = false;
+            pachinkoBolasRestantes = 0;
+            pachinkoAcumuladoRonda = 0;
+            const res = document.getElementById('resultado-pachinko');
+            if (res) res.classList.add('hidden');
+            actualizarHudPachinko();
+            dibujarTableroPachinko(null);
+
+            // Mantiene la tira de LEDs "respirando" aunque no haya ninguna bola en vuelo
+            if (pachinkoLedAmbienteId) clearInterval(pachinkoLedAmbienteId);
+            pachinkoLedAmbienteId = setInterval(() => {
+                const modal = document.getElementById('modal-pachinko');
+                if (!modal || modal.classList.contains('hidden') || jugandoPachinko) return;
+                dibujarTableroPachinko(null);
+            }, 90);
+        }
+
+        // Hace parpadear el agujero ganador como un LED durante un momento, tipo máquina real.
+        function animarLedPachinko(idx, bolaFinal, duracionMs) {
+            pachinkoLedActivo = { idx };
+            const inicio = Date.now();
+            function pasoLed() {
+                dibujarTableroPachinko(bolaFinal);
+                if (Date.now() - inicio < duracionMs) {
+                    requestAnimationFrame(pasoLed);
+                } else {
+                    pachinkoLedActivo = null;
+                    dibujarTableroPachinko(bolaFinal);
+                }
+            }
+            requestAnimationFrame(pasoLed);
+        }
+
+        // Lanza UNA bola (una "vida" de las 5 que incluye la partida) y la anima hasta que caiga
+        // en un agujero, sumando su premio al acumulado de la ronda.
+        function lanzarBolaPachinko() {
+            jugandoPachinko = true;
+            const btn = document.getElementById('btn-jugar-pachinko');
+            const palancaBtn = document.getElementById('palanca-pachinko');
+            if (btn) btn.disabled = true;
+            if (palancaBtn) palancaBtn.disabled = true;
+
+            // Animación de la palanca: se tira hacia abajo y regresa, como en una máquina real
+            const palancaEl = document.getElementById('palanca-pachinko');
+            if (palancaEl) {
+                palancaEl.classList.add('palanca-tirada');
+                setTimeout(() => palancaEl.classList.remove('palanca-tirada'), 220);
+            }
+
+            const t = pachinkoTablero;
+            const bola = {
+                x: t.ancho / 2 + (Math.random() * 16 - 8),
+                y: 18,
+                vx: (Math.random() * 1.4 - 0.7),
+                vy: 0
+            };
+            const radioBola = 6, radioClavija = 4, gravedad = 0.28;
+
+            if (pachinkoBolaAnim) cancelAnimationFrame(pachinkoBolaAnim);
+
+            function paso() {
+                bola.vy += gravedad;
+                bola.x += bola.vx;
+                bola.y += bola.vy;
+
+                // Rebote en las paredes del tablero
+                if (bola.x < radioBola + 2) { bola.x = radioBola + 2; bola.vx *= -0.6; }
+                if (bola.x > t.ancho - radioBola - 2) { bola.x = t.ancho - radioBola - 2; bola.vx *= -0.6; }
+
+                // Colisión con clavijas
+                for (const cl of t.clavijas) {
+                    const dx = bola.x - cl.x, dy = bola.y - cl.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const minDist = radioBola + radioClavija;
+                    if (dist < minDist && dist > 0.001) {
+                        const nx = dx / dist, ny = dy / dist;
+                        bola.x = cl.x + nx * minDist;
+                        bola.y = cl.y + ny * minDist;
+                        const dot = bola.vx * nx + bola.vy * ny;
+                        bola.vx -= 2 * dot * nx;
+                        bola.vy -= 2 * dot * ny;
+                        bola.vx *= 0.7; bola.vy *= 0.7;
+                        bola.vx += (Math.random() - 0.5) * 1.1; // pequeño azar, como una clavija real
+                    }
+                }
+
+                dibujarTableroPachinko(bola);
+
+                if (bola.y >= t.yCasilleros - radioBola) {
+                    // La bola llegó a los agujeros: determinar en cuál cayó y pagar
+                    let idx = Math.floor((bola.x - t.margenX) / t.anchoCasillero);
+                    idx = Math.max(0, Math.min(t.numCasilleros - 1, idx));
+                    const premio = premiosPachinko[idx];
+
+                    // Centrar visualmente la bola dentro del agujero ganador
+                    bola.x = t.margenX + idx * t.anchoCasillero + t.anchoCasillero / 2;
+                    bola.y = t.yCasilleros + 20;
+
+                    pachinkoAcumuladoRonda += premio.monedas;
+                    pachinkoBolasRestantes -= 1;
+                    reproducirSFX(premio.monedas >= (configPachinko.costo || 20) ? 'ganar' : 'reclamo');
+                    animarLedPachinko(idx, bola, 1000);
+                    actualizarHudPachinko();
+
+                    const res = document.getElementById('resultado-pachinko');
+
+                    if (pachinkoBolasRestantes > 0) {
+                        // Quedan bolas: el usuario debe tirar la palanca de nuevo
+                        if (res) {
+                            res.classList.remove('hidden');
+                            res.innerHTML = `🎯 ¡Cayó en el ${premio.monedas}!<br><span class="text-dorado">Acumulado: 🪙 ${pachinkoAcumuladoRonda}</span>`;
+                        }
+                        jugandoPachinko = false;
+                        pachinkoBolaAnim = null;
+                        if (btn) btn.disabled = false;
+                        if (palancaBtn) palancaBtn.disabled = false;
+                        return;
+                    }
+
+                    // Era la última bola de la ronda: acreditar el total acumulado
+                    saldo += pachinkoAcumuladoRonda;
+                    localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
+                    actualizarInterfazUsuario();
+                    agregarExpUsuario(25);
+
+                    if (res) {
+                        res.classList.remove('hidden');
+                        res.innerHTML = `🏆 ¡Ronda terminada!<br><span class="text-dorado">Ganaste en total: 🪙 ${pachinkoAcumuladoRonda}</span>`;
+                    }
+                    enviarNotificacionTelegram(`El usuario ${usuarioActual} jugó Pachinko y ganó ${pachinkoAcumuladoRonda} monedas en total 🎯`);
+                    agregarNotificacionApp(`🎯 Pachinko: ¡ganaste ${pachinkoAcumuladoRonda} monedas en la ronda!`, 'fa-circle-dot');
+                    registrarProgresoMisionDiaria('pachinko');
+
+                    pachinkoRondaActiva = false;
+                    jugandoPachinko = false;
+                    pachinkoBolaAnim = null;
+                    actualizarHudPachinko();
+                    if (btn) btn.disabled = false;
+                    if (palancaBtn) palancaBtn.disabled = false;
+                    return;
+                }
+
+                pachinkoBolaAnim = requestAnimationFrame(paso);
+            }
+            pachinkoBolaAnim = requestAnimationFrame(paso);
+        }
+
+        // Tirar de la palanca: si no hay una ronda pagada en curso, cobra una vez y arranca
+        // una ronda de 5 bolas (configurable); si ya hay ronda activa, lanza la siguiente bola.
+        function jugarPachinko() {
+            if (jugandoPachinko) return;
+
+            if (!pachinkoTablero) pachinkoTablero = generarTableroPachinko();
+
+            if (!pachinkoRondaActiva) {
+                const costo = configPachinko.costo || 20;
+                if (saldo < costo) {
+                    alert('⚠️ Saldo insuficiente para jugar Pachinko.');
+                    return;
+                }
+                saldo -= costo;
+                localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
+                actualizarInterfazUsuario();
+
+                pachinkoRondaActiva = true;
+                pachinkoBolasRestantes = configPachinko.bolasPorRonda || 5;
+                pachinkoAcumuladoRonda = 0;
+                const res = document.getElementById('resultado-pachinko');
+                if (res) res.classList.add('hidden');
+                actualizarHudPachinko();
+            }
+
+            lanzarBolaPachinko();
         }
 
         function generarFormularioGarraAdmin() {
