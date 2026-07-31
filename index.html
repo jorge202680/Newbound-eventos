@@ -1712,18 +1712,27 @@
 
             <!-- TAB GENERAL -->
             <div id="tab-contenido-general" class="space-y-4">
-                <div class="p-4 bg-oscuro rounded-2xl border border-rojo/40 space-y-3">
-                    <h4 class="font-black text-xs text-rojo uppercase tracking-wider"><i class="fa fa-shield-halved"></i> Seguridad — Contraseña de Administrador</h4>
-                    <p class="text-[10px] text-slate-400">Esta es la contraseña real que protege el panel (la del modal "Acceso Restringido"), no la de tu cuenta de jugador.</p>
+                <div class="bg-oscuro border border-rojo/40 rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-0')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-rojo uppercase tracking-wider"><i class="fa fa-shield-halved"></i> Seguridad — Contraseña de Administrador</h4>
+                        <i id="seccion-admin-gen-0-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-0" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Esta es la contraseña real que protege el panel (la del modal "Acceso Restringido"), no la de tu cuenta de jugador.</p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div class="space-y-1"><label class="text-slate-400 block">Nueva contraseña:</label><input type="password" id="input-nueva-password-admin" placeholder="Mínimo 6 caracteres" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                         <div class="space-y-1"><label class="text-slate-400 block">Repetir nueva contraseña:</label><input type="password" id="input-nueva-password-admin-confirmar" placeholder="Repite la contraseña" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                     </div>
                     <button onclick="cambiarPasswordAdminNube()" class="w-full py-2.5 bg-rojo text-white font-black rounded-xl shadow hover:opacity-90 transition"><i class="fa fa-key"></i> Cambiar Contraseña de Administrador</button>
+                    </div>
                 </div>
-                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
-                    <h4 class="font-black text-xs text-dorado uppercase tracking-wider">Apariencia y Horarios de Eventos</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="bg-oscuro border border-borde rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-1')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-dorado uppercase tracking-wider">Apariencia y Horarios de Eventos</h4>
+                        <i id="seccion-admin-gen-1-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-1" class="hidden px-4 pb-4 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div class="space-y-1"><label class="text-slate-400 block">Título del Evento:</label><input type="text" id="input-titulo-evento" placeholder="Gaming Premier VIP" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                         <div class="space-y-1 sm:col-span-2"><label class="text-slate-400 block">Texto del Pie de Página (footer):</label><input type="text" id="input-texto-footer" placeholder="© 2026 Gaming Premier VIP Supreme. Todos los derechos reservados." class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                         <div class="space-y-1">
@@ -1747,11 +1756,16 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-naranja/30 space-y-3">
-                    <h4 class="font-black text-xs text-naranja uppercase tracking-wider"><i class="fa fa-bolt"></i> Oferta Relámpago</h4>
-                    <p class="text-[10px] text-slate-400">Aparece como banner mientras esté vigente. Al tocar "Activar/Reiniciar" arranca la cuenta regresiva desde las horas que pongas.</p>
+                <div class="bg-oscuro border border-naranja/30 rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-2')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-naranja uppercase tracking-wider"><i class="fa fa-bolt"></i> Oferta Relámpago</h4>
+                        <i id="seccion-admin-gen-2-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-2" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Aparece como banner mientras esté vigente. Al tocar "Activar/Reiniciar" arranca la cuenta regresiva desde las horas que pongas.</p>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="admin-oferta-nombre" placeholder="Nombre del producto" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
                         <input type="text" id="admin-oferta-imagen" placeholder="URL de imagen" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
@@ -1764,11 +1778,16 @@
                         <button onclick="cancelarOfertaRelampagoAdmin()" class="px-3 py-2 bg-rojo/20 text-rojo border border-rojo/40 font-bold rounded-xl text-xs">Cancelar</button>
                     </div>
                     <p id="admin-oferta-estado" class="text-[10px] text-slate-500"></p>
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-morado/30 space-y-3">
-                    <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-calendar-star"></i> Eventos Temáticos Automáticos</h4>
-                    <p class="text-[10px] text-slate-400">Cambia el título de la app solo, en las fechas que definas (ej: Fiestas Patrias, Navidad). Solo importa el día y mes, no el año.</p>
+                <div class="bg-oscuro border border-morado/30 rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-3')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-calendar-star"></i> Eventos Temáticos Automáticos</h4>
+                        <i id="seccion-admin-gen-3-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-3" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Cambia el título de la app solo, en las fechas que definas (ej: Fiestas Patrias, Navidad). Solo importa el día y mes, no el año.</p>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="admin-evento-nombre" placeholder="Título del evento" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs col-span-2">
                         <input type="text" id="admin-evento-emoji" placeholder="Emoji (ej: 🎉)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
@@ -1777,19 +1796,29 @@
                     </div>
                     <button onclick="agregarEventoTematicoAdmin()" class="w-full py-2 bg-morado text-white font-black rounded-xl text-xs"><i class="fa fa-plus"></i> Agregar Evento</button>
                     <div id="admin-lista-eventos-tematicos" class="space-y-2 pt-1"></div>
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
-                    <h4 class="font-black text-xs text-verde uppercase tracking-wider"><i class="fa fa-right-left"></i> Casa de Cambios</h4>
-                    <p class="text-[10px] text-slate-400">Cuántas monedas equivalen a 1 gema (se usa para cambiar en los dos sentidos).</p>
+                <div class="bg-oscuro border border-borde rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-4')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-verde uppercase tracking-wider"><i class="fa fa-right-left"></i> Casa de Cambios</h4>
+                        <i id="seccion-admin-gen-4-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-4" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Cuántas monedas equivalen a 1 gema (se usa para cambiar en los dos sentidos).</p>
                     <input type="number" min="1" id="admin-tasa-cambio" placeholder="Ej: 100" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarTasaCambioAdmin()">
                     <p class="text-[10px] text-slate-400">Cuántas monedas equivalen a 1 💠 cristal.</p>
                     <input type="number" min="1" id="admin-tasa-cambio-cristal" placeholder="Ej: 300" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarTasaCambioCristalAdmin()">
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-morado/30 space-y-3">
-                    <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-medal"></i> Pase VIP de Temporada</h4>
-                    <p class="text-[10px] text-slate-400">Recompensa = Nivel VIP × "Monedas por nivel". Cada 5 niveles da 1 gema extra.</p>
+                <div class="bg-oscuro border border-morado/30 rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-5')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-medal"></i> Pase VIP de Temporada</h4>
+                        <i id="seccion-admin-gen-5-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-5" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Recompensa = Nivel VIP × "Monedas por nivel". Cada 5 niveles da 1 gema extra.</p>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="admin-pase-vip-activo" class="sr-only peer" onchange="guardarConfigPaseVipAdmin()">
                         <div class="w-11 h-6 bg-claro peer-focus:outline-none rounded-full peer peer-checked:bg-morado relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
@@ -1801,45 +1830,70 @@
                         <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Nivel máx.</label><input type="number" min="1" id="admin-pase-vip-nivelmax" placeholder="30" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
                         <div class="space-y-1"><label class="text-[9px] text-slate-400 block">Monedas/nivel</label><input type="number" min="1" id="admin-pase-vip-monedasnivel" placeholder="20" class="w-full px-2 py-2 rounded-xl bg-medio border border-borde text-white text-[10px]" onchange="guardarConfigPaseVipAdmin()"></div>
                     </div>
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-rojo/30 space-y-3">
-                    <h4 class="font-black text-xs text-rojo uppercase tracking-wider"><i class="fa fa-triangle-exclamation"></i> Modo Mantenimiento</h4>
-                    <p class="text-[10px] text-slate-400">Bloquea el acceso a todos los jugadores con un mensaje. Tú sigues pudiendo entrar tocando "Acceso administrador" en esa misma pantalla.</p>
+                <div class="bg-oscuro border border-rojo/30 rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-6')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-rojo uppercase tracking-wider"><i class="fa fa-triangle-exclamation"></i> Modo Mantenimiento</h4>
+                        <i id="seccion-admin-gen-6-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-6" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Bloquea el acceso a todos los jugadores con un mensaje. Tú sigues pudiendo entrar tocando "Acceso administrador" en esa misma pantalla.</p>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="admin-modo-mantenimiento" class="sr-only peer" onchange="guardarModoMantenimientoAdmin()">
                         <div class="w-11 h-6 bg-claro peer-focus:outline-none rounded-full peer peer-checked:bg-rojo relative after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                         <span class="ml-2 text-[10px] font-bold text-slate-400">Activar Mantenimiento</span>
                     </label>
                     <input type="text" id="admin-mensaje-mantenimiento" placeholder="Mensaje para los jugadores" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarModoMantenimientoAdmin()">
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
-                    <h4 class="font-black text-xs text-verde uppercase tracking-wider"><i class="fa fa-bullhorn"></i> Novedades / Últimas Actualizaciones</h4>
-                    <p class="text-[10px] text-slate-400">Se muestran en la ventana "Información" para todos los jugadores. Ej: "Se agregó la Garra de Premios 🎮".</p>
+                <div class="bg-oscuro border border-borde rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-7')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-verde uppercase tracking-wider"><i class="fa fa-bullhorn"></i> Novedades / Últimas Actualizaciones</h4>
+                        <i id="seccion-admin-gen-7-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-7" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Se muestran en la ventana "Información" para todos los jugadores. Ej: "Se agregó la Garra de Premios 🎮".</p>
                     <div class="grid grid-cols-1 gap-2">
                         <input type="text" id="admin-novedad-titulo" placeholder="Título (ej: ¡Nueva función!)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
                         <textarea id="admin-novedad-desc" rows="2" placeholder="Descripción corta (opcional)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
                         <button onclick="agregarNovedadAdmin()" class="w-full py-2 bg-verde text-black font-black rounded-xl text-xs shadow"><i class="fa fa-plus"></i> Publicar Novedad</button>
                     </div>
                     <div id="admin-lista-novedades" class="space-y-2 pt-1"></div>
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
-                    <h4 class="font-black text-xs text-dorado uppercase tracking-wider"><i class="fa fa-eye"></i> Visibilidad de Tarjetas del Menú</h4>
-                    <p class="text-[10px] text-slate-400">Oculta o muestra tarjetas del menú principal para todos los usuarios. No se elimina nada, solo se oculta.</p>
+                <div class="bg-oscuro border border-borde rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-8')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-dorado uppercase tracking-wider"><i class="fa fa-eye"></i> Visibilidad de Tarjetas del Menú</h4>
+                        <i id="seccion-admin-gen-8-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-8" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Oculta o muestra tarjetas del menú principal para todos los usuarios. No se elimina nada, solo se oculta.</p>
                     <div id="admin-grid-visibilidad-tarjetas" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
-                    <h4 class="font-black text-xs text-dorado uppercase tracking-wider"><i class="fa fa-image"></i> Imágenes de las Tarjetas del Menú</h4>
-                    <p class="text-[10px] text-slate-400">Pon una imagen para reemplazar el ícono de cada tarjeta. Déjalo vacío para volver al ícono normal. Recuerda tocar "Guardar Cambios" al final.</p>
+                <div class="bg-oscuro border border-borde rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-9')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-dorado uppercase tracking-wider"><i class="fa fa-image"></i> Imágenes de las Tarjetas del Menú</h4>
+                        <i id="seccion-admin-gen-9-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-9" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Pon una imagen para reemplazar el ícono de cada tarjeta. Déjalo vacío para volver al ícono normal. Recuerda tocar "Guardar Cambios" al final.</p>
                     <div id="admin-grid-imagenes-tarjetas" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
-                    <h4 class="font-black text-xs text-dorado uppercase tracking-wider">⏰ Control de Horarios y Restricciones de Módulos</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div class="bg-oscuro border border-borde rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-10')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-dorado uppercase tracking-wider">⏰ Control de Horarios y Restricciones de Módulos</h4>
+                        <i id="seccion-admin-gen-10-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-10" class="hidden px-4 pb-4 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                         <div class="p-3 bg-medio rounded-xl border border-borde space-y-2">
                             <span class="font-bold text-white block">Metas GP</span>
                             <label class="text-[10px] text-slate-400 block">Inicio:</label><input type="datetime-local" id="input-ini-gp" class="w-full px-2 py-1 rounded bg-oscuro border border-borde text-white">
@@ -1861,15 +1915,21 @@
                             <label class="text-[10px] text-slate-400 block">Fin:</label><input type="datetime-local" id="input-fin-ruleta" class="w-full px-2 py-1 rounded bg-oscuro border border-borde text-white">
                         </div>
                     </div>
+                    </div>
                 </div>
 
-                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
-                    <h4 class="font-black text-xs text-dorado uppercase tracking-wider">Notificaciones Telegram Bot</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="bg-oscuro border border-borde rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-11')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-dorado uppercase tracking-wider">Notificaciones Telegram Bot</h4>
+                        <i id="seccion-admin-gen-11-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-11" class="hidden px-4 pb-4 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                         <div class="space-y-1"><label class="text-slate-400 block">Bot Token:</label><input type="text" id="telegram-bot-token" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                         <div class="space-y-1"><label class="text-slate-400 block">Chat ID:</label><input type="text" id="telegram-chat-id" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                     </div>
                     <button onclick="probarMensajeTelegram()" class="px-4 py-2 bg-azul text-white font-bold text-xs rounded-xl shadow">Probar Conexión Telegram</button>
+                    </div>
                 </div>
             </div>
 
@@ -2454,6 +2514,15 @@
             localStorage.removeItem('usuario_actual_obj');
             localStorage.removeItem('usuario_actual_nombre');
             location.reload();
+        }
+
+        // Abre/cierra una sección tipo "desglose" del panel admin (una a la vez no es obligatorio, se puede tener varias abiertas).
+        function alternarSeccionAdmin(id) {
+            const cont = document.getElementById(id);
+            const chevron = document.getElementById(id + '-chevron');
+            if (!cont) return;
+            cont.classList.toggle('hidden');
+            if (chevron) chevron.classList.toggle('rotate-180');
         }
 
         function cambiarTabAdmin(tab) {
