@@ -622,6 +622,89 @@
         .palanca-riel {
             background: repeating-linear-gradient(180deg, #475569 0px, #475569 2px, transparent 2px, transparent 6px);
         }
+        /* ===================================================================
+           ===== V15 · SKIN VISUAL MODERNO (inspirado en banners de evento,
+           tarjetas de misión con progreso y tienda tipo "juego móvil") =====
+           No se tocan IDs ni onclick existentes: solo se suma estética nueva.
+           =================================================================== */
+
+        /* Fondo general vivo en vez de plano oscuro. Si el admin pone una
+           imagen de fondo (--fondo-app-imagen), se usa como capa superior. */
+        body {
+            background:
+                var(--fondo-app-imagen, none) center/cover fixed,
+                radial-gradient(1200px 600px at 15% -10%, rgba(var(--tema-primario-rgb), 0.16), transparent 60%),
+                radial-gradient(900px 500px at 100% 0%, rgba(37, 99, 235, 0.14), transparent 55%),
+                linear-gradient(180deg, #0B0F19 0%, #0B0F19 40%, #0B0F19 100%);
+        }
+        body.con-fondo-app-imagen::before {
+            content: '';
+            position: fixed; inset: 0;
+            background: linear-gradient(180deg, rgba(11,15,25,0.55), rgba(11,15,25,0.88));
+            pointer-events: none; z-index: 0;
+        }
+
+        /* Header en formato "pill" flotante, más parecido a un menú de juego */
+        header.header-v15 {
+            border-radius: 0 0 22px 22px;
+            background: linear-gradient(180deg, rgba(19,28,46,0.97), rgba(19,28,46,0.9));
+            backdrop-filter: blur(10px);
+        }
+
+        /* Tarjetas con brillo sutil de borde y sombra más "cristal" */
+        .tarjeta-led, #card-regalo-diario, #card-mision-dia {
+            position: relative;
+            border-radius: 22px !important;
+            transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+        }
+        .tarjeta-led:hover, #card-regalo-diario:hover, #card-mision-dia:hover {
+            transform: translateY(-2px) scale(1.015);
+            box-shadow: 0 10px 24px -8px rgba(0,0,0,0.55);
+        }
+
+        /* Contenedores de categoría con encabezado tipo "banner" con leve gradiente */
+        main > .rounded-3xl.overflow-hidden.border {
+            border-radius: 26px !important;
+        }
+
+        /* Ribbon "NUEVO" reutilizable, al estilo tarjetas de tienda de la referencia */
+        .chip-nuevo-v15 {
+            position: absolute; top: 8px; right: 8px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #06210f; font-weight: 900; font-size: 8px;
+            letter-spacing: .04em; padding: 2px 7px; border-radius: 999px;
+            box-shadow: 0 2px 8px rgba(22,163,74,0.5);
+            text-transform: uppercase;
+        }
+
+        /* ===== HERO BANNER DE EVENTO (reemplaza el banner plano de oferta) ===== */
+        #banner-oferta-relampago.banner-v15 {
+            border-radius: 28px !important;
+            min-height: 132px;
+            background-size: cover; background-position: center;
+            box-shadow: 0 14px 30px -10px rgba(0,0,0,0.6);
+        }
+        #banner-oferta-relampago.banner-v15 .banner-v15-overlay {
+            position: absolute; inset: 0; border-radius: 28px;
+            background: linear-gradient(180deg, rgba(11,15,25,0.15) 0%, rgba(11,15,25,0.55) 60%, rgba(11,15,25,0.85) 100%);
+        }
+        .banner-v15-cronometro-caja {
+            background: rgba(11,15,25,0.75);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            min-width: 34px;
+            padding: 3px 5px;
+            text-align: center;
+            backdrop-filter: blur(4px);
+        }
+        .banner-v15-cronometro-num { font-weight: 900; font-size: 12px; color: #fff; display: block; line-height: 1.1; }
+        .banner-v15-cronometro-etq { font-size: 7px; color: #cbd5e1; text-transform: uppercase; letter-spacing: .05em; }
+
+        @keyframes brilloBordeV15 {
+            0%, 100% { box-shadow: 0 0 0 1px rgba(var(--tema-primario-rgb),0.35), 0 14px 30px -10px rgba(0,0,0,0.6); }
+            50% { box-shadow: 0 0 0 1px rgba(var(--tema-primario-rgb),0.75), 0 14px 34px -8px rgba(0,0,0,0.65); }
+        }
+        #banner-oferta-relampago.banner-v15 { animation: brilloBordeV15 2.4s ease-in-out infinite; }
     </style>
 </head>
 <body class="bg-oscuro text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-dorado selection:text-black">
@@ -701,7 +784,7 @@
 
     <!-- HEADER SUPERIOR -->
     <div id="reloj-local" class="text-xs font-mono text-gray-300 text-center py-1"></div>
-    <header class="bg-medio border-b border-borde px-4 py-3 flex flex-wrap justify-between items-center gap-y-2 sticky top-0 z-30 shadow-md">
+    <header class="header-v15 bg-medio border-b border-borde px-4 py-3 flex flex-wrap justify-between items-center gap-y-2 sticky top-0 z-30 shadow-md">
         <div class="flex items-center gap-3">
             <div id="header-logo-contenedor" class="w-10 h-10 rounded-xl bg-dorado/20 border border-dorado flex items-center justify-center text-dorado text-lg overflow-hidden bg-cover bg-center">
                 <i class="fa fa-crown" id="header-logo-icono"></i>
@@ -851,14 +934,25 @@
             <i class="fa fa-chevron-right text-slate-500 ml-auto text-xs"></i>
         </button>
 
-        <!-- BANNER OFERTA RELÁMPAGO (solo visible mientras está vigente) -->
-        <button onclick="abrirVentana('modal-oferta-relampago'); renderizarModalOfertaRelampago();" id="banner-oferta-relampago" class="hidden w-full p-4 rounded-3xl bg-gradient-to-r from-rojo/30 to-naranja/20 border border-naranja/50 shadow-xl items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-naranja/30 text-naranja flex items-center justify-center text-lg shrink-0 animate-pulse"><i class="fa fa-bolt"></i></div>
-            <div class="text-left flex-1 min-w-0">
-                <h3 class="font-black text-xs text-white">⚡ Oferta Relámpago</h3>
-                <p id="texto-resumen-oferta-relampago" class="text-[10px] text-slate-300 truncate"></p>
+        <!-- BANNER OFERTA RELÁMPAGO / HERO DE EVENTO (solo visible mientras está vigente) -->
+        <button onclick="abrirVentana('modal-oferta-relampago'); renderizarModalOfertaRelampago();" id="banner-oferta-relampago" class="banner-v15 hidden w-full p-4 rounded-3xl border border-naranja/50 shadow-xl relative flex-col items-start justify-end gap-2 overflow-hidden text-left">
+            <div class="banner-v15-overlay"></div>
+            <span class="chip-nuevo-v15" style="top:auto; right:auto; bottom:8px; right:8px; top:8px;">⚡ Oferta</span>
+            <div class="relative z-10 flex flex-col gap-1.5 w-full">
+                <h3 class="font-black text-sm text-white drop-shadow">⚡ Oferta Relámpago</h3>
+                <p id="texto-resumen-oferta-relampago" class="text-[11px] text-slate-200 truncate drop-shadow"></p>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-[8px] font-black text-slate-300 uppercase tracking-wide">Termina en:</span>
+                    <div class="flex gap-1">
+                        <div class="banner-v15-cronometro-caja"><span id="cronom-oferta-d" class="banner-v15-cronometro-num">00</span><span class="banner-v15-cronometro-etq">Días</span></div>
+                        <div class="banner-v15-cronometro-caja"><span id="cronom-oferta-h" class="banner-v15-cronometro-num">00</span><span class="banner-v15-cronometro-etq">Hrs</span></div>
+                        <div class="banner-v15-cronometro-caja"><span id="cronom-oferta-m" class="banner-v15-cronometro-num">00</span><span class="banner-v15-cronometro-etq">Min</span></div>
+                        <div class="banner-v15-cronometro-caja"><span id="cronom-oferta-s" class="banner-v15-cronometro-num">00</span><span class="banner-v15-cronometro-etq">Seg</span></div>
+                    </div>
+                </div>
             </div>
-            <span id="texto-cronometro-oferta-banner" class="text-[10px] font-mono text-naranja shrink-0"></span>
+            <!-- compatibilidad: elemento antiguo, se mantiene oculto para no romper otras referencias -->
+            <span id="texto-cronometro-oferta-banner" class="hidden"></span>
         </button>
 
         <!-- REGALO DIARIO Y MISIÓN DEL DÍA -->
@@ -1374,6 +1468,10 @@
                         <i id="icono-premio-champions-placeholder" class="fa fa-trophy text-3xl text-slate-600"></i>
                     </div>
                     <p id="texto-campeon-premio-champions" class="text-xs text-slate-300 italic">El premio se entrega al campeón de la Champions Supreme.</p>
+                    <button onclick="reclamarPremioChampions()" id="btn-reclamar-premio-champions" class="hidden w-full py-2.5 bg-gradient-to-r from-dorado to-naranja text-black font-black rounded-xl text-xs shadow-lg items-center justify-center gap-2">
+                        <i class="fa fa-trophy"></i> ¡Reclamar mi Premio!
+                    </button>
+                    <p id="texto-ya-reclamado-champions" class="hidden text-[10px] text-verde font-bold">✅ Ya reclamaste este premio. El admin se contactará contigo para la entrega.</p>
                 </div>
             </div>
 
@@ -1869,6 +1967,18 @@
                                     <input type="file" accept="image/*" class="hidden" onchange="subirImagenTelefono(this, 'input-logo-carga-url')">
                                 </label>
                             </div>
+                        </div>
+                        <div class="space-y-1 sm:col-span-2">
+                            <label class="text-slate-400 block">🖼️ Imagen de Fondo de la App v15 (URL o Subir archivo, opcional):</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="input-fondo-app-url" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white">
+                                <label class="px-3 py-2 bg-claro text-white rounded-xl cursor-pointer hover:bg-slate-700 text-[10px] font-bold flex items-center gap-1 shrink-0">
+                                    <i class="fa fa-camera"></i> Archivo
+                                    <input type="file" accept="image/*" class="hidden" onchange="subirImagenTelefono(this, 'input-fondo-app-url')">
+                                </label>
+                                <button type="button" onclick="document.getElementById('input-fondo-app-url').value=''; guardarFondoAppV15();" class="px-3 py-2 bg-rojo/20 text-rojo border border-rojo/40 rounded-xl text-[10px] font-bold shrink-0">Quitar</button>
+                            </div>
+                            <p class="text-[9px] text-slate-500">Se aplica al fondo de toda la app. Si la dejas vacía, se usa el degradado por defecto.</p>
                         </div>
                         <div class="space-y-1 sm:col-span-2">
                             <label class="text-slate-400 block">🎬 URL de GIF Compañero o Subir desde Teléfono:</label>
@@ -2505,12 +2615,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "2.10.0";
+        const VERSION_APP_ACTUAL = "15.0.0";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '📢 Nueva Ventana de Información y Notificaciones',
-            descripcion: 'Se agregó la ventana de Información (con Novedades y Último Campeón) y la campanita 🔔 de notificaciones dentro de la app.'
+            titulo: '🎨 Versión 15 — Nuevo Look Visual',
+            descripcion: 'Se modernizó el diseño de toda la app: fondo con degradado vivo (y opción de poner tu propia imagen de fondo desde el panel admin), tarjetas con más brillo y esquinas más redondeadas, y un nuevo banner de Oferta Relámpago con imagen de fondo y cuenta regresiva de días/horas/min/seg.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
@@ -3079,7 +3189,7 @@
             'tasa_cambio_monedas_por_gema', 'config_pase_vip_app', 'tasa_cambio_monedas_por_cristal',
             'oferta_relampago_app', 'eventos_tematicos_app', 'preguntas_frecuentes_app',
             'top_semanal_app', 'cuartos_champions_v2_app', 'semis_champions_v2_app',
-            'final_champions_v2_app',
+            'final_champions_v2_app', 'fondo_app_v15', 'champions_torneo_id',
             'horario_ini_gp', 'horario_fin_gp', 'horario_ini_gm', 'horario_fin_gm',
             'horario_ini_top', 'horario_fin_top', 'horario_ini_ruleta', 'horario_fin_ruleta'
         ];
@@ -3089,7 +3199,7 @@
             'premios_ruleta_app': 'Premios de la Ruleta', 'top_semanal_app': 'Top Semanal',
             'datos_calendario_app': 'Calendario', 'imagen_premio_champions_app': 'Premio de Champions',
             'logo_carga_app': 'Logo', 'input_gif_companero_url': 'GIF Compañero',
-            'imagen_fondo_champions_app': 'Fondo de Champions'
+            'imagen_fondo_champions_app': 'Fondo de Champions', 'fondo_app_v15': 'Fondo de la App (v15)'
         };
         function diagnosticarImagenesPesadas(clave) {
             const mapaEstructuras = {
@@ -3149,6 +3259,7 @@
             configGarra = JSON.parse(localStorage.getItem('config_garra_app')) || configGarra;
             configTragamonedas = JSON.parse(localStorage.getItem('config_trag_app')) || configTragamonedas;
             TINKA_COSTO = parseInt(localStorage.getItem('tinka_costo_app')) || TINKA_COSTO;
+            champTorneoId = parseInt(localStorage.getItem('champions_torneo_id')) || champTorneoId;
 
             [
                 'renderizarRuletaVista', 'renderizarTiendaVista', 'renderizarTiendaAdmin',
@@ -3252,6 +3363,9 @@
         let datosChampions = JSON.parse(localStorage.getItem('cuartos_champions_v2_app')) || Array(8).fill(null).map(() => ({ nombre: '', score: 0 }));
         let datosChampionsSemis = JSON.parse(localStorage.getItem('semis_champions_v2_app')) || Array(4).fill(null).map(() => ({ nombre: '', score: 0 }));
         let datosChampionsFinal = JSON.parse(localStorage.getItem('final_champions_v2_app')) || [{ nombre: '', score: 0 }, { nombre: '', score: 0 }];
+        // Se usa para distinguir el reclamo del premio entre una edición del torneo y la siguiente
+        // (sube cada vez que el admin cierra/limpia la Gran Final tras coronar a un campeón).
+        let champTorneoId = parseInt(localStorage.getItem('champions_torneo_id')) || 1;
         let imagenPremioChampions = localStorage.getItem('imagen_premio_champions_app') || '';
         let imagenFondoChampions = localStorage.getItem('imagen_fondo_champions_app') || '';
         let tercerPuestoChampions = localStorage.getItem('tercer_puesto_champions_app') || '';
@@ -3373,6 +3487,38 @@
             alert(`🎉 ¡Premio del Top Semanal reclamado (+${item.premio} monedas)!`);
             enviarNotificacionTelegram(`El usuario ${usuarioActual} reclamó el premio del Top Semanal (puesto ${pos}, +${item.premio} monedas) 🏆`);
             agregarNotificacionApp(`🏆 ¡Reclamaste el premio del Top Semanal (puesto ${pos})! +${item.premio} monedas`, 'fa-trophy');
+        }
+
+        // El campeón de la Gran Final toca este botón para avisar que reclama su premio.
+        // No se entrega en monedas automáticamente (el premio de Champions es un ítem/beneficio real
+        // que define el admin), así que esto solo registra el reclamo y avisa con la imagen completa
+        // tanto dentro de la app (campanita) como al admin por Telegram, para que coordine la entrega.
+        function reclamarPremioChampions() {
+            let campeonNombre = '';
+            const a = datosChampionsFinal[0] || { nombre: '', score: 0 };
+            const b = datosChampionsFinal[1] || { nombre: '', score: 0 };
+            if (a.nombre && b.nombre && a.score !== b.score) {
+                campeonNombre = a.score > b.score ? a.nombre : b.nombre;
+            }
+            if (!usuarioActual || !campeonNombre || campeonNombre.trim().toLowerCase() !== usuarioActual.toLowerCase()) {
+                alert('🔒 Solo el campeón de la Gran Final puede reclamar este premio.');
+                return;
+            }
+            const claveReclamo = `reclamado_champions_${champTorneoId}_${usuarioActual.toLowerCase()}`;
+            if (localStorage.getItem(claveReclamo) === 'true') {
+                alert('⚠️ Ya reclamaste este premio.');
+                return;
+            }
+            localStorage.setItem(claveReclamo, 'true');
+            if (firebaseListo) {
+                dbFirebase.collection('usuarios').doc(usuarioActual.toLowerCase()).set({
+                    reclamosChampions: firebase.firestore.FieldValue.arrayUnion(champTorneoId)
+                }, { merge: true }).catch(e => console.warn('No se pudo sincronizar el reclamo de Champions:', e));
+            }
+            renderizarCuadroChampions();
+            alert('🎉 ¡Reclamo registrado! El admin verá tu aviso y se contactará contigo para la entrega del premio.');
+            enviarNotificacionTelegramConImagen(`👑 El usuario ${usuarioActual} es el CAMPEÓN de la Champions Supreme y está reclamando su premio. ¡Coordinar la entrega!`, imagenPremioChampions);
+            agregarNotificacionApp('👑 ¡Reclamaste tu premio de Campeón de la Champions Supreme! El admin coordinará la entrega contigo.', 'fa-trophy', imagenPremioChampions);
         }
 
         let configMusica = JSON.parse(localStorage.getItem('config_musica_app')) || {
@@ -3721,8 +3867,25 @@
                 imagenPremioChampions = document.getElementById('admin-champ-premio-img').value;
                 localStorage.setItem('imagen_premio_champions_app', imagenPremioChampions);
                 if (typeof actualizarPreviewPremioAdmin === 'function') actualizarPreviewPremioAdmin();
-            }
+            },
+            'input-fondo-app-url': () => guardarFondoAppV15()
         };
+
+        // Guarda y aplica de inmediato la imagen de fondo general de la app (skin v15)
+        function guardarFondoAppV15() {
+            const url = document.getElementById('input-fondo-app-url')?.value?.trim() || '';
+            localStorage.setItem('fondo_app_v15', url);
+            aplicarFondoAppV15(url);
+        }
+        function aplicarFondoAppV15(url) {
+            if (url) {
+                document.body.style.setProperty('--fondo-app-imagen', `url('${url}')`);
+                document.body.classList.add('con-fondo-app-imagen');
+            } else {
+                document.body.style.removeProperty('--fondo-app-imagen');
+                document.body.classList.remove('con-fondo-app-imagen');
+            }
+        }
 
         function aplicarValorImagen(valor, targetInput) {
             if (targetInput) {
@@ -3771,10 +3934,10 @@
         }
 
         // Agrega una notificación al historial del usuario actual y refresca el globito/panel si están visibles.
-        function agregarNotificacionApp(mensaje, icono) {
+        function agregarNotificacionApp(mensaje, icono, imagen) {
             if (!usuarioActual) return;
             const lista = obtenerNotificacionesApp();
-            lista.unshift({ mensaje, icono: icono || 'fa-bell', fecha: new Date().toISOString(), leida: false });
+            lista.unshift({ mensaje, icono: icono || 'fa-bell', imagen: imagen || '', fecha: new Date().toISOString(), leida: false });
             const recortada = lista.slice(0, 30);
             localStorage.setItem(`notificaciones_app_${usuarioActual}`, JSON.stringify(recortada));
             actualizarBadgeNotificacionesApp();
@@ -3812,8 +3975,9 @@
                 : lista.map(n => `
                     <div class="flex items-start gap-2 p-2 rounded-xl ${n.leida ? 'bg-oscuro' : 'bg-azul/10 border border-azul/30'}">
                         <i class="fa ${n.icono} text-dorado text-xs mt-0.5"></i>
-                        <div class="min-w-0">
+                        <div class="min-w-0 flex-1">
                             <p class="text-[11px] text-white leading-snug">${n.mensaje}</p>
+                            ${n.imagen ? `<img src="${n.imagen}" class="w-full max-h-40 object-cover rounded-lg mt-1.5 cursor-pointer" onclick="verImagenCompleta('${n.imagen}')">` : ''}
                             <p class="text-[9px] text-slate-500 mt-0.5">${formatearTiempoRelativoNotif(n.fecha)}</p>
                         </div>
                     </div>`).join('');
@@ -5563,6 +5727,17 @@
                     ? `🎉 ¡${campeonNombre} se coronó Campeón de la Champions Supreme!`
                     : 'El premio se entrega al campeón de la Champions Supreme.';
             }
+
+            const btnReclamar = document.getElementById('btn-reclamar-premio-champions');
+            const textoYaReclamado = document.getElementById('texto-ya-reclamado-champions');
+            if (btnReclamar && textoYaReclamado) {
+                const esElCampeon = !!(campeonNombre && usuarioActual && campeonNombre.trim().toLowerCase() === usuarioActual.toLowerCase());
+                const claveReclamo = `reclamado_champions_${champTorneoId}_${(usuarioActual || '').toLowerCase()}`;
+                const yaReclamado = localStorage.getItem(claveReclamo) === 'true';
+                btnReclamar.classList.toggle('hidden', !(esElCampeon && !yaReclamado));
+                btnReclamar.classList.toggle('flex', esElCampeon && !yaReclamado);
+                textoYaReclamado.classList.toggle('hidden', !(esElCampeon && yaReclamado));
+            }
         }
 
         function centrarBracketChampions() {
@@ -5959,6 +6134,8 @@
                 guardarCampeonEnHistorial(campeon);
             }
             datosChampionsFinal = [{ nombre: '', score: 0 }, { nombre: '', score: 0 }];
+            champTorneoId++;
+            localStorage.setItem('champions_torneo_id', champTorneoId);
             cargardatosFormularioChampions();
         }
 
@@ -6248,6 +6425,7 @@
             if(document.getElementById('input-texto-footer')) document.getElementById('input-texto-footer').value = localStorage.getItem('texto_footer_app') || '';
             if(document.getElementById('input-logo-carga-url')) document.getElementById('input-logo-carga-url').value = localStorage.getItem('logo_carga_app') || '';
             if(document.getElementById('input-gif-companero-url')) document.getElementById('input-gif-companero-url').value = localStorage.getItem('input_gif_companero_url') || '';
+            if(document.getElementById('input-fondo-app-url')) document.getElementById('input-fondo-app-url').value = localStorage.getItem('fondo_app_v15') || '';
         }
 
         function cargarDatosTragamonedasEnAdmin() {
@@ -7618,17 +7796,28 @@
             if (ofertaRelampagoVigente(oferta)) {
                 banner.classList.remove('hidden');
                 banner.classList.add('flex');
+                banner.style.backgroundImage = oferta.imagen ? `url('${oferta.imagen}')` : '';
                 document.getElementById('texto-resumen-oferta-relampago').textContent = `${oferta.nombre} — ahora ${oferta.precioOferta} monedas`;
                 const restante = oferta.finTimestamp - Date.now();
-                const h = Math.floor(restante / 3600000);
+                const d = Math.floor(restante / 86400000);
+                const h = Math.floor((restante % 86400000) / 3600000);
                 const m = Math.floor((restante % 3600000) / 60000);
+                const s = Math.floor((restante % 60000) / 1000);
+                const elD = document.getElementById('cronom-oferta-d');
+                const elH = document.getElementById('cronom-oferta-h');
+                const elM = document.getElementById('cronom-oferta-m');
+                const elS = document.getElementById('cronom-oferta-s');
+                if (elD) elD.textContent = String(Math.max(d, 0)).padStart(2, '0');
+                if (elH) elH.textContent = String(Math.max(h, 0)).padStart(2, '0');
+                if (elM) elM.textContent = String(Math.max(m, 0)).padStart(2, '0');
+                if (elS) elS.textContent = String(Math.max(s, 0)).padStart(2, '0');
                 document.getElementById('texto-cronometro-oferta-banner').textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
             } else {
                 banner.classList.add('hidden');
                 banner.classList.remove('flex');
             }
         }
-        setInterval(actualizarBannerOfertaRelampago, 30000);
+        setInterval(actualizarBannerOfertaRelampago, 1000);
 
         function renderizarModalOfertaRelampago() {
             const oferta = obtenerOfertaRelampago();
@@ -8018,6 +8207,7 @@
             aplicarModoMantenimiento();
             aplicarEventoTematicoAutomatico();
             actualizarBannerOfertaRelampago();
+            aplicarFondoAppV15(localStorage.getItem('fondo_app_v15') || '');
         }
 
         async function guardarCambios() {
