@@ -6595,8 +6595,14 @@
                     </div>
                     <input type="text" placeholder="Ej: X2, 1 SEMANA, ETERNO" value="${celda.texto || ''}" class="w-full px-2 py-1 rounded-lg bg-oscuro border border-borde text-white text-[10px]" onchange="actualizarCampoMetaPaseVipAdmin(${metaIdx}, '${tier}', 'texto', this.value)">
                     <div class="grid grid-cols-2 gap-1">
-                        <input type="number" min="0" placeholder="🪙" value="${celda.monedas || 0}" class="w-full px-2 py-1 rounded-lg bg-oscuro border border-borde text-white text-[10px]" onchange="actualizarCampoMetaPaseVipAdmin(${metaIdx}, '${tier}', 'monedas', parseInt(this.value)||0)">
-                        <input type="number" min="0" placeholder="💎" value="${celda.gemas || 0}" class="w-full px-2 py-1 rounded-lg bg-oscuro border border-borde text-white text-[10px]" onchange="actualizarCampoMetaPaseVipAdmin(${metaIdx}, '${tier}', 'gemas', parseInt(this.value)||0)">
+                        <div class="space-y-0.5">
+                            <span class="text-[8px] text-slate-500 block">🪙 Monedas</span>
+                            <input type="number" min="0" value="${celda.monedas || 0}" class="w-full px-2 py-1 rounded-lg bg-oscuro border border-borde text-white text-[10px]" onchange="actualizarCampoMetaPaseVipAdmin(${metaIdx}, '${tier}', 'monedas', parseInt(this.value)||0)">
+                        </div>
+                        <div class="space-y-0.5">
+                            <span class="text-[8px] text-slate-500 block">💎 Gemas</span>
+                            <input type="number" min="0" value="${celda.gemas || 0}" class="w-full px-2 py-1 rounded-lg bg-oscuro border border-borde text-white text-[10px]" onchange="actualizarCampoMetaPaseVipAdmin(${metaIdx}, '${tier}', 'gemas', parseInt(this.value)||0)">
+                        </div>
                     </div>
                 </div>`;
             };
@@ -8439,32 +8445,10 @@
             actualizarMetaGlobal();
         }
 
-        window.onload = async function() {
-            reproducirMusicaSeccion('carga');
-            document.addEventListener('click', reintentarMusicaBloqueada, { once: true });
-            document.addEventListener('touchstart', reintentarMusicaBloqueada, { once: true });
-            aplicarConfiguracionApp();
-            inicializarVersionApp();
-            generarGridTragamonedas();
-            if (firebaseListo) {
-                await cargarListaUsuariosDesdeNube();
-                escucharUsuariosEnVivo();
-                await cargarConfigTelegramNube();
-                await cargarMetaGlobalNube();
-                escucharMetaGlobalEnVivo();
-                await cargarMisionesNube();
-                escucharMisionesEnVivo();
-                await cargarConfigGlobalNube();
-                escucharConfigGlobalEnVivo();
-                setInterval(() => { if (usuarioActual) guardarProgresoNube(true); }, 15000);
-            }
-            asegurarTemporadaPaseVipActiva();
-            asegurarEventosTematicosAutomaticos();
-            aplicarEventoTematicoAutomatico();
-            generarOfertaRelampagoAutomaticaSiToca();
-            verificarSesionActiva();
-            if(usuarioActual) verificarRachaDiaria();
-
+        // Animación visual de la pantalla de carga. Es puramente cosmética (dura
+        // ~1 seg) y ya NO depende de que Firebase termine de responder: por eso
+        // ahora se llama al principio de window.onload, antes de esperar datos.
+        function iniciarBarraDeProgresoCarga() {
             const barraProgresoCarga = document.getElementById('barra-progreso-carga');
             const textoPorcentajeCarga = document.getElementById('texto-porcentaje-carga');
             const textoEstadoCarga = document.getElementById('texto-estado-carga');
@@ -8516,6 +8500,46 @@
                     }, 650);
                 }
             }, pasoCargaMs);
+        }
+
+        window.onload = async function() {
+            reproducirMusicaSeccion('carga');
+            document.addEventListener('click', reintentarMusicaBloqueada, { once: true });
+            document.addEventListener('touchstart', reintentarMusicaBloqueada, { once: true });
+            aplicarConfiguracionApp();
+            inicializarVersionApp();
+            generarGridTragamonedas();
+
+            // --- CORRECCIÓN: arrancar la barra de progreso YA, en paralelo con la carga ---
+            // Antes, todo lo de abajo (barra de progreso incluida) esperaba a que
+            // terminaran, UNA POR UNA, 5 consultas distintas a Firebase. Cada consulta
+            // podía tardar varios segundos, así que la pantalla de carga se quedaba
+            // congelada en 0% hasta que las 5 sumadas terminaran (de ahí los 20+ seg).
+            iniciarBarraDeProgresoCarga();
+
+            if (firebaseListo) {
+                // --- CORRECCIÓN: cargar todo en paralelo (Promise.all) en vez de en
+                // serie (await uno por uno). El tiempo total pasa a ser el de la
+                // consulta MÁS LENTA, no la SUMA de las 5 consultas. ---
+                await Promise.all([
+                    cargarListaUsuariosDesdeNube(),
+                    cargarConfigTelegramNube(),
+                    cargarMetaGlobalNube(),
+                    cargarMisionesNube(),
+                    cargarConfigGlobalNube()
+                ]);
+                escucharUsuariosEnVivo();
+                escucharMetaGlobalEnVivo();
+                escucharMisionesEnVivo();
+                escucharConfigGlobalEnVivo();
+                setInterval(() => { if (usuarioActual) guardarProgresoNube(true); }, 15000);
+            }
+            asegurarTemporadaPaseVipActiva();
+            asegurarEventosTematicosAutomaticos();
+            aplicarEventoTematicoAutomatico();
+            generarOfertaRelampagoAutomaticaSiToca();
+            verificarSesionActiva();
+            if(usuarioActual) verificarRachaDiaria();
 
             const reloj = document.getElementById('reloj-local');
             if(reloj) {
