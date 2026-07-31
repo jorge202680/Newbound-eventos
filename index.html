@@ -712,6 +712,10 @@
                 <span class="text-xs">💎</span>
                 <span id="gemas-mostrar" class="text-xs font-black text-morado">0</span>
             </div>
+            <div class="px-3 py-1.5 rounded-xl bg-oscuro border border-azul/40 flex items-center gap-1.5 shadow-inner">
+                <span class="text-xs">💠</span>
+                <span id="cristales-mostrar" class="text-xs font-black text-azul">0</span>
+            </div>
             <span id="badge-vip-display" class="hidden px-2.5 py-1 rounded-xl bg-gradient-to-r from-dorado to-naranja text-black text-[10px] font-black shadow">VIP 1</span>
             <div id="badge-boost-header" style="display:none;" class="px-2.5 py-1.5 rounded-xl bg-oscuro border border-dorado/60 items-center gap-1.5 shadow-inner cursor-pointer" onclick="abrirVentana('modal-tienda')" title="Bonus VIP activo · toca para ver la Tienda">
                 <i class="fa fa-bolt text-dorado text-xs" id="icono-boost-header"></i>
@@ -1409,7 +1413,7 @@
 
     <!-- MODAL CASA DE CAMBIOS -->
     <div id="modal-casa-cambios" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
-        <div class="bg-medio border border-verde/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+        <div class="bg-medio border border-verde/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-center">
                 <h3 class="font-black text-sm text-verde flex items-center gap-2"><i class="fa fa-right-left"></i> Casa de Cambios</h3>
                 <button onclick="cerrarVentana('modal-casa-cambios')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
@@ -1428,6 +1432,20 @@
                 <input type="number" min="0" id="input-cambio-gemas" placeholder="Gemas a cambiar" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-sm" oninput="previsualizarCambioGemasAMonedas()">
                 <p id="preview-cambio-gemas-monedas" class="text-[10px] text-slate-400">Obtendrás 0 monedas</p>
                 <button onclick="cambiarGemasPorMonedas()" class="w-full py-2 bg-morado text-white font-black rounded-xl text-xs">Cambiar a Monedas</button>
+            </div>
+
+            <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-2">
+                <span class="font-bold text-white text-xs flex items-center gap-2"><i class="fa fa-coins text-dorado"></i> Monedas → 💠 Cristales</span>
+                <input type="number" min="0" id="input-cambio-monedas-cristal" placeholder="Monedas a cambiar" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-sm" oninput="previsualizarCambioMonedasACristales()">
+                <p id="preview-cambio-monedas-cristales" class="text-[10px] text-slate-400">Obtendrás 0 cristales</p>
+                <button onclick="cambiarMonedasPorCristales()" class="w-full py-2 bg-azul text-white font-black rounded-xl text-xs">Cambiar a Cristales</button>
+            </div>
+
+            <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-2">
+                <span class="font-bold text-white text-xs flex items-center gap-2"><i class="fa fa-star text-azul"></i> 💠 Cristales → 🪙 Monedas</span>
+                <input type="number" min="0" id="input-cambio-cristales" placeholder="Cristales a cambiar" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-sm" oninput="previsualizarCambioCristalesAMonedas()">
+                <p id="preview-cambio-cristales-monedas" class="text-[10px] text-slate-400">Obtendrás 0 monedas</p>
+                <button onclick="cambiarCristalesPorMonedas()" class="w-full py-2 bg-oscuro border border-azul text-azul font-black rounded-xl text-xs">Cambiar a Monedas</button>
             </div>
         </div>
     </div>
@@ -1755,6 +1773,8 @@
                     <h4 class="font-black text-xs text-verde uppercase tracking-wider"><i class="fa fa-right-left"></i> Casa de Cambios</h4>
                     <p class="text-[10px] text-slate-400">Cuántas monedas equivalen a 1 gema (se usa para cambiar en los dos sentidos).</p>
                     <input type="number" min="1" id="admin-tasa-cambio" placeholder="Ej: 100" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarTasaCambioAdmin()">
+                    <p class="text-[10px] text-slate-400">Cuántas monedas equivalen a 1 💠 cristal.</p>
+                    <input type="number" min="1" id="admin-tasa-cambio-cristal" placeholder="Ej: 300" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs" onchange="guardarTasaCambioCristalAdmin()">
                 </div>
 
                 <div class="p-4 bg-oscuro rounded-2xl border border-morado/30 space-y-3">
@@ -1894,6 +1914,13 @@
                     <div class="flex gap-2">
                         <input type="number" id="input-regalo-masivo-gemas" placeholder="Cantidad de gemas" class="flex-1 px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
                         <button onclick="regalarGemasMasivo()" class="px-4 py-2 bg-morado text-white font-black rounded-xl text-xs shadow">Regalar a Todos</button>
+                    </div>
+                </div>
+                <div class="p-4 bg-oscuro rounded-2xl border border-azul/40 space-y-3">
+                    <h4 class="font-black text-xs text-azul uppercase tracking-wider">💠 Regalo Masivo de Cristales</h4>
+                    <div class="flex gap-2">
+                        <input type="number" id="input-regalo-masivo-cristales" placeholder="Cantidad de cristales" class="flex-1 px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        <button onclick="regalarCristalesMasivo()" class="px-4 py-2 bg-azul text-white font-black rounded-xl text-xs shadow">Regalar a Todos</button>
                     </div>
                 </div>
                 <div id="contenedor-lista-usuarios" class="space-y-2 max-h-60 overflow-y-auto"></div>
@@ -2384,6 +2411,9 @@
                 const inpTasa = document.getElementById('admin-tasa-cambio');
                 if (inpTasa) inpTasa.value = obtenerTasaCambio();
 
+                const inpTasaCristal = document.getElementById('admin-tasa-cambio-cristal');
+                if (inpTasaCristal) inpTasaCristal.value = obtenerTasaCambioCristal();
+
                 const configPase = obtenerConfigPaseVip();
                 if (configPase) {
                     document.getElementById('admin-pase-vip-activo').checked = !!configPase.activo;
@@ -2650,6 +2680,12 @@
             guardarCampoUsuarioNube(usuarioActual, { saldo });
         }
 
+        // Sube los cristales actuales del jugador a la nube (misma lógica que sincronizarSaldoNube).
+        function sincronizarCristalesNube() {
+            if (!usuarioActual) return;
+            guardarCampoUsuarioNube(usuarioActual, { cristales });
+        }
+
         // Sube nivel y EXP VIP actuales del jugador a la nube (ver sincronizarSaldoNube).
         function sincronizarNivelExpNube() {
             if (!usuarioActual) return;
@@ -2734,7 +2770,7 @@
             'texto_footer_app', 'visibilidad_tarjetas_app', 'imagenes_tarjetas_app',
             'historial_campeones_champions_app', 'novedades_app',
             'modo_mantenimiento_activo', 'mensaje_mantenimiento_app',
-            'tasa_cambio_monedas_por_gema', 'config_pase_vip_app',
+            'tasa_cambio_monedas_por_gema', 'config_pase_vip_app', 'tasa_cambio_monedas_por_cristal',
             'oferta_relampago_app', 'eventos_tematicos_app',
             'top_semanal_app', 'cuartos_champions_v2_app', 'semis_champions_v2_app',
             'final_champions_v2_app',
@@ -2876,6 +2912,7 @@
 
         let saldo = usuarioActual ? (parseInt(localStorage.getItem(`saldo_${usuarioActual}`)) || 100) : 100;
         let gemas = usuarioActual ? (parseInt(localStorage.getItem(`gemas_${usuarioActual}`)) || 0) : 0;
+        let cristales = usuarioActual ? (parseInt(localStorage.getItem(`cristales_${usuarioActual}`)) || 0) : 0;
         let nivelVipUsuario = usuarioActual ? (parseInt(localStorage.getItem(`nivel_vip_${usuarioActual}`)) || 1) : 1;
         let expVipUsuario = usuarioActual ? (parseInt(localStorage.getItem(`exp_vip_${usuarioActual}`)) || 0) : 0;
 
@@ -3561,6 +3598,8 @@
             } else {
                 actualizarInterfazUsuario();
                 intentarCargaAutomaticaNube();
+                asegurarTemporadaPaseVipActiva();
+                reclamarTodosPaseVipDisponibles();
             }
         }
 
@@ -3644,6 +3683,7 @@
             
             saldo = parseInt(localStorage.getItem(`saldo_${usuarioActual}`)) || 100;
             gemas = parseInt(localStorage.getItem(`gemas_${usuarioActual}`)) || 0;
+            cristales = parseInt(localStorage.getItem(`cristales_${usuarioActual}`)) || 0;
             nivelVipUsuario = parseInt(localStorage.getItem(`nivel_vip_${usuarioActual}`)) || 1;
             expVipUsuario = parseInt(localStorage.getItem(`exp_vip_${usuarioActual}`)) || 0;
 
@@ -3670,6 +3710,9 @@
 
             const elGemas = document.getElementById('gemas-mostrar');
             if (elGemas) elGemas.textContent = gemas;
+
+            const elCristales = document.getElementById('cristales-mostrar');
+            if (elCristales) elCristales.textContent = cristales;
 
             const elAvatarPerfil = document.getElementById('avatar-perfil-contenedor');
             if (elAvatarPerfil) {
@@ -3846,6 +3889,7 @@
             if (subioDeNivel) {
                 enviarNotificacionTelegram(`¡El usuario ${usuarioActual} subió a VIP ${nivelVipUsuario}! 👑`);
                 agregarNotificacionApp(`👑 ¡Subiste a VIP ${nivelVipUsuario}!`, 'fa-crown');
+                reclamarTodosPaseVipDisponibles();
             } else if (nivelVipUsuario >= 50) {
                 expVipUsuario = Math.min(expVipUsuario, nivelVipUsuario * 1000);
             }
@@ -5614,17 +5658,19 @@
             dbUsuarios.forEach((u) => {
                 const sal = localStorage.getItem(`saldo_${u.usuario}`) || 100;
                 const gem = localStorage.getItem(`gemas_${u.usuario}`) || 0;
+                const cris = localStorage.getItem(`cristales_${u.usuario}`) || 0;
                 const niv = localStorage.getItem(`nivel_vip_${u.usuario}`) || 1;
                 const div = document.createElement('div');
                 div.className = 'p-3 bg-oscuro rounded-2xl border border-borde flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs';
                 div.innerHTML = `
                     <div>
                         <span class="font-black text-white block">${u.usuario} <strong class="text-dorado">(VIP ${niv})</strong></span>
-                        <span class="text-[10px] text-slate-400">ID: #${u.id} | Saldo: 🪙 ${sal} | Gemas: 💎 ${gem}</span>
+                        <span class="text-[10px] text-slate-400">ID: #${u.id} | Saldo: 🪙 ${sal} | Gemas: 💎 ${gem} | Cristales: 💠 ${cris}</span>
                     </div>
                     <div class="flex gap-2">
                         <button onclick="darMonedasUsuario('${u.usuario}')" class="px-3 py-1.5 bg-dorado text-black font-black rounded-xl text-xs shadow">+50 🪙</button>
                         <button onclick="darGemasUsuario('${u.usuario}')" class="px-3 py-1.5 bg-morado text-white font-black rounded-xl text-xs shadow">+50 💎</button>
+                        <button onclick="darCristalesUsuario('${u.usuario}')" class="px-3 py-1.5 bg-azul text-white font-black rounded-xl text-xs shadow">+50 💠</button>
                     </div>
                 `;
                 cont.appendChild(div);
@@ -5647,6 +5693,16 @@
             localStorage.setItem(`gemas_${nombreUsuario}`, gemActual);
             guardarCampoUsuarioNube(nombreUsuario, { gemas: gemActual });
             alert(`✅ Se han otorgado 50 gemas a ${nombreUsuario}.`);
+            renderizarListaUsuariosAdmin();
+            if(nombreUsuario === usuarioActual) actualizarInterfazUsuario();
+        }
+
+        function darCristalesUsuario(nombreUsuario) {
+            let crisActual = parseInt(localStorage.getItem(`cristales_${nombreUsuario}`)) || 0;
+            crisActual += 50;
+            localStorage.setItem(`cristales_${nombreUsuario}`, crisActual);
+            guardarCampoUsuarioNube(nombreUsuario, { cristales: crisActual });
+            alert(`✅ Se han otorgado 50 cristales 💠 a ${nombreUsuario}.`);
             renderizarListaUsuariosAdmin();
             if(nombreUsuario === usuarioActual) actualizarInterfazUsuario();
         }
@@ -5687,6 +5743,25 @@
             actualizarInterfazUsuario();
             alert(`🎉 ¡Se han regalado ${cant} gemas a todos los usuarios registrados!`);
             enviarNotificacionTelegram(`💎 ¡Regalo masivo de ${cant} gemas para todos los usuarios!`);
+        }
+
+        function regalarCristalesMasivo() {
+            const cant = parseInt(document.getElementById('input-regalo-masivo-cristales')?.value);
+            if(isNaN(cant) || cant <= 0) {
+                alert('⚠️ Ingresa una cantidad válida.');
+                return;
+            }
+
+            dbUsuarios.forEach(u => {
+                let cris = parseInt(localStorage.getItem(`cristales_${u.usuario}`)) || 0;
+                cris += cant;
+                localStorage.setItem(`cristales_${u.usuario}`, cris);
+                guardarCampoUsuarioNube(u.usuario, { cristales: cris });
+            });
+
+            actualizarInterfazUsuario();
+            alert(`🎉 ¡Se han regalado ${cant} cristales 💠 a todos los usuarios registrados!`);
+            enviarNotificacionTelegram(`💠 ¡Regalo masivo de ${cant} cristales para todos los usuarios!`);
         }
 
         // ============================================================
@@ -5946,6 +6021,7 @@
             if(!isNaN(nivel) && usuarioActual) {
                 nivelVipUsuario = nivel;
                 localStorage.setItem(`nivel_vip_${usuarioActual}`, nivelVipUsuario);
+                reclamarTodosPaseVipDisponibles();
             }
             if(url) {
                 localStorage.setItem('input_gif_companero_url', url);
@@ -6201,12 +6277,17 @@
 
         function renderizarModalCasaCambios() {
             const tasa = obtenerTasaCambio();
+            const tasaCristal = obtenerTasaCambioCristal();
             const txt = document.getElementById('texto-tasa-casa-cambios');
-            if (txt) txt.textContent = `Tasa actual: ${tasa} monedas = 1 gema 💎`;
+            if (txt) txt.textContent = `Tasas: ${tasa} monedas = 1 gema 💎 · ${tasaCristal} monedas = 1 cristal 💠`;
             document.getElementById('input-cambio-monedas').value = '';
             document.getElementById('input-cambio-gemas').value = '';
+            document.getElementById('input-cambio-monedas-cristal').value = '';
+            document.getElementById('input-cambio-cristales').value = '';
             previsualizarCambioMonedasAGemas();
             previsualizarCambioGemasAMonedas();
+            previsualizarCambioMonedasACristales();
+            previsualizarCambioCristalesAMonedas();
         }
 
         function previsualizarCambioMonedasAGemas() {
@@ -6256,7 +6337,116 @@
             renderizarModalCasaCambios();
         }
 
+        // ----- Cristales (💠) -----
+        function obtenerTasaCambioCristal() {
+            return parseInt(localStorage.getItem('tasa_cambio_monedas_por_cristal')) || 300;
+        }
+
+        function guardarTasaCambioCristalAdmin() {
+            const val = parseInt(document.getElementById('admin-tasa-cambio-cristal')?.value) || 300;
+            localStorage.setItem('tasa_cambio_monedas_por_cristal', val);
+        }
+
+        function previsualizarCambioMonedasACristales() {
+            const tasa = obtenerTasaCambioCristal();
+            const val = parseInt(document.getElementById('input-cambio-monedas-cristal')?.value) || 0;
+            const cristalesObtenidos = Math.floor(val / tasa);
+            document.getElementById('preview-cambio-monedas-cristales').textContent = `Obtendrás ${cristalesObtenidos} cristal${cristalesObtenidos === 1 ? '' : 'es'}`;
+        }
+
+        function previsualizarCambioCristalesAMonedas() {
+            const tasa = obtenerTasaCambioCristal();
+            const val = parseInt(document.getElementById('input-cambio-cristales')?.value) || 0;
+            const monedasObtenidas = val * tasa;
+            document.getElementById('preview-cambio-cristales-monedas').textContent = `Obtendrás ${monedasObtenidas} monedas`;
+        }
+
+        function cambiarMonedasPorCristales() {
+            const tasa = obtenerTasaCambioCristal();
+            const val = parseInt(document.getElementById('input-cambio-monedas-cristal')?.value) || 0;
+            const cristalesObtenidos = Math.floor(val / tasa);
+            if (cristalesObtenidos <= 0) { alert(`Necesitas al menos ${tasa} monedas para cambiar por 1 cristal.`); return; }
+            const costoReal = cristalesObtenidos * tasa;
+            if (saldo < costoReal) { alert('No te alcanzan las monedas.'); return; }
+            saldo -= costoReal;
+            cristales += cristalesObtenidos;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            localStorage.setItem(`cristales_${usuarioActual}`, cristales);
+            sincronizarSaldoNube();
+            sincronizarCristalesNube();
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`🔄 Cambiaste ${costoReal} monedas por ${cristalesObtenidos} cristal${cristalesObtenidos === 1 ? '' : 'es'} 💠`, 'fa-right-left');
+            renderizarModalCasaCambios();
+        }
+
+        function cambiarCristalesPorMonedas() {
+            const tasa = obtenerTasaCambioCristal();
+            const val = parseInt(document.getElementById('input-cambio-cristales')?.value) || 0;
+            if (val <= 0) { alert('Ingresa una cantidad de cristales válida.'); return; }
+            if (cristales < val) { alert('No te alcanzan los cristales.'); return; }
+            const monedasObtenidas = val * tasa;
+            cristales -= val;
+            saldo += monedasObtenidas;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            localStorage.setItem(`cristales_${usuarioActual}`, cristales);
+            sincronizarSaldoNube();
+            sincronizarCristalesNube();
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`🔄 Cambiaste ${val} cristal${val === 1 ? '' : 'es'} 💠 por ${monedasObtenidas} monedas`, 'fa-right-left');
+            renderizarModalCasaCambios();
+        }
+
         // ===== PASE VIP DE TEMPORADA =====
+
+        // Calcula cuál "debería" ser la temporada vigente ahora mismo: un mes calendario
+        // completo (del día 1 al último día del mes), con nombre y fecha de fin fijos por
+        // mes/año. Al ser un cálculo determinista por fecha, todos los dispositivos llegan
+        // al mismo resultado sin necesidad de coordinarse ni de que un admin la cree a mano.
+        function calcularTemporadaAutomaticaActual() {
+            const ahora = new Date();
+            const anio = ahora.getFullYear();
+            const mes = ahora.getMonth();
+            const ultimoDiaMes = new Date(anio, mes + 1, 0);
+            const nombresMes = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+            const pad = n => String(n).padStart(2, '0');
+            return {
+                nombre: `Temporada ${nombresMes[mes]} ${anio}`,
+                fechaFin: `${ultimoDiaMes.getFullYear()}-${pad(ultimoDiaMes.getMonth() + 1)}-${pad(ultimoDiaMes.getDate())}`
+            };
+        }
+
+        // Se asegura de que la temporada del Pase VIP correcta esté activa. Si no hay
+        // ninguna, si la anterior ya venció, o si todavía no llegó la fecha de este mes,
+        // crea/activa la temporada automáticamente (conservando nivel máx. y monedas por
+        // nivel configurados previamente). No requiere que un admin entre al panel.
+        function asegurarTemporadaPaseVipActiva() {
+            const configActual = obtenerConfigPaseVip();
+            const automatica = calcularTemporadaAutomaticaActual();
+            const yaEsLaVigente = configActual && configActual.activo &&
+                configActual.nombre === automatica.nombre && configActual.fechaFin === automatica.fechaFin;
+            if (yaEsLaVigente) return;
+
+            const nuevaConfig = {
+                activo: true,
+                nombre: automatica.nombre,
+                fechaFin: automatica.fechaFin,
+                nivelMax: (configActual && configActual.nivelMax) || 30,
+                monedasPorNivel: (configActual && configActual.monedasPorNivel) || 20
+            };
+            localStorage.setItem('config_pase_vip_app', JSON.stringify(nuevaConfig));
+
+            // Si el panel de admin está abierto, refrescamos sus campos también.
+            const elActivo = document.getElementById('admin-pase-vip-activo');
+            if (elActivo) {
+                elActivo.checked = true;
+                document.getElementById('admin-pase-vip-nombre').value = nuevaConfig.nombre;
+                document.getElementById('admin-pase-vip-fecha').value = nuevaConfig.fechaFin;
+                document.getElementById('admin-pase-vip-nivelmax').value = nuevaConfig.nivelMax;
+                document.getElementById('admin-pase-vip-monedasnivel').value = nuevaConfig.monedasPorNivel;
+            }
+            if (typeof renderizarModalPaseVip === 'function') renderizarModalPaseVip();
+        }
+
         function obtenerConfigPaseVip() {
             try { return JSON.parse(localStorage.getItem('config_pase_vip_app')) || null; }
             catch(e) { return null; }
@@ -6316,6 +6506,43 @@
                 </div>`;
             }
             contNiveles.innerHTML = filas;
+        }
+
+        // Reclama en automático todos los niveles del Pase VIP que el usuario ya tenga
+        // desbloqueados y no haya reclamado todavía (se llama al iniciar sesión y cada
+        // vez que sube de nivel VIP, para que el jugador no tenga que tocar "Reclamar").
+        function reclamarTodosPaseVipDisponibles() {
+            if (!usuarioActual) return;
+            const config = obtenerConfigPaseVip();
+            if (!config || !config.activo) return;
+
+            const idTemporada = obtenerIdTemporadaPaseVip(config);
+            let reclamos = obtenerReclamosPaseVip();
+            if (reclamos.temporadaId !== idTemporada) reclamos = { temporadaId: idTemporada, niveles: [] };
+
+            let totalMonedas = 0, totalGemas = 0;
+            const nivelesNuevos = [];
+            for (let n = 1; n <= config.nivelMax && n <= nivelVipUsuario; n++) {
+                if (reclamos.niveles.includes(n)) continue;
+                const monedas = n * config.monedasPorNivel;
+                const gemasPremio = (n % 5 === 0) ? 1 : 0;
+                reclamos.niveles.push(n);
+                totalMonedas += monedas;
+                totalGemas += gemasPremio;
+                nivelesNuevos.push(n);
+            }
+            if (nivelesNuevos.length === 0) return;
+
+            localStorage.setItem(`pase_vip_reclamos_${usuarioActual}`, JSON.stringify(reclamos));
+            saldo += totalMonedas;
+            if (totalGemas) gemas += totalGemas;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            localStorage.setItem(`gemas_${usuarioActual}`, gemas);
+            sincronizarSaldoNube();
+            actualizarInterfazUsuario();
+            const etiquetaNiveles = nivelesNuevos.length === 1 ? `nivel ${nivelesNuevos[0]}` : `niveles ${nivelesNuevos.join(', ')}`;
+            agregarNotificacionApp(`🏅 ¡Pase VIP! Reclamado en automático el ${etiquetaNiveles}: +${totalMonedas} monedas${totalGemas ? ' +💎' + totalGemas : ''}`, 'fa-medal');
+            if (typeof renderizarModalPaseVip === 'function') renderizarModalPaseVip();
         }
 
         function reclamarNivelPaseVip(nivel, monedas, gemasPremio) {
@@ -6426,6 +6653,40 @@
             return !!(oferta && oferta.activo && oferta.finTimestamp && Date.now() < oferta.finTimestamp);
         }
 
+        // Genera sola una nueva Oferta Relámpago eligiendo un producto al azar de la tienda,
+        // con un descuento y duración aleatorios. Solo actúa si no hay ninguna oferta vigente
+        // y ya pasó un "descanso" desde que terminó la anterior, para que se sienta esporádica.
+        function generarOfertaRelampagoAutomaticaSiToca() {
+            const actual = obtenerOfertaRelampago();
+            if (ofertaRelampagoVigente(actual)) return;
+
+            const descansoMs = 3 * 3600000; // 3 horas de descanso entre una oferta y la siguiente
+            if (actual && actual.finTimestamp && (Date.now() - actual.finTimestamp) < descansoMs) return;
+
+            const productos = (typeof datosTienda !== 'undefined' ? datosTienda : [])
+                .flat()
+                .filter(p => p && p.nombre && p.precio > 0);
+            if (productos.length === 0) return;
+
+            const elegido = productos[Math.floor(Math.random() * productos.length)];
+            const descuentoPorc = [25, 30, 40, 50][Math.floor(Math.random() * 4)];
+            const precioOferta = Math.max(1, Math.round(elegido.precio * (1 - descuentoPorc / 100)));
+            const horas = [4, 6, 8, 12][Math.floor(Math.random() * 4)];
+
+            const oferta = {
+                activo: true,
+                nombre: elegido.nombre,
+                imagen: elegido.imagen || '',
+                precioOriginal: elegido.precio,
+                precioOferta,
+                finTimestamp: Date.now() + horas * 3600000
+            };
+            localStorage.setItem('oferta_relampago_app', JSON.stringify(oferta));
+            actualizarBannerOfertaRelampago();
+            if (typeof actualizarEstadoOfertaAdmin === 'function') actualizarEstadoOfertaAdmin();
+            enviarNotificacionTelegram(`⚡ ¡Nueva Oferta Relámpago automática! "${elegido.nombre}" a ${precioOferta} monedas (antes ${elegido.precio}) por ${horas}h.`);
+        }
+
         // Revisa si la oferta sigue vigente y muestra/oculta el banner de la pantalla principal.
         function actualizarBannerOfertaRelampago() {
             const oferta = obtenerOfertaRelampago();
@@ -6529,6 +6790,33 @@
 
         function guardarEventosTematicos(lista) {
             localStorage.setItem('eventos_tematicos_app', JSON.stringify(lista));
+        }
+
+        // Fechas festivas típicas que se activan solas cada año, sin que un admin las cree.
+        function obtenerEventosTematicosPorDefecto() {
+            return [
+                { nombre: 'Año Nuevo', emoji: '🎆', inicio: '01-01', fin: '01-01', automatico: true },
+                { nombre: 'San Valentín', emoji: '💘', inicio: '02-10', fin: '02-14', automatico: true },
+                { nombre: 'Fiestas Patrias', emoji: '🇵🇪', inicio: '07-27', fin: '07-29', automatico: true },
+                { nombre: 'Halloween', emoji: '🎃', inicio: '10-28', fin: '10-31', automatico: true },
+                { nombre: 'Navidad', emoji: '🎄', inicio: '12-20', fin: '12-25', automatico: true },
+                { nombre: 'Fin de Año', emoji: '🎉', inicio: '12-28', fin: '12-31', automatico: true }
+            ];
+        }
+
+        // Se llama una vez al cargar la app: agrega los eventos automáticos que falten,
+        // sin tocar ni duplicar los que un admin haya creado a mano.
+        function asegurarEventosTematicosAutomaticos() {
+            const actuales = obtenerEventosTematicos();
+            let huboCambios = false;
+            obtenerEventosTematicosPorDefecto().forEach(def => {
+                const yaExiste = actuales.some(ev => ev.nombre === def.nombre && ev.inicio === def.inicio && ev.fin === def.fin);
+                if (!yaExiste) { actuales.push(def); huboCambios = true; }
+            });
+            if (huboCambios) {
+                guardarEventosTematicos(actuales);
+                if (typeof renderizarListaEventosTematicosAdmin === 'function') renderizarListaEventosTematicosAdmin();
+            }
         }
 
         // Busca si hoy (día-mes, sin importar el año) cae dentro del rango de algún evento configurado.
@@ -7340,6 +7628,7 @@
                     fechaRegistro: usuarioActualObj?.fechaRegistro || new Date().toISOString(),
                     saldo: parseInt(localStorage.getItem(`saldo_${usuarioActual}`)) || 0,
                     gemas: parseInt(localStorage.getItem(`gemas_${usuarioActual}`)) || 0,
+                    cristales: parseInt(localStorage.getItem(`cristales_${usuarioActual}`)) || 0,
                     nivel: parseInt(localStorage.getItem(`nivel_vip_${usuarioActual}`)) || 1,
                     exp: parseInt(localStorage.getItem(`exp_vip_${usuarioActual}`)) || 0,
                     racha: parseInt(localStorage.getItem(`racha_dias_${usuarioActual}`)) || 0,
@@ -7356,9 +7645,10 @@
                 const doc = await dbFirebase.collection('usuarios').doc(usuarioActual.toLowerCase()).get();
                 if(!doc.exists) { mostrarMensajeNube('No hay respaldo en la nube para este usuario todavía.', 'naranja'); return; }
                 const d = doc.data();
-                if(!confirm(`Respaldo encontrado en la nube:\n🪙 ${d.saldo} monedas · 💎 ${d.gemas} gemas · VIP ${d.nivel}\n\n¿Reemplazar tu progreso actual en este dispositivo con este respaldo?`)) return;
+                if(!confirm(`Respaldo encontrado en la nube:\n🪙 ${d.saldo} monedas · 💎 ${d.gemas} gemas · 💠 ${d.cristales || 0} cristales · VIP ${d.nivel}\n\n¿Reemplazar tu progreso actual en este dispositivo con este respaldo?`)) return;
                 localStorage.setItem(`saldo_${usuarioActual}`, d.saldo || 0);
                 localStorage.setItem(`gemas_${usuarioActual}`, d.gemas || 0);
+                localStorage.setItem(`cristales_${usuarioActual}`, d.cristales || 0);
                 localStorage.setItem(`nivel_vip_${usuarioActual}`, d.nivel || 1);
                 localStorage.setItem(`exp_vip_${usuarioActual}`, d.exp || 0);
                 localStorage.setItem(`racha_dias_${usuarioActual}`, d.racha || 0);
@@ -7387,6 +7677,7 @@
                 if(esDispositivoNuevo && (d.nivel > 1 || d.saldo !== 100 || d.exp > 0)) {
                     localStorage.setItem(`saldo_${usuarioActual}`, d.saldo || 0);
                     localStorage.setItem(`gemas_${usuarioActual}`, d.gemas || 0);
+                    localStorage.setItem(`cristales_${usuarioActual}`, d.cristales || 0);
                     localStorage.setItem(`nivel_vip_${usuarioActual}`, d.nivel || 1);
                     localStorage.setItem(`exp_vip_${usuarioActual}`, d.exp || 0);
                     localStorage.setItem(`racha_dias_${usuarioActual}`, d.racha || 0);
@@ -7493,6 +7784,10 @@
                 escucharConfigGlobalEnVivo();
                 setInterval(() => { if (usuarioActual) guardarProgresoNube(true); }, 15000);
             }
+            asegurarTemporadaPaseVipActiva();
+            asegurarEventosTematicosAutomaticos();
+            aplicarEventoTematicoAutomatico();
+            generarOfertaRelampagoAutomaticaSiToca();
             verificarSesionActiva();
             if(usuarioActual) verificarRachaDiaria();
 
@@ -7565,6 +7860,8 @@
             setInterval(actualizarCronometrosTarjetas, 1000);
             setInterval(renderizarBoostsFlotantes, 1000);
             setInterval(verificarCierreInscripcionChampions, 15000);
+            setInterval(() => { asegurarTemporadaPaseVipActiva(); reclamarTodosPaseVipDisponibles(); }, 300000);
+            setInterval(generarOfertaRelampagoAutomaticaSiToca, 300000);
             setInterval(comprobarVersionServidorYAutoActualizar, 180000);
         };
     </script>
