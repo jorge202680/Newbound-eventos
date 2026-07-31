@@ -1174,6 +1174,33 @@
             </div>
         </div>
 
+        <!-- CATEGORÍA: TORNEO DE EQUIPO (independiente de Champions) -->
+        <div class="rounded-3xl overflow-hidden border border-verde/30 bg-medio shadow-xl">
+            <button type="button" onclick="alternarSeccionAdmin('cat-torneoequipo')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                <span class="font-black text-sm text-white flex items-center gap-2">🥊 Torneo de Equipo</span>
+                <i id="cat-torneoequipo-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+            </button>
+            <div id="cat-torneoequipo" class="hidden px-4 pb-4 space-y-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 rounded-xl bg-verde/20 text-verde flex items-center justify-center font-bold"><i class="fa fa-people-group"></i></div>
+                        <div>
+                            <h3 class="font-black text-white text-sm uppercase tracking-wider">Torneo de Equipo</h3>
+                            <span id="badge-modo-torneoequipo-dashboard" class="text-[9px] font-black text-verde bg-verde/20 px-1.5 py-0.5 rounded-md"></span>
+                        </div>
+                    </div>
+                    <button onclick="abrirVentana('modal-torneo-equipo')" class="px-3 py-1.5 bg-verde/20 text-verde border border-verde/40 rounded-xl text-xs font-bold hover:bg-verde/30 transition">Ver Llaves</button>
+                </div>
+                <p class="text-xs text-slate-400">Torneo de eliminación directa por equipos (2v2, 3v3 o 4v4), con varios equipos y varias rondas hasta la Gran Final. ¡Inscribe a tu equipo y gana premios!</p>
+                <div class="p-3 bg-oscuro rounded-2xl border border-borde flex items-center justify-between text-xs">
+                    <div>
+                        <span class="text-slate-300 font-bold">Estado: <strong class="text-verde">Fase de Inscripción Abierta</strong></span>
+                    </div>
+                    <button onclick="abrirModalInscripcionTorneoEquipo()" class="px-4 py-2 bg-verde text-black font-black rounded-xl shadow hover:opacity-90 transition">Inscribirse</button>
+                </div>
+            </div>
+        </div>
+
         <!-- CATEGORÍA: TRAGAMONEDAS VIP -->
         <div class="rounded-3xl overflow-hidden border border-dorado/40 bg-medio shadow-xl">
             <button type="button" onclick="alternarSeccionAdmin('cat-tragamonedas')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
@@ -1513,6 +1540,71 @@
             <div class="flex gap-2 pt-2">
                 <button onclick="cerrarModalInscripcionChampions()" class="flex-1 py-2 bg-claro text-slate-300 font-bold text-xs rounded-xl">Cancelar</button>
                 <button onclick="enviarInscripcionChampions()" class="flex-1 py-2 bg-azul text-white font-black text-xs rounded-xl shadow">Inscribirse</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TORNEO DE EQUIPO (independiente de Champions) -->
+    <div id="modal-torneo-equipo" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-verde/40 w-full max-w-3xl rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-borde pb-3">
+                <h3 class="font-black text-sm text-verde flex items-center gap-2"><i class="fa fa-people-group"></i> Torneo de Equipo</h3>
+                <button onclick="cerrarVentana('modal-torneo-equipo')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="cambiarTabTorneoEquipo('cuadro')" id="tab-teq-btn-cuadro" class="flex-1 py-2 px-3 rounded-xl text-xs font-black bg-verde text-black transition shadow">Cuadro</button>
+                <button onclick="cambiarTabTorneoEquipo('info')" id="tab-teq-btn-info" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition">Info del Torneo</button>
+            </div>
+
+            <!-- TAB: CUADRO -->
+            <div id="tab-teq-cont-cuadro" class="space-y-4">
+                <div class="p-4 bg-oscuro rounded-2xl border border-verde/30 space-y-3 shadow-xl">
+                    <div class="text-center space-y-0.5">
+                        <span id="teq-badge-modo-cuadro" class="text-[10px] uppercase tracking-widest text-verde font-bold">⚔️ Torneo de Equipo ⚔️</span>
+                        <h4 class="text-sm font-black text-white">Cuadro de Eliminación Directa</h4>
+                    </div>
+                    <div class="bracket-wrap" id="bracket-torneo-equipo-cont"></div>
+                </div>
+
+                <div class="p-4 bg-oscuro rounded-2xl border border-verde/40 text-center space-y-3 shadow-xl">
+                    <div class="flex items-center justify-center gap-2">
+                        <span class="text-verde text-lg">🏆</span>
+                        <h4 class="text-verde font-bold text-xs tracking-wide uppercase">Premio Oficial del Torneo</h4>
+                        <span class="text-verde text-lg">🏆</span>
+                    </div>
+                    <div class="w-full h-40 bg-medio rounded-xl border border-borde overflow-hidden flex items-center justify-center relative shadow-inner">
+                        <img id="imagen-premio-torneoequipo-display" src="" alt="Premio del Torneo" class="w-full h-full object-cover hidden hover:scale-105 transition-transform duration-300 cursor-pointer">
+                        <i id="icono-premio-torneoequipo-placeholder" class="fa fa-trophy text-3xl text-slate-600"></i>
+                    </div>
+                    <p id="texto-campeon-premio-torneoequipo" class="text-xs text-slate-300 italic">El premio se entrega al equipo campeón del Torneo de Equipo.</p>
+                    <button onclick="reclamarPremioTorneoEquipo()" id="btn-reclamar-premio-torneoequipo" class="hidden w-full py-2.5 bg-gradient-to-r from-verde to-emerald-600 text-black font-black rounded-xl text-xs shadow-lg items-center justify-center gap-2">
+                        <i class="fa fa-trophy"></i> ¡Reclamar mi Premio!
+                    </button>
+                    <p id="texto-ya-reclamado-torneoequipo" class="hidden text-[10px] text-verde font-bold">✅ Ya reclamaste este premio. El admin se contactará contigo para la entrega.</p>
+                </div>
+            </div>
+
+            <!-- TAB: INFO DEL TORNEO -->
+            <div id="tab-teq-cont-info" class="hidden space-y-3">
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde col-span-2"><span class="text-slate-400 block text-[10px] uppercase">Modo</span><span id="teq-info-val-modo" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Fecha y Hora</span><span id="teq-info-val-fechahora" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Servidor / Sala</span><span id="teq-info-val-server" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-rojo/40 col-span-2"><span class="text-slate-400 block text-[10px] uppercase">⏰ Cierre de Inscripciones</span><span id="teq-info-val-cierre-inscripcion" class="font-bold text-white">-</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL INSCRIPCIÓN TORNEO DE EQUIPO -->
+    <div id="modal-inscripcion-torneo-equipo" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-verde/50 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+            <h3 id="titulo-modal-inscripcion-teq" class="text-sm font-black text-white text-center">INSCRIPCIÓN DE EQUIPO</h3>
+            <div id="contenedor-campos-dinamicos-teq" class="space-y-3"></div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="cerrarModalInscripcionTorneoEquipo()" class="flex-1 py-2 bg-claro text-slate-300 font-bold text-xs rounded-xl">Cancelar</button>
+                <button onclick="enviarInscripcionTorneoEquipo()" class="flex-1 py-2 bg-verde text-black font-black text-xs rounded-xl shadow">Inscribirse</button>
             </div>
         </div>
     </div>
@@ -1907,6 +1999,7 @@
                 <button onclick="cambiarTabAdmin('usuarios')" id="tab-btn-usuarios" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Usuarios</button>
                 <button onclick="cambiarTabAdmin('codigos')" id="tab-btn-codigos" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Códigos</button>
                 <button onclick="cambiarTabAdmin('champions')" id="tab-btn-champions" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Champions</button>
+                <button onclick="cambiarTabAdmin('torneoequipo')" id="tab-btn-torneoequipo" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Torneo Equipo</button>
                 <button onclick="cambiarTabAdmin('ruleta')" id="tab-btn-ruleta" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Ruleta</button>
                 <button onclick="cambiarTabAdmin('tienda')" id="tab-btn-tienda" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Tienda</button>
                 <button onclick="cambiarTabAdmin('top')" id="tab-btn-top" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Top Semanal</button>
@@ -2399,6 +2492,93 @@
                 </div>
             </div>
 
+            <!-- TAB TORNEO DE EQUIPO (independiente de Champions) -->
+            <div id="tab-contenido-torneoequipo" class="hidden space-y-4">
+                <div class="flex gap-2">
+                    <button onclick="cambiarSubTabTorneoEquipoAdmin('cuadro')" id="subtab-teq-admin-btn-cuadro" class="flex-1 py-2 px-3 rounded-xl text-xs font-black bg-verde text-black transition shadow">Cuadro y Marcadores</button>
+                    <button onclick="cambiarSubTabTorneoEquipoAdmin('info')" id="subtab-teq-admin-btn-info" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition">Info del Torneo</button>
+                    <button onclick="cambiarSubTabTorneoEquipoAdmin('premio')" id="subtab-teq-admin-btn-premio" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition">Premio</button>
+                </div>
+
+                <!-- SUBTAB: CUADRO Y MARCADORES -->
+                <div id="subtab-teq-admin-cont-cuadro" class="space-y-4">
+                    <div class="p-3 bg-morado/10 border border-morado/30 rounded-2xl space-y-2">
+                        <label class="text-[10px] text-slate-300 font-bold block">🧑‍🤝‍🧑 Configuración del Torneo:</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <span class="text-[9px] text-slate-400 block mb-1">Nº de Equipos</span>
+                                <select id="admin-teq-num-equipos" class="w-full px-2 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-bold">
+                                    <option value="4">4 equipos</option>
+                                    <option value="8">8 equipos</option>
+                                    <option value="16">16 equipos</option>
+                                </select>
+                            </div>
+                            <div>
+                                <span class="text-[9px] text-slate-400 block mb-1">Tamaño de Equipo</span>
+                                <select id="admin-teq-tam-equipo" class="w-full px-2 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-bold">
+                                    <option value="2">2 vs 2</option>
+                                    <option value="3">3 vs 3</option>
+                                    <option value="4">4 vs 4</option>
+                                </select>
+                            </div>
+                            <div>
+                                <span class="text-[9px] text-slate-400 block mb-1">Wins para Ganar</span>
+                                <input type="number" id="admin-teq-wins-ganar" min="1" value="2" class="w-full px-2 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-bold">
+                            </div>
+                        </div>
+                        <button onclick="guardarConfigTorneoEquipoAdmin()" class="w-full py-2 bg-morado text-white font-black rounded-xl text-xs shadow">Guardar Configuración</button>
+                        <p class="text-[9px] text-slate-500">Cambiar el Nº de equipos reinicia el cuadro (borra los cupos ya inscritos). Cambiar el tamaño de equipo o los wins no borra nada.</p>
+                    </div>
+                    <div class="p-3 bg-azul/10 border border-azul/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                        <p class="text-[10px] text-slate-300">Ingresa nombre y marcador (wins) de cada equipo. El ganador se resalta solo; usa el botón para avanzarlo a la siguiente ronda.</p>
+                        <button onclick="avanzarGanadoresTorneoEquipoAdmin()" class="px-3 py-2 bg-verde text-black font-black rounded-xl text-xs shadow whitespace-nowrap">Avanzar Ganadores ➜</button>
+                    </div>
+
+                    <div id="admin-teq-grids-rondas" class="space-y-4"></div>
+
+                    <button onclick="limpiarTodoTorneoEquipoAdmin()" class="w-full px-3 py-2 bg-rojo/20 text-rojo font-bold rounded-xl text-xs">🗑️ Limpiar Todo el Cuadro (nueva edición)</button>
+                </div>
+
+                <!-- SUBTAB: INFO DEL TORNEO -->
+                <div id="subtab-teq-admin-cont-info" class="hidden space-y-4">
+                    <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
+                        <h4 class="font-black text-xs text-verde uppercase tracking-wider">Programar Torneo</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div><label class="text-slate-400 block mb-1">Fecha y Hora:</label><input type="datetime-local" id="admin-teq-info-fechahora" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                            <div><label class="text-slate-400 block mb-1">Servidor / Sala:</label><input type="text" id="admin-teq-info-server" placeholder="Ej. Server VIP 1" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                        </div>
+                    </div>
+                    <div class="p-4 bg-oscuro rounded-2xl border border-rojo/40 space-y-3">
+                        <h4 class="font-black text-xs text-rojo uppercase tracking-wider">⏰ Cierre de Inscripciones</h4>
+                        <div>
+                            <label class="text-slate-400 block mb-1 text-xs">Hora Límite de Inscripción:</label>
+                            <input type="datetime-local" id="admin-teq-info-cierre-inscripcion" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        </div>
+                        <p class="text-[10px] text-slate-400">Al llegar esta hora, los cupos vacíos de la primera ronda se rellenan automáticamente con "BOSS".</p>
+                    </div>
+                    <button onclick="guardarInfoTorneoEquipoAdmin()" class="w-full py-2.5 bg-verde text-black font-black rounded-xl text-xs shadow">Guardar Info</button>
+                </div>
+
+                <!-- SUBTAB: PREMIO -->
+                <div id="subtab-teq-admin-cont-premio" class="hidden space-y-4">
+                    <div class="p-4 bg-oscuro rounded-2xl border border-verde/40 space-y-3">
+                        <h4 class="font-black text-xs text-verde uppercase tracking-wider">🏆 Imagen del Premio para el Equipo Ganador</h4>
+                        <div class="flex gap-2">
+                            <input type="text" id="admin-teq-premio-img" oninput="actualizarPreviewPremioTorneoEquipoAdmin()" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                            <label class="px-3 py-2 bg-claro text-white rounded-xl cursor-pointer hover:bg-slate-700 text-[10px] font-bold flex items-center gap-1 shrink-0">
+                                <i class="fa fa-camera"></i> Subir
+                                <input type="file" accept="image/*" class="hidden" onchange="subirImagenTelefono(this, 'admin-teq-premio-img')">
+                            </label>
+                        </div>
+                        <div class="w-full h-32 bg-medio rounded-xl border border-borde overflow-hidden flex items-center justify-center">
+                            <img id="admin-teq-premio-preview" src="" class="w-full h-full object-cover hidden">
+                            <i class="fa fa-image text-2xl text-slate-600" id="admin-teq-premio-preview-icon"></i>
+                        </div>
+                        <button onclick="document.getElementById('admin-teq-premio-img').value=''; actualizarPreviewPremioTorneoEquipoAdmin();" class="px-3 py-1.5 bg-rojo/20 text-rojo font-bold rounded-lg text-[10px]">Quitar Imagen</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- TAB RULETA -->
             <div id="tab-contenido-ruleta" class="hidden space-y-4">
                 <h4 class="font-black text-xs text-naranja uppercase tracking-wider">Configurar Casillas de la Ruleta (30) - Premios en Monedas</h4>
@@ -2801,7 +2981,7 @@
         }
 
         function cambiarTabAdmin(tab) {
-            const tabs = ['general', 'misiones', 'usuarios', 'codigos', 'champions', 'ruleta', 'tienda', 'top', 'calendario', 'musica', 'garra', 'futbolmini'];
+            const tabs = ['general', 'misiones', 'usuarios', 'codigos', 'champions', 'torneoequipo', 'ruleta', 'tienda', 'top', 'calendario', 'musica', 'garra', 'futbolmini'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-btn-${t}`);
                 const contenido = document.getElementById(`tab-contenido-${t}`);
@@ -2849,6 +3029,7 @@
                 renderizarListaEventosTematicosAdmin();
             }
             if(tab === 'champions') { cargardatosFormularioChampions(); cambiarSubTabChampionsAdmin('cuadro'); }
+            if(tab === 'torneoequipo') { cargarFormularioTorneoEquipoAdmin(); cambiarSubTabTorneoEquipoAdmin('cuadro'); }
             if(tab === 'tienda') cargarDatosTragamonedasEnAdmin();
             if(tab === 'ruleta') generarFormularioRuleta();
             if(tab === 'top') renderizarTopAdmin();
@@ -2898,6 +3079,7 @@
             if(modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
             if(id === 'modal-tienda') { renderizarTiendaVista(); reproducirMusicaSeccion('tienda'); }
             if(id === 'modal-champions') { renderizarCuadroChampions(); reproducirMusicaSeccion('champions'); centrarBracketChampions(); }
+            if(id === 'modal-torneo-equipo') { renderizarCuadroTorneoEquipo(); centrarBracketTorneoEquipo(); }
             if(id === 'modal-top') { renderizarTopSemanal(); }
         }
 
@@ -3202,7 +3384,9 @@
             'top_semanal_app', 'cuartos_champions_v2_app', 'semis_champions_v2_app',
             'final_champions_v2_app', 'fondo_app_v15', 'champions_torneo_id', 'champions_modo_equipo',
             'horario_ini_gp', 'horario_fin_gp', 'horario_ini_gm', 'horario_fin_gm',
-            'horario_ini_top', 'horario_fin_top', 'horario_ini_ruleta', 'horario_fin_ruleta'
+            'horario_ini_top', 'horario_fin_top', 'horario_ini_ruleta', 'horario_fin_ruleta',
+            'torneo_equipo_config_app', 'torneo_equipo_rondas_app', 'torneo_equipo_id_app',
+            'imagen_premio_torneo_equipo_app', 'info_torneo_equipo_app'
         ];
         let _sincronizandoDesdeNube = false;
         const ETIQUETAS_CLAVES_SYNC = {
@@ -3210,7 +3394,8 @@
             'premios_ruleta_app': 'Premios de la Ruleta', 'top_semanal_app': 'Top Semanal',
             'datos_calendario_app': 'Calendario', 'imagen_premio_champions_app': 'Premio de Champions',
             'logo_carga_app': 'Logo', 'input_gif_companero_url': 'GIF Compañero',
-            'imagen_fondo_champions_app': 'Fondo de Champions', 'fondo_app_v15': 'Fondo de la App (v15)'
+            'imagen_fondo_champions_app': 'Fondo de Champions', 'fondo_app_v15': 'Fondo de la App (v15)',
+            'imagen_premio_torneo_equipo_app': 'Premio de Torneo de Equipo'
         };
         function diagnosticarImagenesPesadas(clave) {
             const mapaEstructuras = {
@@ -3273,9 +3458,16 @@
             champTorneoId = parseInt(localStorage.getItem('champions_torneo_id')) || champTorneoId;
             champModoEquipo = parseInt(localStorage.getItem('champions_modo_equipo')) || 0;
 
+            torneoEqConfig = JSON.parse(localStorage.getItem('torneo_equipo_config_app')) || torneoEqConfig;
+            torneoEqRondas = JSON.parse(localStorage.getItem('torneo_equipo_rondas_app')) || torneoEqRondas;
+            torneoEqId = parseInt(localStorage.getItem('torneo_equipo_id_app')) || torneoEqId;
+            imagenPremioTorneoEquipo = localStorage.getItem('imagen_premio_torneo_equipo_app') || imagenPremioTorneoEquipo;
+            infoTorneoEquipo = JSON.parse(localStorage.getItem('info_torneo_equipo_app')) || infoTorneoEquipo;
+
             [
                 'renderizarRuletaVista', 'renderizarTiendaVista', 'renderizarTiendaAdmin',
                 'renderizarCuadroChampions', 'renderizarInfoChampions',
+                'renderizarCuadroTorneoEquipo', 'actualizarBadgeTorneoEquipo',
                 'renderizarGarraVista', 'renderizarFutbolMiniVista', 'renderizarCalendarioVista', 'renderizarCalendarioAdmin',
                 'renderizarTopSemanal', 'renderizarTopAdmin', 'renderizarTinka',
                 'renderizarListaCodigosAdmin', 'aplicarConfiguracionApp'
@@ -3398,6 +3590,452 @@
         
         let infoTorneoChampions = JSON.parse(localStorage.getItem('info_torneo_champions_app')) || { modo: 'Deathmatch 1v1', avatar: 'Libre', aire: 'Normal', movil: 'Aleatorio', mapa: 'Grand Canyon', tp: 'Permitido', fechahora: '', server: 'Server VIP 1', cierreInscripcion: '' };
         if (infoTorneoChampions.cierreInscripcion === undefined) infoTorneoChampions.cierreInscripcion = '';
+
+        // ===================================================================
+        // ===== TORNEO DE EQUIPO (independiente de Champions Supreme) =====
+        // numEquipos: 4/8/16 equipos totales. tamEquipo: 2/3/4 (2v2/3v3/4v4).
+        // winsParaGanar: solo informativo/badge (el ganador de cada cruce se
+        // determina igual que en Champions: mayor marcador gana).
+        // ===================================================================
+        function generarRondasVaciasTorneoEquipo(numEquipos) {
+            const rondas = [];
+            let n = Math.max(2, numEquipos);
+            while (n >= 2) {
+                rondas.push(Array(n).fill(null).map(() => ({ nombre: '', score: 0 })));
+                n = n / 2;
+            }
+            return rondas;
+        }
+        function nombresRondasTorneoEquipo(rondas) {
+            const totalRondas = rondas.length;
+            const nombresBase = ['Octavos de Final', 'Cuartos de Final', 'Semifinal', 'Gran Final'];
+            return rondas.map((_, i) => nombresBase[nombresBase.length - (totalRondas - i)]);
+        }
+        let torneoEqConfig = JSON.parse(localStorage.getItem('torneo_equipo_config_app')) || { numEquipos: 8, tamEquipo: 2, winsParaGanar: 2 };
+        let torneoEqRondas = JSON.parse(localStorage.getItem('torneo_equipo_rondas_app')) || generarRondasVaciasTorneoEquipo(torneoEqConfig.numEquipos);
+        let torneoEqId = parseInt(localStorage.getItem('torneo_equipo_id_app')) || 1;
+        let imagenPremioTorneoEquipo = localStorage.getItem('imagen_premio_torneo_equipo_app') || '';
+        let infoTorneoEquipo = JSON.parse(localStorage.getItem('info_torneo_equipo_app')) || { fechahora: '', server: '', cierreInscripcion: '' };
+
+        function actualizarBadgeTorneoEquipo() {
+            const badge = document.getElementById('badge-modo-torneoequipo-dashboard');
+            if (badge) badge.textContent = `${torneoEqConfig.tamEquipo}v${torneoEqConfig.tamEquipo} · ${torneoEqConfig.numEquipos} equipos`;
+            const badgeCuadro = document.getElementById('teq-badge-modo-cuadro');
+            if (badgeCuadro) badgeCuadro.textContent = `⚔️ ${torneoEqConfig.tamEquipo} vs ${torneoEqConfig.tamEquipo} · ${torneoEqConfig.numEquipos} equipos ⚔️`;
+        }
+
+        function guardarConfigTorneoEquipoAdmin() {
+            const numEquipos = parseInt(document.getElementById('admin-teq-num-equipos')?.value) || 8;
+            const tamEquipo = parseInt(document.getElementById('admin-teq-tam-equipo')?.value) || 2;
+            const winsParaGanar = parseInt(document.getElementById('admin-teq-wins-ganar')?.value) || 2;
+
+            const cambioTamano = numEquipos !== torneoEqConfig.numEquipos;
+            if (cambioTamano) {
+                const haySlotOcupado = torneoEqRondas.some(ronda => ronda.some(s => s.nombre));
+                if (haySlotOcupado && !confirm('⚠️ Cambiar el Nº de equipos borrará TODOS los cupos y marcadores ya cargados en el cuadro actual. ¿Deseas continuar?')) {
+                    document.getElementById('admin-teq-num-equipos').value = String(torneoEqConfig.numEquipos);
+                    return;
+                }
+                torneoEqRondas = generarRondasVaciasTorneoEquipo(numEquipos);
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqRondas));
+            }
+
+            torneoEqConfig = { numEquipos, tamEquipo, winsParaGanar };
+            localStorage.setItem('torneo_equipo_config_app', JSON.stringify(torneoEqConfig));
+            actualizarBadgeTorneoEquipo();
+            cargarFormularioTorneoEquipoAdmin();
+            renderizarCuadroTorneoEquipo();
+            alert('✅ Configuración del Torneo de Equipo guardada.');
+        }
+
+        function filaEquipoBracketTeq(nombre, score, esGanador, esPendiente, miembros) {
+            return filaEquipoBracket(nombre, score, esGanador, esPendiente, miembros);
+        }
+
+        function renderizarCuadroTorneoEquipo() {
+            verificarCierreInscripcionTorneoEquipo();
+            const cont = document.getElementById('bracket-torneo-equipo-cont');
+            if (!cont) return;
+
+            const nombresRondas = nombresRondasTorneoEquipo(torneoEqRondas);
+            let html = '';
+            torneoEqRondas.forEach((ronda, ri) => {
+                const esUltima = ri === torneoEqRondas.length - 1;
+                const numMatches = ronda.length / 2;
+                let matchesHtml = '';
+                for (let m = 0; m < numMatches; m++) {
+                    const a = ronda[m * 2] || { nombre: '', score: 0 };
+                    const b = ronda[m * 2 + 1] || { nombre: '', score: 0 };
+                    const ganaA = !!(a.nombre && b.nombre && a.score > b.score);
+                    const ganaB = !!(a.nombre && b.nombre && b.score > a.score);
+                    const claseFinal = esUltima ? ' bracket-final' : '';
+                    matchesHtml += `<div class="bracket-match${claseFinal}">${filaEquipoBracketTeq(a.nombre, a.score, ganaA, !a.nombre, a.miembros)}${filaEquipoBracketTeq(b.nombre, b.score, ganaB, !b.nombre, b.miembros)}</div>`;
+                }
+                if (esUltima) {
+                    html += `<div class="bracket-round-single"><div class="bracket-round-label text-dorado">🏆 ${nombresRondas[ri]} 🏆</div>${matchesHtml}</div>`;
+                } else {
+                    html += `<div class="bracket-round"><div class="bracket-round-label">${nombresRondas[ri]}</div><div class="bracket-pair">${matchesHtml}</div></div>`;
+                }
+            });
+            cont.innerHTML = html;
+
+            let campeonNombre = '';
+            let campeonMiembros = [];
+            const ultimaRonda = torneoEqRondas[torneoEqRondas.length - 1];
+            const a = ultimaRonda[0] || { nombre: '', score: 0 };
+            const b = ultimaRonda[1] || { nombre: '', score: 0 };
+            if (a.nombre && b.nombre && a.score !== b.score) {
+                const ganador = a.score > b.score ? a : b;
+                campeonNombre = ganador.nombre;
+                campeonMiembros = ganador.miembros || [ganador.nombre];
+            }
+
+            const imgPremio = document.getElementById('imagen-premio-torneoequipo-display');
+            const iconoPremio = document.getElementById('icono-premio-torneoequipo-placeholder');
+            const textoCampeonPremio = document.getElementById('texto-campeon-premio-torneoequipo');
+            if (imgPremio) {
+                if (imagenPremioTorneoEquipo) {
+                    imgPremio.src = imagenPremioTorneoEquipo;
+                    imgPremio.classList.remove('hidden');
+                    imgPremio.onclick = () => verImagenCompleta(imagenPremioTorneoEquipo);
+                    if (iconoPremio) iconoPremio.classList.add('hidden');
+                } else {
+                    imgPremio.classList.add('hidden');
+                    imgPremio.onclick = null;
+                    if (iconoPremio) iconoPremio.classList.remove('hidden');
+                }
+            }
+            if (textoCampeonPremio) {
+                textoCampeonPremio.textContent = campeonNombre
+                    ? `🎉 ¡El equipo "${campeonNombre}" (${campeonMiembros.join(', ')}) se coronó Campeón del Torneo de Equipo!`
+                    : 'El premio se entrega al equipo campeón del Torneo de Equipo.';
+            }
+
+            const btnReclamar = document.getElementById('btn-reclamar-premio-torneoequipo');
+            const textoYaReclamado = document.getElementById('texto-ya-reclamado-torneoequipo');
+            if (btnReclamar && textoYaReclamado) {
+                const esDelEquipoCampeon = !!(campeonMiembros.length && usuarioActual && campeonMiembros.some(mi => mi.trim().toLowerCase() === usuarioActual.toLowerCase()));
+                const claveReclamo = `reclamado_torneo_equipo_${torneoEqId}_${(usuarioActual || '').toLowerCase()}`;
+                const yaReclamado = localStorage.getItem(claveReclamo) === 'true';
+                btnReclamar.classList.toggle('hidden', !(esDelEquipoCampeon && !yaReclamado));
+                btnReclamar.classList.toggle('flex', esDelEquipoCampeon && !yaReclamado);
+                textoYaReclamado.classList.toggle('hidden', !(esDelEquipoCampeon && yaReclamado));
+            }
+
+            actualizarBadgeTorneoEquipo();
+        }
+
+        function centrarBracketTorneoEquipo() {
+            setTimeout(() => {
+                const cont = document.getElementById('bracket-torneo-equipo-cont');
+                if (cont) cont.scrollLeft = 0;
+            }, 50);
+        }
+
+        function cambiarTabTorneoEquipo(tab) {
+            const btnCuadro = document.getElementById('tab-teq-btn-cuadro');
+            const btnInfo = document.getElementById('tab-teq-btn-info');
+            const contCuadro = document.getElementById('tab-teq-cont-cuadro');
+            const contInfo = document.getElementById('tab-teq-cont-info');
+            if (tab === 'cuadro') {
+                if (btnCuadro) btnCuadro.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-black bg-verde text-black transition shadow';
+                if (btnInfo) btnInfo.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition';
+                contCuadro?.classList.remove('hidden');
+                contInfo?.classList.add('hidden');
+                renderizarCuadroTorneoEquipo();
+            } else {
+                if (btnInfo) btnInfo.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-black bg-verde text-black transition shadow';
+                if (btnCuadro) btnCuadro.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition';
+                contInfo?.classList.remove('hidden');
+                contCuadro?.classList.add('hidden');
+                renderizarInfoTorneoEquipo();
+            }
+        }
+
+        function renderizarInfoTorneoEquipo() {
+            const val = document.getElementById('teq-info-val-modo');
+            if (val) val.textContent = `${torneoEqConfig.tamEquipo} vs ${torneoEqConfig.tamEquipo} · ${torneoEqConfig.numEquipos} equipos · gana con ${torneoEqConfig.winsParaGanar} wins`;
+            const fh = document.getElementById('teq-info-val-fechahora');
+            if (fh) fh.textContent = infoTorneoEquipo.fechahora ? new Date(infoTorneoEquipo.fechahora).toLocaleString() : '-';
+            const srv = document.getElementById('teq-info-val-server');
+            if (srv) srv.textContent = infoTorneoEquipo.server || '-';
+            const cierre = document.getElementById('teq-info-val-cierre-inscripcion');
+            if (cierre) cierre.textContent = infoTorneoEquipo.cierreInscripcion ? new Date(infoTorneoEquipo.cierreInscripcion).toLocaleString() : '-';
+        }
+
+        function guardarInfoTorneoEquipoAdmin() {
+            infoTorneoEquipo = {
+                fechahora: document.getElementById('admin-teq-info-fechahora')?.value || '',
+                server: document.getElementById('admin-teq-info-server')?.value || '',
+                cierreInscripcion: document.getElementById('admin-teq-info-cierre-inscripcion')?.value || ''
+            };
+            localStorage.setItem('info_torneo_equipo_app', JSON.stringify(infoTorneoEquipo));
+            alert('✅ Info del Torneo de Equipo guardada.');
+            renderizarInfoTorneoEquipo();
+        }
+
+        // ===== Inscripción =====
+        function abrirModalInscripcionTorneoEquipo() {
+            const primeraRonda = torneoEqRondas[0];
+            if (usuarioActual && primeraRonda.some(d => d.cuenta && d.cuenta === usuarioActual.toLowerCase())) {
+                alert('⚠️ Ya estás inscrito en este torneo con tu cuenta. No puedes registrarte más de una vez.');
+                return;
+            }
+            const titulo = document.getElementById('titulo-modal-inscripcion-teq');
+            const cont = document.getElementById('contenedor-campos-dinamicos-teq');
+            if (!cont) return;
+
+            const tam = torneoEqConfig.tamEquipo;
+            titulo.textContent = `INSCRIPCIÓN DE EQUIPO (${tam}v${tam})`;
+            let camposMiembros = '';
+            for (let i = 0; i < tam; i++) {
+                const placeholder = i === 0 ? 'Tu Nick (Capitán)' : `Nick del Compañero ${i}`;
+                const valorInicial = i === 0 ? (usuarioActual || '') : '';
+                camposMiembros += `<input type="text" id="input-miembro-inscripcion-teq-${i}" value="${valorInicial}" placeholder="${placeholder}" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">`;
+            }
+            cont.innerHTML = `
+                <input type="text" id="input-equipo-nombre-inscripcion-teq" placeholder="Nombre del Equipo" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-bold">
+                ${camposMiembros}
+                <p class="text-[9px] text-slate-500 text-center">Se inscribe todo el equipo con tu cuenta. Cada integrante que gane la Gran Final podrá reclamar el premio con su propia cuenta si su nick coincide con el que pusiste aquí.</p>
+            `;
+            abrirVentana('modal-inscripcion-torneo-equipo');
+        }
+
+        function cerrarModalInscripcionTorneoEquipo() {
+            cerrarVentana('modal-inscripcion-torneo-equipo');
+        }
+
+        function verificarCierreInscripcionTorneoEquipo() {
+            const cierre = infoTorneoEquipo.cierreInscripcion;
+            if (!cierre) return;
+            const cierreMs = new Date(cierre).getTime();
+            if (isNaN(cierreMs) || Date.now() < cierreMs) return;
+
+            const flagKey = `boss_autollenado_torneo_equipo_${cierreMs}`;
+            if (localStorage.getItem(flagKey) === 'true') return;
+            localStorage.setItem(flagKey, 'true');
+
+            let huboRelleno = false;
+            torneoEqRondas[0].forEach(slot => {
+                if (!slot.nombre) { slot.nombre = 'BOSS'; slot.score = 0; huboRelleno = true; }
+            });
+            if (huboRelleno) {
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqRondas));
+                if (typeof cargarFormularioTorneoEquipoAdmin === 'function') cargarFormularioTorneoEquipoAdmin();
+                if (typeof enviarNotificacionTelegram === 'function') enviarNotificacionTelegram('⏰ Se cerraron las inscripciones del Torneo de Equipo. Los cupos vacíos se completaron automáticamente con BOSS.');
+            }
+        }
+
+        function enviarInscripcionTorneoEquipo() {
+            verificarCierreInscripcionTorneoEquipo();
+            const cierre = infoTorneoEquipo.cierreInscripcion;
+            if (cierre && Date.now() >= new Date(cierre).getTime()) {
+                alert('⚠️ El tiempo de inscripción para este torneo ya finalizó.');
+                cerrarModalInscripcionTorneoEquipo();
+                return;
+            }
+            if (!usuarioActual) {
+                alert('⚠️ Debes iniciar sesión para inscribirte.');
+                return;
+            }
+            const primeraRonda = torneoEqRondas[0];
+            const yaInscrito = primeraRonda.some(d => d.cuenta && d.cuenta === usuarioActual.toLowerCase());
+            if (yaInscrito) {
+                alert('⚠️ Ya estás inscrito en este torneo con tu cuenta. No puedes registrarte más de una vez.');
+                cerrarModalInscripcionTorneoEquipo();
+                return;
+            }
+
+            const nombreSlot = document.getElementById('input-equipo-nombre-inscripcion-teq')?.value.trim();
+            if (!nombreSlot) { alert('⚠️ Ingresa un nombre de equipo válido.'); return; }
+            const miembros = [];
+            for (let i = 0; i < torneoEqConfig.tamEquipo; i++) {
+                const nick = document.getElementById(`input-miembro-inscripcion-teq-${i}`)?.value.trim();
+                if (!nick) { alert(`⚠️ Falta el nick del integrante ${i + 1}.`); return; }
+                miembros.push(nick);
+            }
+
+            let slotVacio = primeraRonda.find(d => !d.nombre);
+            if (!slotVacio) {
+                alert('⚠️ Las inscripciones para este torneo están completas.');
+                cerrarModalInscripcionTorneoEquipo();
+                return;
+            }
+            slotVacio.nombre = nombreSlot;
+            slotVacio.miembros = miembros;
+            slotVacio.cuenta = usuarioActual.toLowerCase();
+            localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqRondas));
+            alert(`🎉 ¡Equipo "${nombreSlot}" inscrito en el Torneo de Equipo!`);
+            enviarNotificacionTelegram(`¡Nuevo equipo inscrito al Torneo de Equipo!%0AEquipo: ${nombreSlot}%0AIntegrantes: ${miembros.join(', ')}`);
+            cerrarModalInscripcionTorneoEquipo();
+            renderizarCuadroTorneoEquipo();
+        }
+
+        // ===== Admin: marcadores y avance de rondas =====
+        function leerInputsTorneoEquipoAdmin() {
+            torneoEqRondas.forEach((ronda, ri) => {
+                ronda.forEach((slot, i) => {
+                    const nom = document.getElementById(`admin-teq-r${ri}-nombre-${i}`)?.value;
+                    const sco = document.getElementById(`admin-teq-r${ri}-score-${i}`)?.value;
+                    if (nom !== undefined) {
+                        slot.nombre = nom;
+                        if (!nom.trim()) { delete slot.cuenta; delete slot.miembros; }
+                    }
+                    if (sco !== undefined) slot.score = parseInt(sco) || 0;
+                });
+            });
+        }
+
+        function avanzarGanadoresTorneoEquipoAdmin() {
+            leerInputsTorneoEquipoAdmin();
+            let algunAvance = false;
+            for (let ri = 0; ri < torneoEqRondas.length - 1; ri++) {
+                const ronda = torneoEqRondas[ri];
+                const siguiente = torneoEqRondas[ri + 1];
+                for (let m = 0; m < ronda.length / 2; m++) {
+                    const a = ronda[m * 2], b = ronda[m * 2 + 1];
+                    if (a.nombre && b.nombre && a.score !== b.score) {
+                        const ganador = a.score > b.score ? a : b;
+                        siguiente[m].nombre = ganador.nombre;
+                        siguiente[m].miembros = ganador.miembros || null;
+                        algunAvance = true;
+                    }
+                }
+            }
+            localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqRondas));
+            cargarFormularioTorneoEquipoAdmin();
+            if (algunAvance) alert('✅ Ganadores avanzados de ronda correctamente.');
+            else alert('ℹ️ No hay partidos con marcador definido para avanzar (revisa empates o campos vacíos).');
+        }
+
+        function cambiarSubTabTorneoEquipoAdmin(tab) {
+            const tabs = ['cuadro', 'info', 'premio'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`subtab-teq-admin-btn-${t}`);
+                const cont = document.getElementById(`subtab-teq-admin-cont-${t}`);
+                if (t === tab) {
+                    if (btn) btn.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-black bg-verde text-black transition shadow';
+                    cont?.classList.remove('hidden');
+                } else {
+                    if (btn) btn.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition';
+                    cont?.classList.add('hidden');
+                }
+            });
+        }
+
+        function cargarFormularioTorneoEquipoAdmin() {
+            const selNum = document.getElementById('admin-teq-num-equipos');
+            if (selNum) selNum.value = String(torneoEqConfig.numEquipos);
+            const selTam = document.getElementById('admin-teq-tam-equipo');
+            if (selTam) selTam.value = String(torneoEqConfig.tamEquipo);
+            const inpWins = document.getElementById('admin-teq-wins-ganar');
+            if (inpWins) inpWins.value = torneoEqConfig.winsParaGanar;
+
+            const cont = document.getElementById('admin-teq-grids-rondas');
+            if (cont) {
+                const nombresRondas = nombresRondasTorneoEquipo(torneoEqRondas);
+                let html = '';
+                torneoEqRondas.forEach((ronda, ri) => {
+                    html += `<div class="flex justify-between items-center">
+                        <h4 class="font-black text-xs text-dorado uppercase tracking-wider">${nombresRondas[ri]}</h4>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">`;
+                    for (let m = 0; m < ronda.length / 2; m++) {
+                        const a = ronda[m * 2] || { nombre: '', score: 0 };
+                        const b = ronda[m * 2 + 1] || { nombre: '', score: 0 };
+                        html += `<div class="p-3 bg-oscuro rounded-2xl border border-azul/30 space-y-2">
+                            <span class="text-[10px] font-bold text-azul uppercase block">Partido ${m + 1}</span>
+                            <div class="grid grid-cols-2 gap-2">
+                                ${crearFilaAdminJugador(a.nombre, a.score, `admin-teq-r${ri}-nombre-${m * 2}`, `admin-teq-r${ri}-score-${m * 2}`)}
+                                ${crearFilaAdminJugador(b.nombre, b.score, `admin-teq-r${ri}-nombre-${m * 2 + 1}`, `admin-teq-r${ri}-score-${m * 2 + 1}`)}
+                            </div>
+                        </div>`;
+                    }
+                    html += `</div>`;
+                });
+                cont.innerHTML = html;
+            }
+
+            const inpFecha = document.getElementById('admin-teq-info-fechahora');
+            if (inpFecha) inpFecha.value = infoTorneoEquipo.fechahora || '';
+            const inpServer = document.getElementById('admin-teq-info-server');
+            if (inpServer) inpServer.value = infoTorneoEquipo.server || '';
+            const inpCierre = document.getElementById('admin-teq-info-cierre-inscripcion');
+            if (inpCierre) inpCierre.value = infoTorneoEquipo.cierreInscripcion || '';
+
+            const inpPremio = document.getElementById('admin-teq-premio-img');
+            if (inpPremio) inpPremio.value = imagenPremioTorneoEquipo || '';
+            actualizarPreviewPremioTorneoEquipoAdmin();
+        }
+
+        function limpiarTodoTorneoEquipoAdmin() {
+            if (!confirm('⚠️ Esto borrará TODOS los cupos, marcadores y al campeón actual del Torneo de Equipo para empezar una nueva edición. ¿Continuar?')) return;
+            const ultimaRonda = torneoEqRondas[torneoEqRondas.length - 1];
+            const a = ultimaRonda[0] || { nombre: '', score: 0 };
+            const b = ultimaRonda[1] || { nombre: '', score: 0 };
+            if (a.nombre && b.nombre && a.score !== b.score) {
+                const campeon = a.score > b.score ? a.nombre : b.nombre;
+                if (typeof guardarCampeonEnHistorial === 'function') { try { guardarCampeonEnHistorial(campeon); } catch (e) {} }
+            }
+            torneoEqRondas = generarRondasVaciasTorneoEquipo(torneoEqConfig.numEquipos);
+            localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqRondas));
+            torneoEqId++;
+            localStorage.setItem('torneo_equipo_id_app', torneoEqId);
+            cargarFormularioTorneoEquipoAdmin();
+            renderizarCuadroTorneoEquipo();
+        }
+
+        function actualizarPreviewPremioTorneoEquipoAdmin() {
+            const val = document.getElementById('admin-teq-premio-img')?.value || imagenPremioTorneoEquipo;
+            const img = document.getElementById('admin-teq-premio-preview');
+            const icon = document.getElementById('admin-teq-premio-preview-icon');
+            if (img) {
+                if (val) {
+                    img.src = val;
+                    img.classList.remove('hidden');
+                    if (icon) icon.classList.add('hidden');
+                    imagenPremioTorneoEquipo = val;
+                    localStorage.setItem('imagen_premio_torneo_equipo_app', val);
+                } else {
+                    img.classList.add('hidden');
+                    if (icon) icon.classList.remove('hidden');
+                }
+            }
+        }
+
+        // El campeón de la Gran Final toca este botón para avisar que reclama su premio.
+        function reclamarPremioTorneoEquipo() {
+            let campeonNombre = '';
+            let campeonMiembros = [];
+            const ultimaRonda = torneoEqRondas[torneoEqRondas.length - 1];
+            const a = ultimaRonda[0] || { nombre: '', score: 0 };
+            const b = ultimaRonda[1] || { nombre: '', score: 0 };
+            if (a.nombre && b.nombre && a.score !== b.score) {
+                const ganador = a.score > b.score ? a : b;
+                campeonNombre = ganador.nombre;
+                campeonMiembros = ganador.miembros || [ganador.nombre];
+            }
+            const esDelEquipoCampeon = !!(campeonMiembros.length && usuarioActual && campeonMiembros.some(mi => mi.trim().toLowerCase() === usuarioActual.toLowerCase()));
+            if (!usuarioActual || !esDelEquipoCampeon) {
+                alert('🔒 Solo el equipo campeón de la Gran Final puede reclamar este premio.');
+                return;
+            }
+            const claveReclamo = `reclamado_torneo_equipo_${torneoEqId}_${usuarioActual.toLowerCase()}`;
+            if (localStorage.getItem(claveReclamo) === 'true') {
+                alert('⚠️ Ya reclamaste este premio.');
+                return;
+            }
+            localStorage.setItem(claveReclamo, 'true');
+            if (firebaseListo) {
+                dbFirebase.collection('usuarios').doc(usuarioActual.toLowerCase()).set({
+                    reclamosTorneoEquipo: firebase.firestore.FieldValue.arrayUnion(torneoEqId)
+                }, { merge: true }).catch(e => console.warn('No se pudo sincronizar el reclamo del Torneo de Equipo:', e));
+            }
+            renderizarCuadroTorneoEquipo();
+            alert('🎉 ¡Reclamo registrado! El admin verá tu aviso y se contactará contigo para la entrega del premio.');
+            enviarNotificacionTelegramConImagen(`👑 El usuario ${usuarioActual} (equipo campeón "${campeonNombre}") está reclamando el premio del Torneo de Equipo. ¡Coordinar la entrega!`, imagenPremioTorneoEquipo);
+            agregarNotificacionApp('👑 ¡Reclamaste tu premio de Campeón del Torneo de Equipo! El admin coordinará la entrega contigo.', 'fa-trophy', imagenPremioTorneoEquipo);
+        }
 
         const metasGPValores = [50000, 100000, 150000, 200000, 300000, 400000, 500000];
         const metasGMValores = [5, 10, 15, 50, 80];
@@ -8300,6 +8938,7 @@
             actualizarBannerOfertaRelampago();
             aplicarFondoAppV15(localStorage.getItem('fondo_app_v15') || '');
             actualizarBadgeModoChampions();
+            actualizarBadgeTorneoEquipo();
         }
 
         async function guardarCambios() {
