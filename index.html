@@ -1156,7 +1156,10 @@
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-3">
                         <div class="w-8 h-8 rounded-xl bg-azul/20 text-azul flex items-center justify-center font-bold"><i class="fa fa-trophy"></i></div>
-                        <h3 class="font-black text-white text-sm uppercase tracking-wider">Torneo Champions Supreme</h3>
+                        <div>
+                            <h3 class="font-black text-white text-sm uppercase tracking-wider">Torneo Champions Supreme</h3>
+                            <span id="badge-modo-champions-dashboard" class="text-[9px] font-black text-morado bg-morado/20 px-1.5 py-0.5 rounded-md"></span>
+                        </div>
                     </div>
                     <button onclick="abrirVentana('modal-champions')" class="px-3 py-1.5 bg-azul/20 text-azul border border-azul/40 rounded-xl text-xs font-bold hover:bg-azul/30 transition">Ver Llaves Completas</button>
                 </div>
@@ -1506,9 +1509,7 @@
     <div id="modal-inscripcion-champions" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border border-azul/50 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
             <h3 id="titulo-modal-inscripcion" class="text-sm font-black text-white text-center">INSCRIPCIÓN TORNEO</h3>
-            <div id="contenedor-campos-dinamicos" class="space-y-3">
-                <input type="text" id="input-nick-inscripcion" placeholder="Tu Nick de Jugador" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">
-            </div>
+            <div id="contenedor-campos-dinamicos" class="space-y-3"></div>
             <div class="flex gap-2 pt-2">
                 <button onclick="cerrarModalInscripcionChampions()" class="flex-1 py-2 bg-claro text-slate-300 font-bold text-xs rounded-xl">Cancelar</button>
                 <button onclick="enviarInscripcionChampions()" class="flex-1 py-2 bg-azul text-white font-black text-xs rounded-xl shadow">Inscribirse</button>
@@ -2297,6 +2298,16 @@
 
                 <!-- SUBTAB: CUADRO Y MARCADORES -->
                 <div id="subtab-champ-admin-cont-cuadro" class="space-y-4">
+                    <div class="p-3 bg-morado/10 border border-morado/30 rounded-2xl space-y-1.5">
+                        <label class="text-[10px] text-slate-300 font-bold block">🧑‍🤝‍🧑 Modo del Torneo:</label>
+                        <select id="admin-champ-modo-equipo" onchange="guardarModoEquipoChampions()" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-bold">
+                            <option value="0">Individual (1 vs 1)</option>
+                            <option value="2">Por Equipos — 2 vs 2</option>
+                            <option value="3">Por Equipos — 3 vs 3</option>
+                            <option value="4">Por Equipos — 4 vs 4</option>
+                        </select>
+                        <p class="text-[9px] text-slate-500">Cambia cómo se inscribe la gente y cómo se muestra el cuadro. No mezcla los cupos ya inscritos: si cambias de modo con inscritos, conviene "Limpiar Cuartos" primero.</p>
+                    </div>
                     <div class="p-3 bg-azul/10 border border-azul/30 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                         <p class="text-[10px] text-slate-300">Ingresa nombre y marcador de cada partido. El ganador se resalta solo; usa el botón para avanzarlo automáticamente a la siguiente ronda.</p>
                         <button onclick="avanzarGanadoresChampionsAdmin()" class="px-3 py-2 bg-verde text-black font-black rounded-xl text-xs shadow whitespace-nowrap">Avanzar Ganadores ➜</button>
@@ -2615,12 +2626,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.0.0";
+        const VERSION_APP_ACTUAL = "15.1.0";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '🎨 Versión 15 — Nuevo Look Visual',
-            descripcion: 'Se modernizó el diseño de toda la app: fondo con degradado vivo (y opción de poner tu propia imagen de fondo desde el panel admin), tarjetas con más brillo y esquinas más redondeadas, y un nuevo banner de Oferta Relámpago con imagen de fondo y cuenta regresiva de días/horas/min/seg.'
+            titulo: '🧑‍🤝‍🧑 Champions ahora también por Equipos',
+            descripcion: 'El Torneo Champions Supreme ahora puede jugarse por equipos (2v2, 3v3, 4v4), configurable desde el panel admin. La inscripción pide el nombre del equipo y sus integrantes, y cualquier integrante del equipo campeón puede reclamar el premio con su propia cuenta.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
@@ -3189,7 +3200,7 @@
             'tasa_cambio_monedas_por_gema', 'config_pase_vip_app', 'tasa_cambio_monedas_por_cristal',
             'oferta_relampago_app', 'eventos_tematicos_app', 'preguntas_frecuentes_app',
             'top_semanal_app', 'cuartos_champions_v2_app', 'semis_champions_v2_app',
-            'final_champions_v2_app', 'fondo_app_v15', 'champions_torneo_id',
+            'final_champions_v2_app', 'fondo_app_v15', 'champions_torneo_id', 'champions_modo_equipo',
             'horario_ini_gp', 'horario_fin_gp', 'horario_ini_gm', 'horario_fin_gm',
             'horario_ini_top', 'horario_fin_top', 'horario_ini_ruleta', 'horario_fin_ruleta'
         ];
@@ -3260,6 +3271,7 @@
             configTragamonedas = JSON.parse(localStorage.getItem('config_trag_app')) || configTragamonedas;
             TINKA_COSTO = parseInt(localStorage.getItem('tinka_costo_app')) || TINKA_COSTO;
             champTorneoId = parseInt(localStorage.getItem('champions_torneo_id')) || champTorneoId;
+            champModoEquipo = parseInt(localStorage.getItem('champions_modo_equipo')) || 0;
 
             [
                 'renderizarRuletaVista', 'renderizarTiendaVista', 'renderizarTiendaAdmin',
@@ -3366,6 +3378,20 @@
         // Se usa para distinguir el reclamo del premio entre una edición del torneo y la siguiente
         // (sube cada vez que el admin cierra/limpia la Gran Final tras coronar a un campeón).
         let champTorneoId = parseInt(localStorage.getItem('champions_torneo_id')) || 1;
+        // 0 = individual (1v1). 2/3/4 = cantidad de jugadores por equipo (2v2, 3v3, 4v4).
+        let champModoEquipo = parseInt(localStorage.getItem('champions_modo_equipo')) || 0;
+        function guardarModoEquipoChampions() {
+            const val = parseInt(document.getElementById('admin-champ-modo-equipo')?.value) || 0;
+            champModoEquipo = val;
+            localStorage.setItem('champions_modo_equipo', val);
+            actualizarBadgeModoChampions();
+            renderizarCuadroChampions();
+        }
+        function actualizarBadgeModoChampions() {
+            const badge = document.getElementById('badge-modo-champions-dashboard');
+            if (!badge) return;
+            badge.textContent = champModoEquipo > 0 ? `${champModoEquipo} vs ${champModoEquipo}` : 'Individual · 1 vs 1';
+        }
         let imagenPremioChampions = localStorage.getItem('imagen_premio_champions_app') || '';
         let imagenFondoChampions = localStorage.getItem('imagen_fondo_champions_app') || '';
         let tercerPuestoChampions = localStorage.getItem('tercer_puesto_champions_app') || '';
@@ -3505,13 +3531,17 @@
         // tanto dentro de la app (campanita) como al admin por Telegram, para que coordine la entrega.
         function reclamarPremioChampions() {
             let campeonNombre = '';
+            let campeonMiembros = [];
             const a = datosChampionsFinal[0] || { nombre: '', score: 0 };
             const b = datosChampionsFinal[1] || { nombre: '', score: 0 };
             if (a.nombre && b.nombre && a.score !== b.score) {
-                campeonNombre = a.score > b.score ? a.nombre : b.nombre;
+                const ganador = a.score > b.score ? a : b;
+                campeonNombre = ganador.nombre;
+                campeonMiembros = ganador.miembros || [ganador.nombre];
             }
-            if (!usuarioActual || !campeonNombre || campeonNombre.trim().toLowerCase() !== usuarioActual.toLowerCase()) {
-                alert('🔒 Solo el campeón de la Gran Final puede reclamar este premio.');
+            const esDelEquipoCampeon = !!(campeonMiembros.length && usuarioActual && campeonMiembros.some(m => m.trim().toLowerCase() === usuarioActual.toLowerCase()));
+            if (!usuarioActual || !esDelEquipoCampeon) {
+                alert('🔒 Solo el campeón (o un integrante del equipo campeón) de la Gran Final puede reclamar este premio.');
                 return;
             }
             const claveReclamo = `reclamado_champions_${champTorneoId}_${usuarioActual.toLowerCase()}`;
@@ -3527,7 +3557,7 @@
             }
             renderizarCuadroChampions();
             alert('🎉 ¡Reclamo registrado! El admin verá tu aviso y se contactará contigo para la entrega del premio.');
-            enviarNotificacionTelegramConImagen(`👑 El usuario ${usuarioActual} es el CAMPEÓN de la Champions Supreme y está reclamando su premio. ¡Coordinar la entrega!`, imagenPremioChampions);
+            enviarNotificacionTelegramConImagen(`👑 El usuario ${usuarioActual} (equipo/campeón "${campeonNombre}") está reclamando el premio de la Champions Supreme. ¡Coordinar la entrega!`, imagenPremioChampions);
             agregarNotificacionApp('👑 ¡Reclamaste tu premio de Campeón de la Champions Supreme! El admin coordinará la entrega contigo.', 'fa-trophy', imagenPremioChampions);
         }
 
@@ -5657,12 +5687,14 @@
             renderizarTiendaVista();
         }
 
-        function filaEquipoBracket(nombre, score, esGanador, esPendiente) {
+        function filaEquipoBracket(nombre, score, esGanador, esPendiente, miembros) {
             const nom = (nombre && nombre.trim()) ? nombre : 'Por definir';
             let clases = 'bracket-team';
             if(esGanador) clases += ' winner';
             if(esPendiente) clases += ' pendiente';
-            return `<div class="${clases}"><span class="nombre-jugador">${esGanador ? '👑 ' : ''}${nom}</span><span class="font-mono font-bold">${score || 0}</span></div>`;
+            const miembrosHtml = (miembros && miembros.length > 1)
+                ? `<span class="block text-[8px] text-slate-400 font-normal truncate">${miembros.join(' · ')}</span>` : '';
+            return `<div class="${clases}"><span class="nombre-jugador">${esGanador ? '👑 ' : ''}${nom}${miembrosHtml}</span><span class="font-mono font-bold">${score || 0}</span></div>`;
         }
 
         function renderizarCuadroChampions() {
@@ -5683,7 +5715,7 @@
                     const ganaB = !!(a.nombre && b.nombre && b.score > a.score);
                     const horaMatch = calcularHoraEnfrentamiento(i);
                     const horaHtml = horaMatch ? `<div class="text-[9px] text-dorado font-bold text-center mb-1">🕐 ${horaMatch.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>` : '';
-                    html += `<div class="mb-3">${horaHtml}${filaEquipoBracket(a.nombre, a.score, ganaA, !a.nombre)}${filaEquipoBracket(b.nombre, b.score, ganaB, !b.nombre)}</div>`;
+                    html += `<div class="mb-3">${horaHtml}${filaEquipoBracket(a.nombre, a.score, ganaA, !a.nombre, a.miembros)}${filaEquipoBracket(b.nombre, b.score, ganaB, !b.nombre, b.miembros)}</div>`;
                 });
                 cont.innerHTML = html;
             }
@@ -5696,20 +5728,21 @@
                 const b = datosChampionsSemis[bi] || { nombre: '', score: 0 };
                 const ganaA = !!(a.nombre && b.nombre && a.score > b.score);
                 const ganaB = !!(a.nombre && b.nombre && b.score > a.score);
-                cont.innerHTML = filaEquipoBracket(a.nombre, a.score, ganaA, !a.nombre) + filaEquipoBracket(b.nombre, b.score, ganaB, !b.nombre);
+                cont.innerHTML = filaEquipoBracket(a.nombre, a.score, ganaA, !a.nombre, a.miembros) + filaEquipoBracket(b.nombre, b.score, ganaB, !b.nombre, b.miembros);
             }
             pintarSemi(sIzq, 0, 1);
             pintarSemi(sDer, 2, 3);
 
             let campeonNombre = '';
+            let campeonMiembros = [];
             if(cFinal) {
                 const a = datosChampionsFinal[0] || { nombre: '', score: 0 };
                 const b = datosChampionsFinal[1] || { nombre: '', score: 0 };
                 const ganaA = !!(a.nombre && b.nombre && a.score > b.score);
                 const ganaB = !!(a.nombre && b.nombre && b.score > a.score);
-                if(ganaA) campeonNombre = a.nombre;
-                if(ganaB) campeonNombre = b.nombre;
-                cFinal.innerHTML = filaEquipoBracket(a.nombre, a.score, ganaA, !a.nombre) + filaEquipoBracket(b.nombre, b.score, ganaB, !b.nombre);
+                if(ganaA) { campeonNombre = a.nombre; campeonMiembros = a.miembros || [a.nombre]; }
+                if(ganaB) { campeonNombre = b.nombre; campeonMiembros = b.miembros || [b.nombre]; }
+                cFinal.innerHTML = filaEquipoBracket(a.nombre, a.score, ganaA, !a.nombre, a.miembros) + filaEquipoBracket(b.nombre, b.score, ganaB, !b.nombre, b.miembros);
             }
 
             const headerFondo = document.getElementById('champions-header-fondo');
@@ -5734,19 +5767,21 @@
             }
             if(textoCampeonPremio) {
                 textoCampeonPremio.textContent = campeonNombre
-                    ? `🎉 ¡${campeonNombre} se coronó Campeón de la Champions Supreme!`
+                    ? (campeonMiembros.length > 1
+                        ? `🎉 ¡El equipo "${campeonNombre}" (${campeonMiembros.join(', ')}) se coronó Campeón de la Champions Supreme!`
+                        : `🎉 ¡${campeonNombre} se coronó Campeón de la Champions Supreme!`)
                     : 'El premio se entrega al campeón de la Champions Supreme.';
             }
 
             const btnReclamar = document.getElementById('btn-reclamar-premio-champions');
             const textoYaReclamado = document.getElementById('texto-ya-reclamado-champions');
             if (btnReclamar && textoYaReclamado) {
-                const esElCampeon = !!(campeonNombre && usuarioActual && campeonNombre.trim().toLowerCase() === usuarioActual.toLowerCase());
+                const esDelEquipoCampeon = !!(campeonMiembros.length && usuarioActual && campeonMiembros.some(m => m.trim().toLowerCase() === usuarioActual.toLowerCase()));
                 const claveReclamo = `reclamado_champions_${champTorneoId}_${(usuarioActual || '').toLowerCase()}`;
                 const yaReclamado = localStorage.getItem(claveReclamo) === 'true';
-                btnReclamar.classList.toggle('hidden', !(esElCampeon && !yaReclamado));
-                btnReclamar.classList.toggle('flex', esElCampeon && !yaReclamado);
-                textoYaReclamado.classList.toggle('hidden', !(esElCampeon && yaReclamado));
+                btnReclamar.classList.toggle('hidden', !(esDelEquipoCampeon && !yaReclamado));
+                btnReclamar.classList.toggle('flex', esDelEquipoCampeon && !yaReclamado);
+                textoYaReclamado.classList.toggle('hidden', !(esDelEquipoCampeon && yaReclamado));
             }
         }
 
@@ -5818,8 +5853,27 @@
                 alert('⚠️ Ya estás inscrito en este torneo con tu cuenta. No puedes registrarte más de una vez.');
                 return;
             }
-            const inputNick = document.getElementById('input-nick-inscripcion');
-            if(inputNick) inputNick.value = usuarioActual || '';
+            const titulo = document.getElementById('titulo-modal-inscripcion');
+            const cont = document.getElementById('contenedor-campos-dinamicos');
+            if (!cont) return;
+
+            if (champModoEquipo > 0) {
+                titulo.textContent = `INSCRIPCIÓN DE EQUIPO (${champModoEquipo}v${champModoEquipo})`;
+                let camposMiembros = '';
+                for (let i = 0; i < champModoEquipo; i++) {
+                    const placeholder = i === 0 ? 'Tu Nick (Capitán)' : `Nick del Compañero ${i}`;
+                    const valorInicial = i === 0 ? (usuarioActual || '') : '';
+                    camposMiembros += `<input type="text" id="input-miembro-inscripcion-${i}" value="${valorInicial}" placeholder="${placeholder}" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">`;
+                }
+                cont.innerHTML = `
+                    <input type="text" id="input-equipo-nombre-inscripcion" placeholder="Nombre del Equipo" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-bold">
+                    ${camposMiembros}
+                    <p class="text-[9px] text-slate-500 text-center">Se inscribe todo el equipo con tu cuenta. Cada integrante que gane la Gran Final podrá reclamar el premio con su propia cuenta si su nick coincide con el que pusiste aquí.</p>
+                `;
+            } else {
+                titulo.textContent = 'INSCRIPCIÓN TORNEO';
+                cont.innerHTML = `<input type="text" id="input-nick-inscripcion" value="${usuarioActual || ''}" placeholder="Tu Nick de Jugador" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">`;
+            }
             abrirVentana('modal-inscripcion-champions');
         }
 
@@ -5883,10 +5937,23 @@
                 return;
             }
 
-            const nick = document.getElementById('input-nick-inscripcion')?.value.trim();
-            if(!nick) {
-                alert('⚠️ Ingresa un nick válido.');
-                return;
+            let nombreSlot = '';
+            let miembros = [];
+            if (champModoEquipo > 0) {
+                nombreSlot = document.getElementById('input-equipo-nombre-inscripcion')?.value.trim();
+                if (!nombreSlot) { alert('⚠️ Ingresa un nombre de equipo válido.'); return; }
+                for (let i = 0; i < champModoEquipo; i++) {
+                    const nick = document.getElementById(`input-miembro-inscripcion-${i}`)?.value.trim();
+                    if (!nick) { alert(`⚠️ Falta el nick del integrante ${i + 1}.`); return; }
+                    miembros.push(nick);
+                }
+            } else {
+                nombreSlot = document.getElementById('input-nick-inscripcion')?.value.trim();
+                if(!nombreSlot) {
+                    alert('⚠️ Ingresa un nick válido.');
+                    return;
+                }
+                miembros = [nombreSlot];
             }
 
             let slotVacio = datosChampions.find(d => !d.nombre);
@@ -5896,11 +5963,14 @@
                 return;
             }
 
-            slotVacio.nombre = nick;
+            slotVacio.nombre = nombreSlot;
+            slotVacio.miembros = miembros;
             slotVacio.cuenta = usuarioActual.toLowerCase();
             localStorage.setItem('cuartos_champions_v2_app', JSON.stringify(datosChampions));
-            alert('🎉 ¡Inscripción al Torneo Champions Supreme exitosa!');
-            enviarNotificacionTelegram(`¡Nuevo inscrito al Torneo Champions!%0AJugador: ${nick}`);
+            alert(champModoEquipo > 0 ? `🎉 ¡Equipo "${nombreSlot}" inscrito en el Torneo Champions Supreme!` : '🎉 ¡Inscripción al Torneo Champions Supreme exitosa!');
+            enviarNotificacionTelegram(champModoEquipo > 0
+                ? `¡Nuevo equipo inscrito al Torneo Champions!%0AEquipo: ${nombreSlot}%0AIntegrantes: ${miembros.join(', ')}`
+                : `¡Nuevo inscrito al Torneo Champions!%0AJugador: ${nombreSlot}`);
             cerrarModalInscripcionChampions();
             renderizarCuadroChampions();
         }
@@ -6023,7 +6093,7 @@
                 const sco = document.getElementById(`admin-cuartos-score-${i}`)?.value;
                 if(nom !== undefined) {
                     datosChampions[i].nombre = nom;
-                    if(!nom.trim()) delete datosChampions[i].cuenta; // libera el cupo si el admin borra el nombre
+                    if(!nom.trim()) { delete datosChampions[i].cuenta; delete datosChampions[i].miembros; } // libera el cupo si el admin borra el nombre
                 }
                 if(sco !== undefined) datosChampions[i].score = parseInt(sco) || 0;
             }
@@ -6048,14 +6118,18 @@
             for(let i=0; i<4; i++) {
                 const a = datosChampions[i*2], b = datosChampions[i*2+1];
                 if(a.nombre && b.nombre && a.score !== b.score) {
-                    datosChampionsSemis[i].nombre = a.score > b.score ? a.nombre : b.nombre;
+                    const ganador = a.score > b.score ? a : b;
+                    datosChampionsSemis[i].nombre = ganador.nombre;
+                    datosChampionsSemis[i].miembros = ganador.miembros || null;
                     algunAvance = true;
                 }
             }
             for(let i=0; i<2; i++) {
                 const a = datosChampionsSemis[i*2], b = datosChampionsSemis[i*2+1];
                 if(a.nombre && b.nombre && a.score !== b.score) {
-                    datosChampionsFinal[i].nombre = a.score > b.score ? a.nombre : b.nombre;
+                    const ganador = a.score > b.score ? a : b;
+                    datosChampionsFinal[i].nombre = ganador.nombre;
+                    datosChampionsFinal[i].miembros = ganador.miembros || null;
                     algunAvance = true;
                 }
             }
@@ -6066,6 +6140,9 @@
         }
 
         function cargardatosFormularioChampions() {
+            const selModo = document.getElementById('admin-champ-modo-equipo');
+            if (selModo) selModo.value = String(champModoEquipo);
+
             const grid8 = document.getElementById('admin-grid-8-participantes');
             if(grid8) {
                 grid8.innerHTML = '';
@@ -8222,6 +8299,7 @@
             aplicarEventoTematicoAutomatico();
             actualizarBannerOfertaRelampago();
             aplicarFondoAppV15(localStorage.getItem('fondo_app_v15') || '');
+            actualizarBadgeModoChampions();
         }
 
         async function guardarCambios() {
