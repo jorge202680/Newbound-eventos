@@ -2797,7 +2797,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.1.0";
+        const VERSION_APP_ACTUAL = "15.1.1";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
@@ -2863,7 +2863,11 @@
                     if (m && m[1] && m[1] !== VERSION_APP_ACTUAL) {
                         sessionStorage.setItem('ultimo_intento_actualizar_version_ts', String(Date.now()));
                         console.warn(`Versión desactualizada: este dispositivo tenía v${VERSION_APP_ACTUAL}, el servidor ya tiene v${m[1]}. Refrescando...`);
-                        window.location.reload(true);
+                        // location.reload(true) es obsoleto: muchos navegadores modernos lo ignoran
+                        // y pueden servir de nuevo la copia en caché, causando un bucle de "recarga
+                        // que nunca trae lo nuevo". Navegar a una URL con parámetro distinto obliga
+                        // a pedir el archivo de la red sí o sí, sin depender de la caché del navegador.
+                        window.location.href = window.location.pathname + '?actualizado=' + Date.now();
                     }
                 })
                 .catch(e => console.warn('No se pudo comprobar la versión del servidor:', e));
