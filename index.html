@@ -94,6 +94,14 @@
         .check-completado {
             animation: popCheck 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
+        @keyframes flotarGuia {
+            0%, 100% { transform: translateY(0px) rotate(-3deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        #avatar-guia-flotante {
+            animation: flotarGuia 2.1s ease-in-out infinite;
+            filter: drop-shadow(0 6px 10px rgba(0,0,0,0.5));
+        }
         @keyframes brilloAnillo {
             0% { box-shadow: 0 0 0px 0px rgba(34,197,94,0.6); }
             50% { box-shadow: 0 0 24px 6px rgba(34,197,94,0.55); }
@@ -1977,10 +1985,12 @@
     <!-- Resalta la sección real de la app que la guía está explicando en el tour -->
     <div id="spotlight-tutorial" class="fixed hidden rounded-2xl border-2 border-dorado pointer-events-none z-[59] transition-all duration-500" style="box-shadow: 0 0 0 9999px rgba(0,0,0,0.78), 0 0 25px 4px rgba(245,158,11,0.7);"></div>
 
+    <!-- La guía "camina" hasta cada sección real que va explicando durante el tour -->
+    <img id="avatar-guia-flotante" src="guia-chica.png" alt="Tu guía" class="fixed hidden w-16 h-16 rounded-full object-cover object-top border-2 border-dorado shadow-xl z-[61] bg-oscuro pointer-events-none transition-all duration-700 ease-in-out">
+
     <!-- MODAL TUTORIAL DE BIENVENIDA -->
     <div id="modal-tutorial" class="fixed inset-0 z-[60] hidden items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="bg-medio border-2 border-dorado w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 space-y-3 shadow-2xl text-center relative">
-            <img src="guia-chica.png" alt="Tu guía" class="w-16 h-16 rounded-full object-cover object-top border-2 border-dorado mx-auto shadow-lg bg-oscuro">
             <div id="contenedor-paso-tutorial" class="min-h-[110px] flex flex-col items-center justify-center gap-2"></div>
             <div id="contenedor-puntos-tutorial" class="flex justify-center gap-1.5"></div>
             <div class="flex gap-2">
@@ -9316,13 +9326,19 @@
         }
 
         // Mueve y dimensiona el recuadro dorado de "spotlight" para que quede
-        // encima del elemento real que la guía está explicando en este paso.
+        // encima del elemento real que la guía está explicando en este paso,
+        // y hace que el avatar de la guía "camine" hasta quedar pegado a él.
         function posicionarSpotlightTutorial(paso) {
             const spot = document.getElementById('spotlight-tutorial');
+            const avatar = document.getElementById('avatar-guia-flotante');
             if (!spot) return;
             if (paso.seccionPadre) asegurarSeccionAbiertaTutorial(paso.seccionPadre);
             const el = paso.objetivo ? document.getElementById(paso.objetivo) : null;
-            if (!el) { spot.classList.add('hidden'); return; }
+            if (!el) {
+                spot.classList.add('hidden');
+                if (avatar) avatar.classList.add('hidden');
+                return;
+            }
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             setTimeout(() => {
                 const r = el.getBoundingClientRect();
@@ -9332,12 +9348,29 @@
                 spot.style.top = Math.max(4, r.top - pad) + 'px';
                 spot.style.width = (r.width + pad * 2) + 'px';
                 spot.style.height = (r.height + pad * 2) + 'px';
+
+                if (avatar) {
+                    const avSize = 64;
+                    // Preferimos ubicarla junto al borde superior-derecho del recuadro;
+                    // si no entra en pantalla, la acomodamos abajo o a la izquierda.
+                    let left = r.right - avSize * 0.4;
+                    let top = r.top - avSize * 0.75;
+                    if (top < 4) top = r.bottom - avSize * 0.25;
+                    if (left + avSize > window.innerWidth - 4) left = r.left - avSize * 0.6;
+                    if (left < 4) left = 4;
+                    top = Math.min(top, window.innerHeight - avSize - 90);
+                    avatar.classList.remove('hidden');
+                    avatar.style.left = left + 'px';
+                    avatar.style.top = top + 'px';
+                }
             }, 320);
         }
 
         function ocultarSpotlightTutorial() {
             const spot = document.getElementById('spotlight-tutorial');
+            const avatar = document.getElementById('avatar-guia-flotante');
             if (spot) spot.classList.add('hidden');
+            if (avatar) avatar.classList.add('hidden');
         }
 
         function renderizarPasoTutorial() {
