@@ -1985,18 +1985,19 @@
     <!-- Resalta la sección real de la app que la guía está explicando en el tour -->
     <div id="spotlight-tutorial" class="fixed hidden rounded-2xl border-2 border-dorado pointer-events-none z-[59] transition-all duration-500" style="box-shadow: 0 0 0 9999px rgba(0,0,0,0.78), 0 0 25px 4px rgba(245,158,11,0.7);"></div>
 
-    <!-- La guía "camina" hasta cada sección real que va explicando durante el tour -->
-    <img id="avatar-guia-flotante" src="guia-chica.png" alt="Tu guía" class="fixed hidden w-16 h-16 rounded-full object-cover object-top border-2 border-dorado shadow-xl z-[61] bg-oscuro pointer-events-none transition-all duration-700 ease-in-out">
-
-    <!-- MODAL TUTORIAL DE BIENVENIDA -->
-    <div id="modal-tutorial" class="fixed inset-0 z-[60] hidden items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="bg-medio border-2 border-dorado w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 space-y-3 shadow-2xl text-center relative">
-            <div id="contenedor-paso-tutorial" class="min-h-[110px] flex flex-col items-center justify-center gap-2"></div>
-            <div id="contenedor-puntos-tutorial" class="flex justify-center gap-1.5"></div>
-            <div class="flex gap-2">
-                <button onclick="omitirTutorial()" class="flex-1 py-2.5 bg-claro text-slate-300 font-bold rounded-xl text-xs">Omitir</button>
-                <button id="btn-siguiente-tutorial" onclick="avanzarTutorial()" class="flex-1 py-2.5 bg-dorado text-black font-black rounded-xl text-xs">Siguiente</button>
+    <!-- MODAL TUTORIAL: la guía "camina" junto a cada sección real, con su mensaje en un globo sobre su cabeza -->
+    <div id="modal-tutorial" class="fixed inset-0 z-[60] hidden pointer-events-none">
+        <div id="guia-tutorial-flotante" class="fixed flex flex-col items-center pointer-events-none transition-all duration-700 ease-in-out" style="width:180px; left:-999px; top:-999px;">
+            <div id="burbuja-guia-tutorial" class="pointer-events-auto bg-medio border-2 border-dorado rounded-2xl px-3 py-2.5 shadow-2xl text-center space-y-1 relative w-full">
+                <div id="contenedor-paso-tutorial" class="space-y-1"></div>
+                <div id="contenedor-puntos-tutorial" class="flex justify-center gap-1 pt-0.5"></div>
+                <div class="flex gap-1.5 pt-1.5">
+                    <button onclick="omitirTutorial()" class="flex-1 py-1.5 bg-claro text-slate-300 font-bold rounded-lg text-[10px]">Omitir</button>
+                    <button id="btn-siguiente-tutorial" onclick="avanzarTutorial()" class="flex-1 py-1.5 bg-dorado text-black font-black rounded-lg text-[10px]">Siguiente</button>
+                </div>
+                <div class="absolute left-1/2 -bottom-[9px] -translate-x-1/2 w-4 h-4 bg-medio border-b-2 border-r-2 border-dorado rotate-45"></div>
             </div>
+            <img id="avatar-guia-flotante" src="guia-chica.png" alt="Tu guía" class="w-20 h-28 object-contain mt-2.5 pointer-events-none">
         </div>
     </div>
 
@@ -9325,20 +9326,16 @@
             if (chevron) chevron.classList.add('rotate-180');
         }
 
-        // Mueve y dimensiona el recuadro dorado de "spotlight" para que quede
-        // encima del elemento real que la guía está explicando en este paso,
-        // y hace que el avatar de la guía "camine" hasta quedar pegado a él.
+        // Mueve el conjunto "globo de mensaje + guía" como una sola unidad, pegado
+        // junto al elemento real que la guía está explicando en este paso —
+        // arriba o abajo del botón, lo que entre mejor en la pantalla del teléfono.
         function posicionarSpotlightTutorial(paso) {
             const spot = document.getElementById('spotlight-tutorial');
-            const avatar = document.getElementById('avatar-guia-flotante');
-            if (!spot) return;
+            const grupo = document.getElementById('guia-tutorial-flotante');
+            if (!spot || !grupo) return;
             if (paso.seccionPadre) asegurarSeccionAbiertaTutorial(paso.seccionPadre);
             const el = paso.objetivo ? document.getElementById(paso.objetivo) : null;
-            if (!el) {
-                spot.classList.add('hidden');
-                if (avatar) avatar.classList.add('hidden');
-                return;
-            }
+            if (!el) { spot.classList.add('hidden'); return; }
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             setTimeout(() => {
                 const r = el.getBoundingClientRect();
@@ -9349,28 +9346,27 @@
                 spot.style.width = (r.width + pad * 2) + 'px';
                 spot.style.height = (r.height + pad * 2) + 'px';
 
-                if (avatar) {
-                    const avSize = 64;
-                    // Preferimos ubicarla junto al borde superior-derecho del recuadro;
-                    // si no entra en pantalla, la acomodamos abajo o a la izquierda.
-                    let left = r.right - avSize * 0.4;
-                    let top = r.top - avSize * 0.75;
-                    if (top < 4) top = r.bottom - avSize * 0.25;
-                    if (left + avSize > window.innerWidth - 4) left = r.left - avSize * 0.6;
-                    if (left < 4) left = 4;
-                    top = Math.min(top, window.innerHeight - avSize - 90);
-                    avatar.classList.remove('hidden');
-                    avatar.style.left = left + 'px';
-                    avatar.style.top = top + 'px';
-                }
+                const anchoGrupo = grupo.offsetWidth || 180;
+                const altoGrupo = grupo.offsetHeight || 230;
+                const margen = 10;
+
+                // Centrado horizontal sobre el objetivo, ajustado para no salirse de la pantalla.
+                let left = r.left + r.width / 2 - anchoGrupo / 2;
+                left = Math.max(margen, Math.min(left, window.innerWidth - anchoGrupo - margen));
+
+                // Preferimos arriba del objetivo; si no entra, lo ponemos abajo.
+                let top = r.top - altoGrupo - margen;
+                if (top < margen) top = r.bottom + margen;
+                top = Math.max(margen, Math.min(top, window.innerHeight - altoGrupo - margen));
+
+                grupo.style.left = left + 'px';
+                grupo.style.top = top + 'px';
             }, 320);
         }
 
         function ocultarSpotlightTutorial() {
             const spot = document.getElementById('spotlight-tutorial');
-            const avatar = document.getElementById('avatar-guia-flotante');
             if (spot) spot.classList.add('hidden');
-            if (avatar) avatar.classList.add('hidden');
         }
 
         function renderizarPasoTutorial() {
@@ -9378,9 +9374,8 @@
             const cont = document.getElementById('contenedor-paso-tutorial');
             if (cont) {
                 cont.innerHTML = `
-                    <div class="text-4xl">${paso.icono}</div>
-                    <h3 class="font-black text-white text-sm">${paso.titulo}</h3>
-                    <p class="text-[11px] text-slate-400">${paso.texto}</p>`;
+                    <h3 class="font-black text-white text-[11px] leading-tight">${paso.icono} ${paso.titulo}</h3>
+                    <p class="text-[10px] text-slate-300 leading-snug">${paso.texto}</p>`;
             }
             const puntos = document.getElementById('contenedor-puntos-tutorial');
             if (puntos) {
