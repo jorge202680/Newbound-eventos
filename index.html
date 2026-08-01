@@ -12,11 +12,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <!-- Firebase (SDK compat: el resto del código usa firebase.firestore()) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" crossorigin="anonymous"></script>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
 
     <!-- Configuración personalizada de Tailwind -->
     <script>
@@ -3576,6 +3576,7 @@
 
             torneoEqConfig = JSON.parse(localStorage.getItem('torneo_equipo_config_app')) || torneoEqConfig;
             torneoEqEquipos = JSON.parse(localStorage.getItem('torneo_equipo_rondas_app')) || torneoEqEquipos;
+            if (!esTorneoEquipoValido(torneoEqEquipos)) torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
             torneoEqId = parseInt(localStorage.getItem('torneo_equipo_id_app')) || torneoEqId;
             imagenPremioTorneoEquipo = localStorage.getItem('imagen_premio_torneo_equipo_app') || imagenPremioTorneoEquipo;
             infoTorneoEquipo = JSON.parse(localStorage.getItem('info_torneo_equipo_app')) || infoTorneoEquipo;
@@ -3725,8 +3726,16 @@
                 B: { nombre: 'Equipo B', score: 0, slots: crearCupos() }
             };
         }
+        // Valida que el objeto de equipos tenga la forma esperada (A y B con su
+        // arreglo de slots). Si viene incompleto o corrupto (por ejemplo, tras un
+        // reinicio del torneo desde el panel admin que guardó un dato a medias),
+        // se descarta y se reconstruye vacío en vez de romper la pantalla.
+        function esTorneoEquipoValido(obj) {
+            return !!(obj && obj.A && obj.B && Array.isArray(obj.A.slots) && Array.isArray(obj.B.slots));
+        }
         let torneoEqConfig = JSON.parse(localStorage.getItem('torneo_equipo_config_app')) || { tamEquipo: 2, winsParaGanar: 2 };
         let torneoEqEquipos = JSON.parse(localStorage.getItem('torneo_equipo_rondas_app')) || generarEquiposVaciosTorneoEquipo(torneoEqConfig.tamEquipo);
+        if (!esTorneoEquipoValido(torneoEqEquipos)) torneoEqEquipos = generarEquiposVaciosTorneoEquipo(torneoEqConfig.tamEquipo);
         let torneoEqId = parseInt(localStorage.getItem('torneo_equipo_id_app')) || 1;
         let imagenPremioTorneoEquipo = localStorage.getItem('imagen_premio_torneo_equipo_app') || '';
         let infoTorneoEquipo = JSON.parse(localStorage.getItem('info_torneo_equipo_app')) || { aire: '', movil: '', mapa: '', tp: '', fechahora: '', server: '', cierreInscripcion: '' };
@@ -3802,6 +3811,15 @@
             verificarCierreInscripcionTorneoEquipo();
             const cont = document.getElementById('bracket-torneo-equipo-cont');
             if (!cont) return;
+
+            // Resguardo final: si por algún motivo los datos del torneo llegaron
+            // corruptos o incompletos hasta acá, se reconstruyen vacíos en vez de
+            // romper la pantalla (antes esto tiraba "Cannot read properties of
+            // undefined (reading 'slots')" y dejaba el cuadro en blanco).
+            if (!esTorneoEquipoValido(torneoEqEquipos)) {
+                torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqEquipos));
+            }
 
             const A = torneoEqEquipos.A, B = torneoEqEquipos.B;
             const hayCampeon = !!(A.slots.some(s => s.nombre) && B.slots.some(s => s.nombre) && A.score !== B.score);
