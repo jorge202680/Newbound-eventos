@@ -1592,7 +1592,10 @@
     <div id="modal-champions" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border border-azul/40 w-full max-w-3xl rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-borde pb-3">
-                <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-trophy"></i> Champions Supreme</h3>
+                <div class="flex items-center gap-2.5">
+                    <img src="imagenes/dragon-bandera.png" alt="Anfitrión del torneo" class="w-10 h-10 object-contain drop-shadow-lg">
+                    <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-trophy"></i> Champions Supreme</h3>
+                </div>
                 <button onclick="cerrarVentana('modal-champions')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
             </div>
 
@@ -1732,6 +1735,11 @@
                     <div class="text-center space-y-0.5">
                         <span id="teq-badge-modo-cuadro" class="text-[10px] uppercase tracking-widest text-verde font-bold">⚔️ Torneo de Equipo ⚔️</span>
                         <h4 class="text-sm font-black text-white">Equipo A vs Equipo B</h4>
+                    </div>
+                    <div class="flex items-center justify-center gap-3">
+                        <img src="imagenes/camion-azul.png" alt="Mascota Equipo A" class="w-16 h-16 object-contain drop-shadow-lg">
+                        <span class="text-slate-500 font-black text-xs">VS</span>
+                        <img src="imagenes/camion-rojo.png" alt="Mascota Equipo B" class="w-14 h-14 object-contain drop-shadow-lg">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="unirseEquipoTorneo('A')" class="py-2 bg-verde text-black font-black rounded-xl shadow hover:opacity-90 transition text-xs">Unirme a Equipo A</button>
@@ -1917,7 +1925,10 @@
     <div id="modal-pase-vip" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-2 sm:p-4">
         <div class="bg-medio border border-morado/40 w-full max-w-5xl rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xl max-h-[94vh] overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-medal"></i> Pase VIP de Temporada</h3>
+                <div class="flex items-center gap-2.5">
+                    <img src="imagenes/dragon-morado.png" alt="Mascota VIP" class="w-11 h-11 object-contain drop-shadow-lg">
+                    <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-medal"></i> Pase VIP de Temporada</h3>
+                </div>
                 <button onclick="cerrarVentana('modal-pase-vip')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
             </div>
             <div id="contenedor-cabecera-pase-vip" class="text-center space-y-3"></div>
@@ -1951,7 +1962,10 @@
     <div id="modal-asistente" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border border-azul/40 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center">
-                <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-circle-question"></i> Asistente / Guía</h3>
+                <div class="flex items-center gap-2.5">
+                    <img src="imagenes/guia-chica.png" alt="Guía" class="w-10 h-10 rounded-full object-cover object-top border-2 border-azul/60 shadow-lg bg-oscuro">
+                    <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-circle-question"></i> Asistente / Guía</h3>
+                </div>
                 <button onclick="cerrarVentana('modal-asistente')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
             </div>
             <input type="text" id="input-buscar-faq" oninput="renderizarModalAsistente()" placeholder="🔍 Busca tu duda (ej: ruleta, gemas, nivel...)" class="w-full px-3 py-2.5 rounded-xl bg-oscuro border border-borde text-white text-xs">
@@ -1963,12 +1977,25 @@
     <!-- MODAL TUTORIAL DE BIENVENIDA -->
     <div id="modal-tutorial" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border border-dorado/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl text-center">
-            <div id="contenedor-paso-tutorial" class="min-h-[220px] flex flex-col items-center justify-center gap-3"></div>
+            <img src="imagenes/guia-chica.png" alt="Tu guía" class="w-16 h-16 rounded-full object-cover object-top border-2 border-dorado mx-auto shadow-lg bg-oscuro">
+            <div id="contenedor-paso-tutorial" class="min-h-[190px] flex flex-col items-center justify-center gap-3"></div>
             <div id="contenedor-puntos-tutorial" class="flex justify-center gap-1.5"></div>
             <div class="flex gap-2">
                 <button onclick="omitirTutorial()" class="flex-1 py-2.5 bg-claro text-slate-300 font-bold rounded-xl text-xs">Omitir</button>
                 <button id="btn-siguiente-tutorial" onclick="avanzarTutorial()" class="flex-1 py-2.5 bg-dorado text-black font-black rounded-xl text-xs">Siguiente</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL REGALO DE BIENVENIDA (entregado por la guía al terminar el tutorial) -->
+    <div id="modal-regalo-bienvenida" class="fixed inset-0 z-[65] bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border-2 border-dorado w-full max-w-sm rounded-3xl p-6 space-y-3 shadow-2xl text-center relative overflow-hidden">
+            <div class="absolute inset-0 opacity-10 pointer-events-none" style="background: radial-gradient(circle at 50% 0%, #F59E0B, transparent 70%);"></div>
+            <img src="imagenes/guia-chica.png" alt="Tu guía" class="w-24 h-24 rounded-full object-cover object-top border-4 border-dorado mx-auto shadow-xl relative z-10 bg-oscuro">
+            <h3 class="font-black text-white text-base relative z-10">¡Antes de irme, un regalo! 🎁</h3>
+            <p class="text-xs text-slate-400 relative z-10">Gracias por conocer la app conmigo. Aquí tienes algo para empezar con el pie derecho.</p>
+            <p id="texto-premio-regalo-bienvenida" class="font-black text-verde text-lg relative z-10">🪙 +100 monedas</p>
+            <button onclick="reclamarRegaloBienvenida()" id="btn-reclamar-regalo-bienvenida" class="w-full py-2.5 bg-dorado text-black font-black rounded-xl text-xs shadow relative z-10">Reclamar regalo</button>
         </div>
     </div>
 
@@ -2105,7 +2132,10 @@
                 <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-box-open"></i> Cajas Misteriosas</h3>
                 <button onclick="cerrarVentana('modal-lootbox')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
             </div>
-            <p class="text-[11px] text-slate-400">Abre cofres sorpresa usando monedas o gemas y obtén premios aleatorios, algunos muy raros.</p>
+            <div class="flex items-center gap-3 bg-oscuro/60 border border-morado/30 rounded-2xl p-2.5">
+                <img src="imagenes/yeti.png" alt="Mascota legendaria" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
+                <p class="text-[11px] text-slate-400">Abre cofres sorpresa usando monedas o gemas y obtén premios aleatorios, algunos muy raros. ¡Cuidado, el más legendario está congelado ahí dentro! ❄️</p>
+            </div>
             <div id="contenedor-lootboxes" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
             <div id="resultado-lootbox" class="hidden p-4 rounded-2xl border text-center space-y-1"></div>
         </div>
@@ -9301,6 +9331,33 @@
         function finalizarTutorial() {
             if (usuarioActual) localStorage.setItem(`tutorial_completado_${usuarioActual}`, 'true');
             cerrarVentana('modal-tutorial');
+            setTimeout(mostrarRegaloBienvenida, 350);
+        }
+
+        // ===== REGALO DE BIENVENIDA (lo entrega la guía al terminar el tutorial, una sola vez) =====
+        const PREMIO_MONEDAS_BIENVENIDA = 100;
+
+        function regaloBienvenidaYaReclamado() {
+            if (!usuarioActual) return true;
+            return localStorage.getItem(`regalo_bienvenida_reclamado_${usuarioActual}`) === 'true';
+        }
+
+        function mostrarRegaloBienvenida() {
+            if (!usuarioActual || regaloBienvenidaYaReclamado()) return;
+            const texto = document.getElementById('texto-premio-regalo-bienvenida');
+            if (texto) texto.textContent = `🪙 +${PREMIO_MONEDAS_BIENVENIDA} monedas`;
+            abrirVentana('modal-regalo-bienvenida');
+        }
+
+        function reclamarRegaloBienvenida() {
+            if (!usuarioActual || regaloBienvenidaYaReclamado()) { cerrarVentana('modal-regalo-bienvenida'); return; }
+            saldo += PREMIO_MONEDAS_BIENVENIDA;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            localStorage.setItem(`regalo_bienvenida_reclamado_${usuarioActual}`, 'true');
+            sincronizarSaldoNube();
+            actualizarInterfazUsuario();
+            agregarNotificacionApp(`🎁 Regalo de bienvenida de tu guía: +${PREMIO_MONEDAS_BIENVENIDA} monedas`, 'fa-gift');
+            cerrarVentana('modal-regalo-bienvenida');
         }
 
         function verificarRachaDiaria() {
