@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Gaming Premier - VIP Supreme</title>
+    <title>New Bound Eventos 2026</title>
 
     <!-- ===== CSS DE RESPALDO (crítico, no depende de Tailwind) =====
          Se aplica de inmediato, antes de que cargue nada externo. Así, si
@@ -770,6 +770,23 @@
         }
         .mascota-vip-brillo { animation: mascotaVipPulso 2.2s ease-in-out infinite; }
 
+        /* --- Animaciones para las figuras de productos de la Tienda (solo la imagen, no la tarjeta) --- */
+        @keyframes productoFlotar {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        @keyframes productoBalanceo {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        @keyframes productoBrillo {
+            0%, 100% { filter: drop-shadow(0 0 3px rgba(167,139,250,0.4)) brightness(1); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 10px rgba(167,139,250,0.85)) brightness(1.12); transform: scale(1.05); }
+        }
+        .producto-anim-flotar { animation: productoFlotar 2.4s ease-in-out infinite; }
+        .producto-anim-balanceo { animation: productoBalanceo 2.6s ease-in-out infinite; }
+        .producto-anim-brillo { animation: productoBrillo 2s ease-in-out infinite; }
+
         /* --- Dragón anfitrión: ondea la bandera --- */
         @keyframes mascotaAnfitrionOndear {
             0%, 100% { transform: rotate(-4deg) translateY(0); }
@@ -901,7 +918,7 @@
                 <i class="fa fa-check text-verde text-4xl"></i>
             </div>
         </div>
-        <h2 id="titulo-evento-app" class="text-xl font-black text-white tracking-wider mb-2">GAMING PREMIER VIP</h2>
+        <h2 id="titulo-evento-app" class="text-xl font-black text-white tracking-wider mb-2">NEW BOUND</h2>
         <p id="texto-estado-carga" class="text-xs text-slate-400 font-mono tracking-widest animate-pulse">CARGANDO MÓDULOS SUPREME...</p>
         <div class="w-56 h-2.5 bg-medio rounded-full overflow-hidden mt-4 border border-borde">
             <div id="barra-progreso-carga" class="h-full bg-gradient-to-r from-dorado via-yellow-300 to-dorado rounded-full" style="width:0%; transition: width 0.1s linear;"></div>
@@ -1088,7 +1105,7 @@
                 <i class="fa fa-crown" id="header-logo-icono"></i>
             </div>
             <div>
-                <h1 id="header-titulo-app" class="text-xs font-black text-white tracking-wider">GAMING PREMIER</h1>
+                <h1 id="header-titulo-app" class="text-xs font-black text-white tracking-wider">NEW BOUND</h1>
                 <div class="flex items-center gap-2 flex-wrap">
                     <p id="nombre-usuario-display" class="text-[10px] text-dorado font-bold">Cargando...</p>
                     <span id="id-usuario-badge-header" class="text-[9px] font-mono text-slate-400 bg-oscuro px-1.5 py-0.5 rounded border border-borde">ID: --</span>
@@ -1666,7 +1683,7 @@
             <div class="flex justify-between items-center border-b border-borde pb-3">
                 <div class="flex items-center gap-2.5">
                     <img id="mascota-tienda" src="zorro-tienda.png" alt="Mascota Tienda" class="w-11 h-11 object-contain mascota-tienda-saludo">
-                    <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-shopping-bag"></i> Tienda VIP Supreme</h3>
+                    <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-shopping-bag"></i> Tienda New Bound</h3>
                 </div>
                 <button onclick="cerrarVentana('modal-tienda')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
             </div>
@@ -2460,8 +2477,8 @@
                     </button>
                     <div id="seccion-admin-gen-1" class="hidden px-4 pb-4 space-y-3">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                        <div class="space-y-1"><label class="text-slate-400 block">Título del Evento:</label><input type="text" id="input-titulo-evento" placeholder="Gaming Premier VIP" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
-                        <div class="space-y-1 sm:col-span-2"><label class="text-slate-400 block">Texto del Pie de Página (footer):</label><input type="text" id="input-texto-footer" placeholder="© 2026 Gaming Premier VIP Supreme. Todos los derechos reservados." class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                        <div class="space-y-1"><label class="text-slate-400 block">Título del Evento:</label><input type="text" id="input-titulo-evento" placeholder="New Bound Eventos 2026" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                        <div class="space-y-1 sm:col-span-2"><label class="text-slate-400 block">Texto del Pie de Página (footer):</label><input type="text" id="input-texto-footer" placeholder="© 2026 New Bound Eventos. Todos los derechos reservados." class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                         <div class="space-y-1">
                             <label class="text-slate-400 block">Logo de Carga (URL o Subir archivo):</label>
                             <div class="flex gap-2">
@@ -3189,7 +3206,7 @@
     <!-- FOOTER -->
     <footer class="bg-medio border-t border-borde py-4 text-center text-[10px] sm:text-xs text-slate-500 flex flex-col items-center gap-2">
         <div class="flex flex-wrap justify-center items-center gap-4">
-            <p id="texto-footer-app">&copy; 2026 Gaming Premier VIP Supreme. Todos los derechos reservados.</p>
+            <p id="texto-footer-app">&copy; 2026 New Bound Eventos. Todos los derechos reservados.</p>
             <button onclick="solicitarCerrarSesion()" class="px-3 py-1 bg-rojo/20 text-rojo font-bold rounded-lg border border-rojo/30 hover:bg-rojo/30 transition text-xs"><i class="fa fa-right-from-bracket"></i> Salir</button>
         </div>
         <p id="texto-version-app" class="text-[9px] text-slate-600 font-mono"></p>
@@ -5362,7 +5379,7 @@
             if (!token || !chatId) return;
 
             const url = `https://api.telegram.org/bot${token}/sendMessage`;
-            const data = { chat_id: chatId, text: `👑 [GAMING PREMIER VIP]\n\n${mensaje}`, parse_mode: 'Markdown' };
+            const data = { chat_id: chatId, text: `👑 [NEW BOUND]\n\n${mensaje}`, parse_mode: 'Markdown' };
 
             fetch(url, {
                 method: 'POST',
@@ -5383,7 +5400,7 @@
                 return;
             }
 
-            const caption = `👑 [GAMING PREMIER VIP]\n\n${mensaje}`;
+            const caption = `👑 [NEW BOUND]\n\n${mensaje}`;
 
             try {
                 if (imagenUrl.startsWith('data:')) {
@@ -6905,7 +6922,9 @@
                 const card = document.createElement('div');
                 card.className = 'p-3 bg-oscuro rounded-2xl border border-borde flex flex-col justify-between space-y-3 shadow relative';
                 
-                const imgHtml = prod.imagen ? `<div class="w-full h-24 rounded-xl bg-medio bg-contain bg-no-repeat bg-center${bloqueado ? ' opacity-30' : ''}" style="background-image: url('${prod.imagen}')"></div>` : `<div class="w-full h-24 rounded-xl bg-medio flex items-center justify-center text-morado text-2xl${bloqueado ? ' opacity-30' : ''}"><i class="fa fa-shopping-bag"></i></div>`;
+                const animsProducto = ['producto-anim-flotar', 'producto-anim-balanceo', 'producto-anim-brillo'];
+                const animProducto = bloqueado ? '' : animsProducto[(idx + paginaTiendaVistaActiva) % animsProducto.length];
+                const imgHtml = prod.imagen ? `<div class="w-full h-24 rounded-xl bg-medio flex items-center justify-center overflow-hidden${bloqueado ? ' opacity-30' : ''}"><div class="w-full h-full bg-contain bg-no-repeat bg-center ${animProducto}" style="background-image: url('${prod.imagen}')"></div></div>` : `<div class="w-full h-24 rounded-xl bg-medio flex items-center justify-center text-morado text-2xl${bloqueado ? ' opacity-30' : ''}"><i class="fa fa-shopping-bag"></i></div>`;
 
                 const botonHtml = bloqueado
                     ? `<button disabled class="w-full py-2 bg-claro text-slate-400 font-black text-[10px] rounded-xl cursor-not-allowed"><i class="fa fa-lock"></i> Requiere VIP ${nivelRequerido}</button>`
@@ -9469,7 +9488,7 @@
         // si ese elemento vive dentro de una categoría colapsable, "seccionPadre"
         // (id del contenedor que hay que abrir para que sea visible).
         const PASOS_TUTORIAL_APP = [
-            { icono: '👋', titulo: '¡Bienvenido a Gaming Premier VIP!', texto: 'Soy tu guía. Te voy a mostrar cada parte importante de la app antes de que empieces.', objetivo: 'header-logo-contenedor' },
+            { icono: '👋', titulo: '¡Bienvenido a New Bound!', texto: 'Soy tu guía. Te voy a mostrar cada parte importante de la app antes de que empieces.', objetivo: 'header-logo-contenedor' },
             { icono: '🎁', titulo: 'Regalo Diario', texto: 'Cada día tienes un regalo gratis esperándote aquí. Ábrelo apenas entres para no perdértelo.', objetivo: 'card-regalo-diario' },
             { icono: '🎯', titulo: 'Misión del Día', texto: 'Todos los días hay una misión nueva. Complétala y reclama tu recompensa justo aquí.', objetivo: 'card-mision-dia' },
             { icono: '👑', titulo: 'Tu Nivel VIP', texto: 'Mientras más juegas, más EXP ganas y más sube tu nivel VIP, dándote descuentos y multiplicador.', objetivo: 'badge-vip-display' },
