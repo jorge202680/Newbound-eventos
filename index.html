@@ -11,156 +11,6 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<!-- ============ CONSOLA FLOTANTE DE DEPURACIÓN ============ -->
-<style>
-#debug-console-btn{position:fixed;bottom:16px;right:16px;z-index:2147483647;width:52px;height:52px;border-radius:50%;background:#111827;border:2px solid #374151;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.5);font-family:monospace;}
-#debug-console-btn .dc-badge{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;font-size:11px;line-height:1;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 4px;font-family:sans-serif;font-weight:bold;}
-#debug-console-panel{position:fixed;left:0;right:0;bottom:0;height:45vh;max-height:520px;background:#0b0f19;color:#d1d5db;z-index:2147483647;display:none;flex-direction:column;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;border-top:2px solid #374151;box-shadow:0 -4px 20px rgba(0,0,0,.6);}
-#debug-console-panel.open{display:flex;}
-#debug-console-header{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#111827;border-bottom:1px solid #374151;flex-shrink:0;}
-#debug-console-header span{font-weight:bold;color:#e5e7eb;font-family:sans-serif;font-size:13px;}
-#debug-console-header .dc-count{background:#1f2937;padding:2px 7px;border-radius:10px;font-size:11px;color:#9ca3af;}
-#debug-console-header button{background:#1f2937;color:#d1d5db;border:1px solid #374151;border-radius:6px;padding:4px 9px;font-size:11px;cursor:pointer;font-family:sans-serif;}
-#debug-console-header button:hover{background:#374151;}
-#debug-console-filters{display:flex;gap:4px;margin-left:auto;}
-#debug-console-filters button.active{background:#2563eb;border-color:#2563eb;color:#fff;}
-#debug-console-body{flex:1;overflow-y:auto;padding:4px 0;}
-.dc-entry{padding:6px 10px;border-bottom:1px solid #1f2937;white-space:pre-wrap;word-break:break-word;display:flex;gap:8px;}
-.dc-entry .dc-time{color:#6b7280;flex-shrink:0;}
-.dc-entry.dc-log{color:#d1d5db;}
-.dc-entry.dc-info{color:#60a5fa;}
-.dc-entry.dc-warn{color:#fbbf24;background:rgba(251,191,36,.06);}
-.dc-entry.dc-error{color:#f87171;background:rgba(248,113,113,.08);}
-.dc-entry .dc-msg{flex:1;}
-#debug-console-close{margin-left:4px;}
-</style>
-<script>
-(function(){
-  var MAX_ENTRIES = 500;
-  var entries = [];
-  var errorCount = 0;
-  var currentFilter = 'all';
-
-  function fmtArg(a){
-    try{
-      if(a instanceof Error){ return (a.stack || (a.name+': '+a.message)); }
-      if(typeof a === 'object'){ return JSON.stringify(a, null, 2); }
-      return String(a);
-    }catch(e){ return '[objeto no serializable]'; }
-  }
-
-  function addEntry(type, args){
-    var msg = Array.prototype.map.call(args, fmtArg).join(' ');
-    var time = new Date().toLocaleTimeString('es-ES', {hour12:false});
-    entries.push({type:type, msg:msg, time:time});
-    if(entries.length > MAX_ENTRIES) entries.shift();
-    if(type === 'error') errorCount++;
-    renderIfOpenOrBadge();
-  }
-
-  var origLog = console.log, origWarn = console.warn, origError = console.error, origInfo = console.info;
-  console.log = function(){ origLog.apply(console, arguments); addEntry('log', arguments); };
-  console.info = function(){ origInfo.apply(console, arguments); addEntry('info', arguments); };
-  console.warn = function(){ origWarn.apply(console, arguments); addEntry('warn', arguments); };
-  console.error = function(){ origError.apply(console, arguments); addEntry('error', arguments); };
-
-  window.addEventListener('error', function(e){
-    var msg = e.message || 'Error desconocido';
-    if(e.filename){ msg += '\n  en ' + e.filename + ':' + e.lineno + ':' + e.colno; }
-    if(e.error && e.error.stack){ msg += '\n' + e.error.stack; }
-    addEntry('error', [msg]);
-  });
-  window.addEventListener('unhandledrejection', function(e){
-    var reason = e.reason;
-    var msg = 'Promise rechazada sin manejar: ' + fmtArg(reason);
-    addEntry('error', [msg]);
-  });
-
-  function buildUI(){
-    var btn = document.createElement('div');
-    btn.id = 'debug-console-btn';
-    btn.innerHTML = '<i class="fa-solid fa-terminal"></i><span class="dc-badge" id="dc-badge">0</span>';
-    var panel = document.createElement('div');
-    panel.id = 'debug-console-panel';
-    panel.innerHTML =
-      '<div id="debug-console-header">'+
-        '<span>Consola</span>'+
-        '<span class="dc-count" id="dc-count">0</span>'+
-        '<div id="debug-console-filters">'+
-          '<button data-f="all" class="active">Todo</button>'+
-          '<button data-f="error">Errores</button>'+
-          '<button data-f="warn">Avisos</button>'+
-          '<button data-f="log">Logs</button>'+
-        '</div>'+
-        '<button id="dc-clear">Limpiar</button>'+
-        '<button id="debug-console-close">✕</button>'+
-      '</div>'+
-      '<div id="debug-console-body"></div>';
-    document.body.appendChild(btn);
-    document.body.appendChild(panel);
-
-    btn.addEventListener('click', function(){
-      panel.classList.toggle('open');
-      if(panel.classList.contains('open')){
-        errorCount = 0;
-        document.getElementById('dc-badge').style.display = 'none';
-        render();
-      }
-    });
-    document.getElementById('debug-console-close').addEventListener('click', function(){
-      panel.classList.remove('open');
-    });
-    document.getElementById('dc-clear').addEventListener('click', function(){
-      entries = [];
-      errorCount = 0;
-      document.getElementById('dc-badge').style.display = 'none';
-      render();
-    });
-    Array.prototype.forEach.call(document.querySelectorAll('#debug-console-filters button'), function(b){
-      b.addEventListener('click', function(){
-        Array.prototype.forEach.call(document.querySelectorAll('#debug-console-filters button'), function(x){x.classList.remove('active');});
-        b.classList.add('active');
-        currentFilter = b.getAttribute('data-f');
-        render();
-      });
-    });
-  }
-
-  function escapeHtml(s){
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  function render(){
-    var body = document.getElementById('debug-console-body');
-    if(!body) return;
-    var filtered = currentFilter === 'all' ? entries : entries.filter(function(e){ return e.type === currentFilter; });
-    document.getElementById('dc-count').textContent = filtered.length;
-    body.innerHTML = filtered.map(function(e){
-      return '<div class="dc-entry dc-'+e.type+'"><span class="dc-time">'+e.time+'</span><span class="dc-msg">'+escapeHtml(e.msg)+'</span></div>';
-    }).join('');
-    body.scrollTop = body.scrollHeight;
-  }
-
-  function renderIfOpenOrBadge(){
-    var panel = document.getElementById('debug-console-panel');
-    var badge = document.getElementById('dc-badge');
-    if(panel && panel.classList.contains('open')){
-      render();
-    } else if(badge && errorCount > 0){
-      badge.style.display = 'flex';
-      badge.textContent = errorCount > 99 ? '99+' : errorCount;
-    }
-  }
-
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', buildUI);
-  } else {
-    buildUI();
-  }
-})();
-</script>
-<!-- ============ FIN CONSOLA FLOTANTE ============ -->
-
 <!-- Firebase (SDK compat: el resto del código usa firebase.firestore()) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" crossorigin="anonymous"></script>
@@ -854,6 +704,13 @@
         }
 
         /* ===== HERO BANNER DE EVENTO (reemplaza el banner plano de oferta) ===== */
+        #banner-oferta-relampago {
+            /* Fallback en CSS plano: si por algún motivo Tailwind no llega a
+               cargar (falla de red/CDN), esta regla igual garantiza que el
+               chip "⚡ Oferta" (position:absolute) se ancle a este botón y
+               no se estire a toda la altura de la pantalla. */
+            position: relative;
+        }
         #banner-oferta-relampago.banner-v15 {
             border-radius: 28px !important;
             min-height: 132px;
@@ -1233,7 +1090,7 @@
         <!-- BANNER OFERTA RELÁMPAGO / HERO DE EVENTO (solo visible mientras está vigente) -->
         <button onclick="abrirVentana('modal-oferta-relampago'); renderizarModalOfertaRelampago();" id="banner-oferta-relampago" class="banner-v15 hidden w-full p-4 rounded-3xl border border-naranja/50 shadow-xl relative flex-col items-start justify-end gap-2 overflow-hidden text-left">
             <div class="banner-v15-overlay"></div>
-            <span class="chip-nuevo-v15" style="top:auto; right:auto; bottom:8px; right:8px; top:8px;">⚡ Oferta</span>
+            <span class="chip-nuevo-v15">⚡ Oferta</span>
             <div class="relative z-10 flex flex-col gap-1.5 w-full">
                 <h3 class="font-black text-sm text-white drop-shadow">⚡ Oferta Relámpago</h3>
                 <p id="texto-resumen-oferta-relampago" class="text-[11px] text-slate-200 truncate drop-shadow"></p>
