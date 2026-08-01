@@ -8,6 +8,15 @@
     <meta http-equiv="Expires" content="0">
     <title>New Bound Eventos 2026</title>
 
+    <!-- Preconexión anticipada a los servidores externos: en redes lentas/débiles,
+         el navegador arranca el "saludo" (DNS + conexión segura) con estos dominios
+         en paralelo mientras sigue leyendo el resto de la página, en vez de esperar
+         a llegar a cada etiqueta de carga una por una. No cambia nada visual, solo acelera. -->
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
     <!-- ===== CSS DE RESPALDO (crítico, no depende de Tailwind) =====
          Se aplica de inmediato, antes de que cargue nada externo. Así, si
          el CDN de Tailwind tarda o falla, los modales/paneles que usan la
@@ -968,7 +977,7 @@
 
         try {
             var COOLDOWN_MS = 60000;
-            var MAX_INTENTOS = 2;
+            var MAX_INTENTOS = 3;
 
             function yaSuperoIntentos() {
                 var n = parseInt(sessionStorage.getItem('vigilante_intentos') || '0', 10);
@@ -1013,6 +1022,10 @@
             }
 
             // --- 2) Vigía de "pantalla de carga pegada" ---
+            // Se le dan 25s (antes 15s) antes de forzar recarga: en redes lentas,
+            // 15s a veces cortaba una descarga que ya iba avanzando, obligándola
+            // a reiniciar de cero. Con más margen, se le da tiempo real a terminar
+            // antes de intervenir.
             setTimeout(function () {
                 var pantalla = document.getElementById('pantalla-carga');
                 var porcentaje = document.getElementById('texto-porcentaje-carga');
@@ -1021,7 +1034,7 @@
                 if (sigueVisible && sigueEnCero) {
                     recargarSinCache();
                 }
-            }, 15000);
+            }, 25000);
         } catch (e) {
             var btn = document.getElementById('btn-forzar-recarga');
             if (btn) btn.classList.remove('hidden');
@@ -3216,12 +3229,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.3.2";
+        const VERSION_APP_ACTUAL = "15.3.3";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '⚡ Mejora de rendimiento',
-            descripcion: 'Las imágenes de listas (calendario, notificaciones, garra de premios, top semanal) ahora cargan de forma diferida, para que la app abra más rápido cuando hay muchas imágenes en pantalla.'
+            titulo: '📶 Más resistente a redes lentas',
+            descripcion: 'La app ahora se conecta antes a los servidores externos (Firebase, Font Awesome, Tailwind) para acelerar la carga en señal débil, y el sistema que detecta pantallas de carga pegadas espera más tiempo antes de reintentar, evitando reinicios innecesarios.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
