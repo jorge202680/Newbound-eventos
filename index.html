@@ -165,14 +165,10 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" crossorigin="anonymous"></script>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com" crossorigin="anonymous"></script>
-
-    <!-- Configuración personalizada de Tailwind -->
+    <!-- Tailwind CSS CDN: jsDelivr es el mirror oficial actual (más estable que cdn.tailwindcss.com,
+         que tiene caídas/bloqueos reportados). Si jsDelivr también fallara, se reintenta automáticamente
+         con el CDN clásico como respaldo, y recién si los dos fallan se avisa por consola. -->
     <script>
-      if (typeof tailwind === 'undefined') {
-        console.error('Tailwind no se cargó desde el CDN. Verificá tu conexión a internet.');
-      }
       window.tailwind = window.tailwind || { config: {} };
       tailwind.config = {
         theme: {
@@ -191,8 +187,38 @@
             }
           }
         }
-      }
+      };
+      (function cargarTailwindConRespaldo(){
+        function inyectar(src, onFallo){
+          var s = document.createElement('script');
+          s.src = src;
+          s.crossOrigin = 'anonymous';
+          if (onFallo) s.onerror = onFallo;
+          document.currentScript.insertAdjacentElement('afterend', s);
+        }
+        inyectar('https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4', function(){
+          console.warn('jsDelivr falló, reintentando con cdn.tailwindcss.com...');
+          inyectar('https://cdn.tailwindcss.com', function(){
+            console.error('Tailwind no se pudo cargar desde ningún CDN. Verificá tu conexión a internet.');
+          });
+        });
+      })();
     </script>
+    <!-- Colores personalizados para Tailwind v4 (formato @theme, usado si carga el mirror de jsDelivr) -->
+    <style type="text/tailwindcss">
+      @theme {
+        --color-oscuro: #0B0F19;
+        --color-medio: #131C2E;
+        --color-claro: #1E293B;
+        --color-dorado: #F59E0B;
+        --color-naranja: #EA580C;
+        --color-rojo: #DC2626;
+        --color-verde: #16A34A;
+        --color-azul: #2563EB;
+        --color-morado: #933EEA;
+        --color-borde: #334155;
+      }
+    </style>
 </head>
     <style>
         html, body { overflow-x: hidden; max-width: 100vw; }
