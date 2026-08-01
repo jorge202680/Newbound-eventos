@@ -3951,6 +3951,10 @@
         }
 
         function guardarConfigTorneoEquipoAdmin() {
+            if (!esTorneoEquipoValido(torneoEqEquipos)) {
+                torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqEquipos));
+            }
             const tamEquipo = Math.max(1, parseInt(document.getElementById('admin-teq-tam-equipo')?.value) || 2);
             const winsParaGanar = parseInt(document.getElementById('admin-teq-wins-ganar')?.value) || 2;
             const tamAnterior = torneoEqConfig.tamEquipo;
@@ -4233,6 +4237,10 @@
         }
 
         function cargarFormularioTorneoEquipoAdmin() {
+            if (!esTorneoEquipoValido(torneoEqEquipos)) {
+                torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqEquipos));
+            }
             const inpTam = document.getElementById('admin-teq-tam-equipo');
             if (inpTam) inpTam.value = String(torneoEqConfig.tamEquipo);
             const inpWins = document.getElementById('admin-teq-wins-ganar');
@@ -4277,6 +4285,9 @@
 
         function limpiarTodoTorneoEquipoAdmin() {
             if (!confirm('⚠️ Esto borrará a todos los jugadores inscritos y el marcador actual del Torneo de Equipo para empezar una nueva edición. ¿Continuar?')) return;
+            if (!esTorneoEquipoValido(torneoEqEquipos)) {
+                torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
+            }
             const A = torneoEqEquipos.A, B = torneoEqEquipos.B;
             if (A.slots.some(s => s.nombre) && B.slots.some(s => s.nombre) && A.score !== B.score) {
                 const campeon = A.score > B.score ? A.nombre : B.nombre;
@@ -4312,6 +4323,10 @@
         function reclamarPremioTorneoEquipo() {
             let campeonNombre = '';
             let campeonMiembros = [];
+            if (!esTorneoEquipoValido(torneoEqEquipos)) {
+                torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqEquipos));
+            }
             const A = torneoEqEquipos.A, B = torneoEqEquipos.B;
             if (A.slots.some(s => s.nombre) && B.slots.some(s => s.nombre) && A.score !== B.score) {
                 const ganador = A.score > B.score ? A : B;
