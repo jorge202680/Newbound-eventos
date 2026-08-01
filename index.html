@@ -1199,6 +1199,7 @@
                         <button onclick="unirseEquipoTorneo('B')" class="py-2 bg-azul text-white font-black rounded-xl shadow hover:opacity-90 transition">Unirme a Equipo B</button>
                     </div>
                 </div>
+                <div id="teq-dashboard-slots-preview" class="grid grid-cols-2 gap-2 text-[11px]"></div>
             </div>
         </div>
 
@@ -1594,6 +1595,11 @@
             <div id="tab-teq-cont-info" class="hidden space-y-3">
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="p-3 bg-oscuro rounded-2xl border border-borde col-span-2"><span class="text-slate-400 block text-[10px] uppercase">Modo</span><span id="teq-info-val-modo" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Win para Ganar</span><span id="teq-info-val-wins" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Aire</span><span id="teq-info-val-aire" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Móvil</span><span id="teq-info-val-movil" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Mapa</span><span id="teq-info-val-mapa" class="font-bold text-white">-</span></div>
+                    <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">TP</span><span id="teq-info-val-tp" class="font-bold text-white">-</span></div>
                     <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Fecha y Hora</span><span id="teq-info-val-fechahora" class="font-bold text-white">-</span></div>
                     <div class="p-3 bg-oscuro rounded-2xl border border-borde"><span class="text-slate-400 block text-[10px] uppercase">Servidor / Sala</span><span id="teq-info-val-server" class="font-bold text-white">-</span></div>
                     <div class="p-3 bg-oscuro rounded-2xl border border-rojo/40 col-span-2"><span class="text-slate-400 block text-[10px] uppercase">⏰ Cierre de Inscripciones</span><span id="teq-info-val-cierre-inscripcion" class="font-bold text-white">-</span></div>
@@ -2525,6 +2531,10 @@
                     <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-3">
                         <h4 class="font-black text-xs text-verde uppercase tracking-wider">Programar Torneo</h4>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div><label class="text-slate-400 block mb-1">Aire:</label><input type="text" id="admin-teq-info-aire" placeholder="Ej. Normal" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                            <div><label class="text-slate-400 block mb-1">Móvil:</label><input type="text" id="admin-teq-info-movil" placeholder="Ej. Aleatorio" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                            <div><label class="text-slate-400 block mb-1">Mapa:</label><input type="text" id="admin-teq-info-mapa" placeholder="Ej. Grand Canyon" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
+                            <div><label class="text-slate-400 block mb-1">TP:</label><input type="text" id="admin-teq-info-tp" placeholder="Ej. Permitido" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                             <div><label class="text-slate-400 block mb-1">Fecha y Hora:</label><input type="datetime-local" id="admin-teq-info-fechahora" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                             <div><label class="text-slate-400 block mb-1">Servidor / Sala:</label><input type="text" id="admin-teq-info-server" placeholder="Ej. Server VIP 1" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white"></div>
                         </div>
@@ -3594,13 +3604,33 @@
         let torneoEqEquipos = JSON.parse(localStorage.getItem('torneo_equipo_rondas_app')) || generarEquiposVaciosTorneoEquipo(torneoEqConfig.tamEquipo);
         let torneoEqId = parseInt(localStorage.getItem('torneo_equipo_id_app')) || 1;
         let imagenPremioTorneoEquipo = localStorage.getItem('imagen_premio_torneo_equipo_app') || '';
-        let infoTorneoEquipo = JSON.parse(localStorage.getItem('info_torneo_equipo_app')) || { fechahora: '', server: '', cierreInscripcion: '' };
+        let infoTorneoEquipo = JSON.parse(localStorage.getItem('info_torneo_equipo_app')) || { aire: '', movil: '', mapa: '', tp: '', fechahora: '', server: '', cierreInscripcion: '' };
 
         function actualizarBadgeTorneoEquipo() {
             const badge = document.getElementById('badge-modo-torneoequipo-dashboard');
             if (badge) badge.textContent = `${torneoEqConfig.tamEquipo}v${torneoEqConfig.tamEquipo}`;
             const badgeCuadro = document.getElementById('teq-badge-modo-cuadro');
             if (badgeCuadro) badgeCuadro.textContent = `⚔️ Equipo A vs Equipo B · ${torneoEqConfig.tamEquipo}v${torneoEqConfig.tamEquipo} ⚔️`;
+            renderizarSlotsPreviewTorneoEquipo();
+        }
+
+        function renderizarSlotsPreviewTorneoEquipo() {
+            const cont = document.getElementById('teq-dashboard-slots-preview');
+            if (!cont) return;
+            const bloque = (letra, color) => {
+                const equipo = torneoEqEquipos[letra];
+                const filas = equipo.slots.map((s, i) => {
+                    const ocupado = !!s.nombre;
+                    return `<div class="flex items-center gap-1.5 px-2 py-1 rounded-lg ${ocupado ? 'bg-' + color + '/10 text-white' : 'bg-slate-800/40 text-slate-500 italic'}">
+                        <span class="opacity-60">${i + 1}.</span><span class="truncate">${ocupado ? s.nombre : 'Cupo vacío'}</span>
+                    </div>`;
+                }).join('');
+                return `<div class="p-2 bg-oscuro rounded-2xl border border-${color}/30 space-y-1">
+                    <span class="text-[10px] font-black text-${color} uppercase block px-1">${equipo.nombre}</span>
+                    ${filas}
+                </div>`;
+            };
+            cont.innerHTML = bloque('A', 'verde') + bloque('B', 'azul');
         }
 
         function guardarConfigTorneoEquipoAdmin() {
@@ -3742,7 +3772,17 @@
 
         function renderizarInfoTorneoEquipo() {
             const val = document.getElementById('teq-info-val-modo');
-            if (val) val.textContent = `Equipo A vs Equipo B · ${torneoEqConfig.tamEquipo} vs ${torneoEqConfig.tamEquipo} · gana con ${torneoEqConfig.winsParaGanar} wins`;
+            if (val) val.textContent = `Equipo A vs Equipo B · ${torneoEqConfig.tamEquipo} vs ${torneoEqConfig.tamEquipo}`;
+            const wins = document.getElementById('teq-info-val-wins');
+            if (wins) wins.textContent = torneoEqConfig.winsParaGanar;
+            const aire = document.getElementById('teq-info-val-aire');
+            if (aire) aire.textContent = infoTorneoEquipo.aire || '-';
+            const movil = document.getElementById('teq-info-val-movil');
+            if (movil) movil.textContent = infoTorneoEquipo.movil || '-';
+            const mapa = document.getElementById('teq-info-val-mapa');
+            if (mapa) mapa.textContent = infoTorneoEquipo.mapa || '-';
+            const tp = document.getElementById('teq-info-val-tp');
+            if (tp) tp.textContent = infoTorneoEquipo.tp || '-';
             const fh = document.getElementById('teq-info-val-fechahora');
             if (fh) fh.textContent = infoTorneoEquipo.fechahora ? new Date(infoTorneoEquipo.fechahora).toLocaleString() : '-';
             const srv = document.getElementById('teq-info-val-server');
@@ -3753,6 +3793,10 @@
 
         function guardarInfoTorneoEquipoAdmin() {
             infoTorneoEquipo = {
+                aire: document.getElementById('admin-teq-info-aire')?.value || '',
+                movil: document.getElementById('admin-teq-info-movil')?.value || '',
+                mapa: document.getElementById('admin-teq-info-mapa')?.value || '',
+                tp: document.getElementById('admin-teq-info-tp')?.value || '',
                 fechahora: document.getElementById('admin-teq-info-fechahora')?.value || '',
                 server: document.getElementById('admin-teq-info-server')?.value || '',
                 cierreInscripcion: document.getElementById('admin-teq-info-cierre-inscripcion')?.value || ''
@@ -3877,6 +3921,14 @@
                     <button onclick="guardarMarcadoresTorneoEquipoAdmin()" class="w-full py-2 bg-azul text-white font-black rounded-xl text-xs shadow mt-3">💾 Guardar Jugadores y Marcador</button>`;
             }
 
+            const inpAire = document.getElementById('admin-teq-info-aire');
+            if (inpAire) inpAire.value = infoTorneoEquipo.aire || '';
+            const inpMovil = document.getElementById('admin-teq-info-movil');
+            if (inpMovil) inpMovil.value = infoTorneoEquipo.movil || '';
+            const inpMapa = document.getElementById('admin-teq-info-mapa');
+            if (inpMapa) inpMapa.value = infoTorneoEquipo.mapa || '';
+            const inpTp = document.getElementById('admin-teq-info-tp');
+            if (inpTp) inpTp.value = infoTorneoEquipo.tp || '';
             const inpFecha = document.getElementById('admin-teq-info-fechahora');
             if (inpFecha) inpFecha.value = infoTorneoEquipo.fechahora || '';
             const inpServer = document.getElementById('admin-teq-info-server');
