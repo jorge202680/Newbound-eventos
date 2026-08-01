@@ -38,6 +38,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" crossorigin="anonymous"></script>
+<!-- OneSignal (push real, sin plan pago ni Cloud Functions) -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <!-- Tailwind CSS CDN: jsDelivr es el mirror oficial actual (más estable que cdn.tailwindcss.com,
          que tiene caídas/bloqueos reportados). Si jsDelivr también fallara, se reintenta automáticamente
          con el CDN clásico como respaldo, y recién si los dos fallan se avisa por consola. -->
@@ -3229,12 +3231,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.3.3";
+        const VERSION_APP_ACTUAL = "15.3.5";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '📶 Más resistente a redes lentas',
-            descripcion: 'La app ahora se conecta antes a los servidores externos (Firebase, Font Awesome, Tailwind) para acelerar la carga en señal débil, y el sistema que detecta pantallas de carga pegadas espera más tiempo antes de reintentar, evitando reinicios innecesarios.'
+            titulo: '🔔 Notificaciones push reales',
+            descripcion: 'Ahora las notificaciones (como los avisos de cruces de Champions) llegan como push real al celular, aunque la app esté cerrada. El sistema usa OneSignal en vez de Firebase Cloud Messaging, así que no requiere plan pago de Firebase.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
@@ -3569,6 +3571,23 @@
         let firebaseListo = false;
         let dbFirebase = null;
         let authFirebase = null;
+        // ============================================================
+        // ===== PUSH REAL (OneSignal) - CONFIGURACIÓN NECESARIA =====
+        // 1. Creá una cuenta gratis en https://onesignal.com (no pide tarjeta).
+        // 2. Nueva App > Web Push > pegá la URL de tu GitHub Pages.
+        // 3. Configuración > Keys & IDs: copiá el "OneSignal App ID" y la
+        //    "REST API Key" y pegalos abajo.
+        // ============================================================
+        const ONESIGNAL_APP_ID = "a7f0642d-205b-46a5-9d64-c18f2f9a4eda";
+        const ONESIGNAL_REST_API_KEY = "os_v2_app_u7ygiljalndklhleyghs7gso3kc54spqqkxeltekna73pzxw5tqsa7dpzlxo7nziq6mubw4sqjj6himjtrl6bl3vgtuqwsggvslc73i";
+
+        if (ONESIGNAL_APP_ID && ONESIGNAL_APP_ID !== "PEGA_AQUI_TU_ONESIGNAL_APP_ID") {
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function (OneSignal) {
+                await OneSignal.init({ appId: ONESIGNAL_APP_ID });
+            });
+        }
+
         try {
             if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "TU_API_KEY_AQUI" && typeof firebase !== 'undefined') {
                 firebase.initializeApp(firebaseConfig);
@@ -3638,6 +3657,35 @@
             }
             if (Array.isArray(d.reclamosTop)) d.reclamosTop.forEach(clave => localStorage.setItem(`reclamado_top_${d.usuario}_${clave}`, 'true'));
             if (Array.isArray(d.regalos)) localStorage.setItem(`regalos_${d.usuario}`, JSON.stringify(d.regalos));
+            // Notificaciones que le llegaron desde OTRO dispositivo (ej. su cruce de Champions
+            // definido por el cierre de inscripción). Se combinan con las que ya tiene en su
+            // campanita local (por acciones propias en este dispositivo) en vez de reemplazarlas,
+            // para no perder historial.
+            if (Array.isArray(d.notificacionesApp)) fusionarNotificacionesAppEnLocal(d.usuario, d.notificacionesApp);
+        }
+
+        // Agrega a la campanita local del usuario indicado las notificaciones nuevas (con id)
+        // que todavía no tenga, sin tocar las que ya existen ahí (evita duplicados y pérdida de historial).
+        function fusionarNotificacionesAppEnLocal(usuario, nuevas) {
+            if (!usuario || !Array.isArray(nuevas) || !nuevas.length) return;
+            const claveLocal = `notificaciones_app_${usuario}`;
+            const actuales = JSON.parse(localStorage.getItem(claveLocal) || '[]');
+            const idsActuales = new Set(actuales.map(n => n.id).filter(Boolean));
+            let huboNuevas = false;
+            const recienLlegadas = [];
+            nuevas.forEach(n => {
+                if (n && n.id && !idsActuales.has(n.id)) { actuales.unshift(n); idsActuales.add(n.id); huboNuevas = true; recienLlegadas.push(n); }
+            });
+            if (huboNuevas) {
+                actuales.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+                localStorage.setItem(claveLocal, JSON.stringify(actuales.slice(0, 30)));
+                if (usuarioActual && usuario.toLowerCase() === usuarioActual.toLowerCase()) {
+                    if (typeof renderizarNotificacionesApp === 'function') renderizarNotificacionesApp();
+                    if (typeof actualizarBadgeNotificacionesApp === 'function') actualizarBadgeNotificacionesApp();
+                    // Aviso del sistema operativo para las que recién llegaron (si el jugador tiene la app en segundo plano).
+                    if (typeof mostrarNotificacionPush === 'function') recienLlegadas.forEach(n => mostrarNotificacionPush(n.mensaje));
+                }
+            }
         }
 
         async function cargarListaUsuariosDesdeNube() {
@@ -4180,6 +4228,27 @@
 
         let datosTienda = JSON.parse(localStorage.getItem('datos_tienda_app')) || Array(5).fill(null).map(() => Array(4).fill(null).map((_, j) => ({ nombre: `Producto ${j+1}`, precio: 100, imagen: '' })));
         
+        // Nombres reservados que se usan para rellenar automáticamente los cupos
+        // vacíos de Champions y Torneo de Equipo al cerrar inscripciones. Nadie
+        // puede registrarse (ni iniciar sesión) con ninguno de estos nombres
+        // (ver procesarAutenticacionUsuario), así que nunca pueden chocar con la
+        // cuenta de un jugador real. También se mantiene 'BOSS' a secas como
+        // reservado por compatibilidad con datos ya guardados de antes.
+        const NOMBRES_BOSS = ['El Coloso', 'Titán Dorado', 'Rey Supremo', 'El Invicto', 'Némesis', 'Fénix Imperial', 'El Intocable', 'El Emperador'];
+        function esNombreBoss(nombre) {
+            if (!nombre) return false;
+            const n = nombre.trim().toUpperCase();
+            return n === 'BOSS' || NOMBRES_BOSS.some(b => b.toUpperCase() === n);
+        }
+        // Devuelve un nombre de BOSS al azar (para rellenos donde no importa que se repita, ej. Torneo de Equipo).
+        function obtenerNombreBossAleatorio() {
+            return NOMBRES_BOSS[Math.floor(Math.random() * NOMBRES_BOSS.length)];
+        }
+        // Devuelve los 8 nombres de BOSS barajados, para asignar uno distinto a cada cupo vacío sin repetir.
+        function obtenerNombresBossBarajados() {
+            return [...NOMBRES_BOSS].sort(() => Math.random() - 0.5);
+        }
+
         let datosChampions = JSON.parse(localStorage.getItem('cuartos_champions_v2_app')) || Array(8).fill(null).map(() => ({ nombre: '', score: 0 }));
         let datosChampionsSemis = JSON.parse(localStorage.getItem('semis_champions_v2_app')) || Array(4).fill(null).map(() => ({ nombre: '', score: 0 }));
         let datosChampionsFinal = JSON.parse(localStorage.getItem('final_champions_v2_app')) || [{ nombre: '', score: 0 }, { nombre: '', score: 0 }];
@@ -4498,7 +4567,7 @@
             let huboRelleno = false;
             ['A', 'B'].forEach(letra => {
                 torneoEqEquipos[letra].slots.forEach(slot => {
-                    if (!slot.nombre) { slot.nombre = 'BOSS'; huboRelleno = true; }
+                    if (!slot.nombre) { slot.nombre = obtenerNombreBossAleatorio(); huboRelleno = true; }
                 });
             });
             if (huboRelleno) {
@@ -5453,6 +5522,7 @@
                 asegurarTemporadaPaseVipActiva();
                 reclamarTodosPaseVipDisponibles();
                 verificarTutorialPrimeraVez();
+                pedirPermisoNotificacionesPush();
             }
         }
 
@@ -5462,6 +5532,11 @@
 
             if(!nick || !pass) {
                 alert('Por favor ingresa usuario y contraseña.');
+                return;
+            }
+
+            if (esNombreBoss(nick)) {
+                alert('🔒 "' + nick + '" es un nombre reservado del sistema (se usa como BOSS para rellenar cupos vacíos en los torneos) y no se puede usar para registrarte ni iniciar sesión. Elige otro nombre de usuario.');
                 return;
             }
 
@@ -5526,6 +5601,50 @@
             verificarRachaDiaria();
             intentarCargaAutomaticaNube();
             verificarTutorialPrimeraVez();
+            pedirPermisoNotificacionesPush();
+        }
+
+        // ===== NOTIFICACIONES PUSH =====
+        // Dos capas:
+        // 1) Web Notification API: aviso del sistema mientras la app/pestaña siga viva
+        //    en algún lado (aunque sea en segundo plano).
+        // 2) Push real (OneSignal): le llega aunque el jugador haya cerrado la app por
+        //    completo. Requiere ONESIGNAL_APP_ID y ONESIGNAL_REST_API_KEY configuradas
+        //    arriba (sin plan pago, sin Cloud Functions).
+        function pedirPermisoNotificacionesPush() {
+            if (!('Notification' in window)) return;
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(permiso => {
+                    if (permiso === 'granted') activarPushRealChampions();
+                }).catch(() => {});
+            } else if (Notification.permission === 'granted') {
+                activarPushRealChampions();
+            }
+        }
+
+        // Vincula este dispositivo con el usuario logueado dentro de OneSignal
+        // (external_id = nombre de usuario en minúsculas), para que después se le
+        // pueda mandar un push dirigido a él aunque tenga la app cerrada.
+        async function activarPushRealChampions() {
+            if (!usuarioActual || !window.OneSignalDeferred) return;
+            OneSignalDeferred.push(async function (OneSignal) {
+                try {
+                    await OneSignal.login(usuarioActual.toLowerCase());
+                    await OneSignal.Notifications.requestPermission();
+                } catch (e) {
+                    console.warn('No se pudo activar el push real (OneSignal):', e);
+                }
+            });
+        }
+
+        function mostrarNotificacionPush(mensaje, icono) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            // Si el jugador está mirando la app en este momento, ya le alcanza con la campanita;
+            // el aviso del sistema se reserva para cuando la app está en segundo plano.
+            if (document.visibilityState === 'visible') return;
+            try {
+                new Notification('👑 New Bound Eventos', { body: mensaje, icon: icono || 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/trophy.svg' });
+            } catch (e) { console.warn('No se pudo mostrar la notificación push:', e); }
         }
 
         function actualizarInterfazUsuario() {
@@ -7209,6 +7328,82 @@
             return new Date(base);
         }
 
+        // Arma el texto del aviso que le llega a un jugador con su rival, la hora y los
+        // datos del torneo. Si el rival es un BOSS, el mensaje avisa que pasa directo de ronda.
+        function construirMensajeMatchChampions(rivalNombre, ronda) {
+            const horaTxt = infoTorneoChampions.cierreInscripcion ? new Date(infoTorneoChampions.cierreInscripcion).toLocaleString() : 'a definir';
+            const datosPartida = `🎮 Modo: ${infoTorneoChampions.modo} · 🗺️ Mapa: ${infoTorneoChampions.mapa} · 🖥️ ${infoTorneoChampions.server}`;
+            if (esNombreBoss(rivalNombre)) {
+                return `👑 En tu cruce de ${ronda} de la Champions Supreme te tocó "${rivalNombre}" (BOSS). ¡Pasás automáticamente a la siguiente ronda sin jugar! ${datosPartida}`;
+            }
+            return `⚔️ ¡Tu cruce de ${ronda} en la Champions Supreme ya está definido! Te enfrentás a "${rivalNombre}". 🕐 Hora: ${horaTxt} · ${datosPartida}`;
+        }
+
+        // Envía (y sincroniza en la nube) una notificación a la campanita de un usuario
+        // puntual, sea o no el que tiene la sesión abierta en este dispositivo. Usa
+        // arrayUnion para nunca pisar el historial que ese usuario ya tenga guardado.
+        function enviarNotificacionChampionsAJugador(usuario, mensaje) {
+            if (!usuario || !mensaje) return;
+            const notif = { id: 'champ_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8), mensaje, icono: 'fa-trophy', imagen: '', fecha: new Date().toISOString(), leida: false };
+            // "cuenta" se guarda siempre en minúsculas al inscribirse; comparamos así para detectar
+            // si el destinatario es quien tiene la sesión abierta en este dispositivo ahora mismo.
+            if (usuarioActual && usuario.toLowerCase() === usuarioActual.toLowerCase() && typeof agregarNotificacionApp === 'function') {
+                // Usamos el casing real de usuarioActual (no el de "usuario", que viene en minúsculas) para que la key local coincida con la que usa la campanita en el resto de la app.
+                const claveLocal = `notificaciones_app_${usuarioActual}`;
+                const lista = JSON.parse(localStorage.getItem(claveLocal) || '[]');
+                lista.unshift(notif);
+                localStorage.setItem(claveLocal, JSON.stringify(lista.slice(0, 30)));
+                if (typeof renderizarNotificacionesApp === 'function') renderizarNotificacionesApp();
+                if (typeof actualizarBadgeNotificacionesApp === 'function') actualizarBadgeNotificacionesApp();
+                if (typeof mostrarNotificacionPush === 'function') mostrarNotificacionPush(mensaje);
+            }
+            if (firebaseListo) {
+                dbFirebase.collection('usuarios').doc(usuario.toLowerCase()).set({
+                    notificacionesApp: firebase.firestore.FieldValue.arrayUnion(notif)
+                }, { merge: true }).catch(e => console.warn('No se pudo enviar la notificación de Champions a ' + usuario + ':', e));
+            }
+            // Manda el push real directo a través de OneSignal, dirigido al external_id
+            // que quedó vinculado en activarPushRealChampions() (nombre de usuario en minúsculas).
+            enviarPushOneSignal(usuario.toLowerCase(), '👑 New Bound Eventos', mensaje);
+        }
+
+        // Llama a la API de OneSignal desde el propio navegador (sin servidor propio).
+        // OJO: esto expone la REST API Key en el código fuente del sitio; para esta app
+        // personal es un riesgo aceptado, pero no la reutilices en un proyecto público/comercial.
+        function enviarPushOneSignal(usuarioDestino, titulo, mensaje) {
+            if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID === 'PEGA_AQUI_TU_ONESIGNAL_APP_ID') return;
+            if (!ONESIGNAL_REST_API_KEY || ONESIGNAL_REST_API_KEY === 'PEGA_AQUI_TU_ONESIGNAL_REST_API_KEY') return;
+            fetch('https://onesignal.com/api/v1/notifications', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8',
+                    'Authorization': 'Key ' + ONESIGNAL_REST_API_KEY
+                },
+                body: JSON.stringify({
+                    app_id: ONESIGNAL_APP_ID,
+                    include_external_user_ids: [usuarioDestino],
+                    channel_for_external_user_ids: 'push',
+                    headings: { en: titulo },
+                    contents: { en: mensaje }
+                })
+            }).catch(e => console.warn('No se pudo enviar el push real (OneSignal) a ' + usuarioDestino + ':', e));
+        }
+
+        // Recorre una ronda de Champions (array de slots de a pares) y, para cada cruce ya
+        // definido (ambos lados con nombre), avisa a cada jugador real quién es su rival.
+        // Se guarda un flag por edición de torneo + ronda + índice para no reenviar el mismo aviso.
+        function notificarCrucesRondaChampions(datosRonda, ronda, prefijoDedupe) {
+            for (let i = 0; i < datosRonda.length; i += 2) {
+                const a = datosRonda[i], b = datosRonda[i + 1];
+                if (!a || !b || !a.nombre || !b.nombre) continue;
+                const flagKey = `champions_notif_${champTorneoId}_${prefijoDedupe}_${i / 2}`;
+                if (localStorage.getItem(flagKey) === 'true') continue;
+                localStorage.setItem(flagKey, 'true');
+                if (a.cuenta) enviarNotificacionChampionsAJugador(a.cuenta, construirMensajeMatchChampions(b.nombre, ronda));
+                if (b.cuenta) enviarNotificacionChampionsAJugador(b.cuenta, construirMensajeMatchChampions(a.nombre, ronda));
+            }
+        }
+
         function verificarCierreInscripcionChampions() {
             const cierre = infoTorneoChampions.cierreInscripcion;
             if(!cierre) return;
@@ -7220,16 +7415,22 @@
             localStorage.setItem(flagKey, 'true');
 
             let huboRelleno = false;
+            const nombresBossBarajados = obtenerNombresBossBarajados();
+            let indiceBoss = 0;
             datosChampions.forEach(slot => {
-                if(!slot.nombre) { slot.nombre = 'BOSS'; slot.score = 0; huboRelleno = true; }
+                if(!slot.nombre) { slot.nombre = nombresBossBarajados[indiceBoss % nombresBossBarajados.length]; indiceBoss++; slot.score = 0; huboRelleno = true; }
             });
 
             if(huboRelleno) {
                 localStorage.setItem('cuartos_champions_v2_app', JSON.stringify(datosChampions));
+                if(typeof autoAvanzarCrucesBoss === 'function') autoAvanzarCrucesBoss();
                 if(typeof renderizarCuadroChampions === 'function') renderizarCuadroChampions();
                 if(typeof cargardatosFormularioChampions === 'function') cargardatosFormularioChampions();
                 if(typeof enviarNotificacionTelegram === 'function') enviarNotificacionTelegram('⏰ Se cerraron las inscripciones del Torneo Champions Supreme. Los cupos vacíos se completaron automáticamente con BOSS.');
             }
+            // Los cruces de Cuartos de Final ya quedaron 100% definidos (con o sin relleno de
+            // BOSS), así que le avisamos a cada jugador real contra quién juega y cuándo.
+            notificarCrucesRondaChampions(datosChampions, 'Cuartos de Final', 'cuartos');
         }
 
         function enviarInscripcionChampions() {
@@ -7428,32 +7629,85 @@
             }
         }
 
+        // Decide el ganador de un cruce. Si participa BOSS, se resuelve solo
+        // (jugador real vs BOSS -> avanza el real; BOSS vs BOSS -> avanza cualquiera).
+        // Si son dos jugadores reales, sigue dependiendo del marcador que ingresa el admin.
+        function decidirGanadorCruceChampions(a, b) {
+            if (!a || !b || !a.nombre || !b.nombre) return null;
+            if (esNombreBoss(a.nombre) && esNombreBoss(b.nombre)) return a;
+            if (esNombreBoss(a.nombre)) return b;
+            if (esNombreBoss(b.nombre)) return a;
+            if (a.score !== b.score) return a.score > b.score ? a : b;
+            return null;
+        }
+
         function avanzarGanadoresChampionsAdmin() {
             leerInputsChampionsAdmin();
 
             let algunAvance = false;
             for(let i=0; i<4; i++) {
-                const a = datosChampions[i*2], b = datosChampions[i*2+1];
-                if(a.nombre && b.nombre && a.score !== b.score) {
-                    const ganador = a.score > b.score ? a : b;
+                const ganador = decidirGanadorCruceChampions(datosChampions[i*2], datosChampions[i*2+1]);
+                if(ganador) {
                     datosChampionsSemis[i].nombre = ganador.nombre;
                     datosChampionsSemis[i].miembros = ganador.miembros || null;
+                    datosChampionsSemis[i].cuenta = ganador.cuenta || null;
                     algunAvance = true;
                 }
             }
             for(let i=0; i<2; i++) {
-                const a = datosChampionsSemis[i*2], b = datosChampionsSemis[i*2+1];
-                if(a.nombre && b.nombre && a.score !== b.score) {
-                    const ganador = a.score > b.score ? a : b;
+                const ganador = decidirGanadorCruceChampions(datosChampionsSemis[i*2], datosChampionsSemis[i*2+1]);
+                if(ganador) {
                     datosChampionsFinal[i].nombre = ganador.nombre;
                     datosChampionsFinal[i].miembros = ganador.miembros || null;
+                    datosChampionsFinal[i].cuenta = ganador.cuenta || null;
                     algunAvance = true;
                 }
             }
 
             cargardatosFormularioChampions();
-            if(algunAvance) alert('✅ Ganadores avanzados de ronda correctamente.');
+            if(algunAvance) {
+                notificarCrucesRondaChampions(datosChampionsSemis, 'Semifinal', 'semis');
+                notificarCrucesRondaChampions(datosChampionsFinal, 'Final', 'final');
+                alert('✅ Ganadores avanzados de ronda correctamente.');
+            }
             else alert('ℹ️ No hay partidos con marcador definido para avanzar (revisa empates o campos vacíos).');
+        }
+
+        // Se ejecuta solo (sin que el admin toque nada) justo después de que se
+        // rellenan los cupos vacíos con BOSS: avanza los cruces donde participa BOSS,
+        // pero jamás pisa un cupo que ya tenga algo puesto (manual o automático), y
+        // nunca resuelve un cruce entre dos jugadores reales, que sigue siendo manual.
+        function autoAvanzarCrucesBoss() {
+            let huboCambio = false;
+            for (let i = 0; i < 4; i++) {
+                if (datosChampionsSemis[i].nombre) continue;
+                const ganador = decidirGanadorCruceChampions(datosChampions[i*2], datosChampions[i*2+1]);
+                if (ganador && (esNombreBoss(datosChampions[i*2].nombre) || esNombreBoss(datosChampions[i*2+1].nombre))) {
+                    datosChampionsSemis[i].nombre = ganador.nombre;
+                    datosChampionsSemis[i].miembros = ganador.miembros || null;
+                    datosChampionsSemis[i].cuenta = ganador.cuenta || null;
+                    huboCambio = true;
+                }
+            }
+            for (let i = 0; i < 2; i++) {
+                if (datosChampionsFinal[i].nombre) continue;
+                const ganador = decidirGanadorCruceChampions(datosChampionsSemis[i*2], datosChampionsSemis[i*2+1]);
+                if (ganador && (esNombreBoss(datosChampionsSemis[i*2].nombre) || esNombreBoss(datosChampionsSemis[i*2+1].nombre))) {
+                    datosChampionsFinal[i].nombre = ganador.nombre;
+                    datosChampionsFinal[i].miembros = ganador.miembros || null;
+                    datosChampionsFinal[i].cuenta = ganador.cuenta || null;
+                    huboCambio = true;
+                }
+            }
+            if (huboCambio) {
+                localStorage.setItem('semis_champions_v2_app', JSON.stringify(datosChampionsSemis));
+                localStorage.setItem('final_champions_v2_app', JSON.stringify(datosChampionsFinal));
+                notificarCrucesRondaChampions(datosChampionsSemis, 'Semifinal', 'semis');
+                notificarCrucesRondaChampions(datosChampionsFinal, 'Final', 'final');
+                if (typeof renderizarCuadroChampions === 'function') renderizarCuadroChampions();
+                if (typeof cargardatosFormularioChampions === 'function') cargardatosFormularioChampions();
+            }
+            return huboCambio;
         }
 
         function cargardatosFormularioChampions() {
