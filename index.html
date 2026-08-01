@@ -760,6 +760,65 @@
             50% { box-shadow: 0 0 0 1px rgba(var(--tema-primario-rgb),0.75), 0 14px 34px -8px rgba(0,0,0,0.65); }
         }
         #banner-oferta-relampago.banner-v15 { animation: brilloBordeV15 2.4s ease-in-out infinite; }
+
+        /* ================= MASCOTAS: ANIMACIONES ================= */
+
+        /* --- Dragón morado VIP: halo dorado pulsante --- */
+        @keyframes mascotaVipPulso {
+            0%, 100% { filter: drop-shadow(0 0 4px rgba(251,191,36,0.55)) drop-shadow(0 2px 4px rgba(0,0,0,0.4)); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 12px rgba(251,191,36,0.95)) drop-shadow(0 2px 4px rgba(0,0,0,0.4)); transform: scale(1.06); }
+        }
+        .mascota-vip-brillo { animation: mascotaVipPulso 2.2s ease-in-out infinite; }
+
+        /* --- Dragón anfitrión: ondea la bandera --- */
+        @keyframes mascotaAnfitrionOndear {
+            0%, 100% { transform: rotate(-4deg) translateY(0); }
+            25% { transform: rotate(3deg) translateY(-1px); }
+            50% { transform: rotate(-2deg) translateY(0); }
+            75% { transform: rotate(4deg) translateY(-1px); }
+        }
+        .mascota-anfitrion-ondear { animation: mascotaAnfitrionOndear 1.6s ease-in-out infinite; transform-origin: 70% 90%; }
+
+        /* --- Mascotas Equipo A / B: idle + ganador/perdedor --- */
+        @keyframes mascotaEquipoIdleA {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-3px) rotate(-3deg); }
+        }
+        @keyframes mascotaEquipoIdleB {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-3px) rotate(3deg); }
+        }
+        .mascota-equipo-idle-a { animation: mascotaEquipoIdleA 1.8s ease-in-out infinite; }
+        .mascota-equipo-idle-b { animation: mascotaEquipoIdleB 1.8s ease-in-out infinite; }
+        @keyframes mascotaEquipoGanador {
+            0%, 100% { filter: drop-shadow(0 0 4px rgba(34,197,94,0.6)); transform: scale(1) translateY(0); }
+            50% { filter: drop-shadow(0 0 16px rgba(34,197,94,1)); transform: scale(1.18) translateY(-4px); }
+        }
+        .mascota-equipo-ganador { animation: mascotaEquipoGanador 1s ease-in-out infinite !important; }
+        .mascota-equipo-perdedor { opacity: 0.35; filter: grayscale(0.6); transform: scale(0.92); animation: none !important; transition: all 0.5s ease; }
+
+        /* --- Yeti legendario: brillo helado permanente --- */
+        @keyframes mascotaYetiFrost {
+            0%, 100% { filter: drop-shadow(0 0 3px rgba(147,197,253,0.5)) drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+            50% { filter: drop-shadow(0 0 11px rgba(147,197,253,0.95)) drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+        }
+        .mascota-yeti-frost { animation: mascotaYetiFrost 2.6s ease-in-out infinite; }
+        @keyframes mascotaYetiLegendario {
+            0% { transform: scale(1) rotate(0deg); }
+            20% { transform: scale(1.35) rotate(-8deg); }
+            40% { transform: scale(1.2) rotate(8deg); }
+            60% { transform: scale(1.3) rotate(-6deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+        .mascota-yeti-legendario { animation: mascotaYetiLegendario 0.9s ease-in-out !important; }
+
+        /* --- Confeti genérico (victorias / premios) --- */
+        .confeti-contenedor { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; }
+        .confeti-pieza { position: absolute; top: -10px; width: 8px; height: 14px; opacity: 0.95; animation: confetiCaer linear forwards; }
+        @keyframes confetiCaer {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(540deg); opacity: 0.3; }
+        }
     </style>
 </head>
 <body class="bg-oscuro text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-dorado selection:text-black">
@@ -1601,7 +1660,7 @@
         <div class="bg-medio border border-azul/40 w-full max-w-3xl rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-borde pb-3">
                 <div class="flex items-center gap-2.5">
-                    <img src="dragon-bandera.png" alt="Anfitrión del torneo" class="w-10 h-10 object-contain drop-shadow-lg">
+                    <img src="dragon-bandera.png" alt="Anfitrión del torneo" class="w-10 h-10 object-contain drop-shadow-lg mascota-anfitrion-ondear">
                     <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-trophy"></i> Champions Supreme</h3>
                 </div>
                 <button onclick="cerrarVentana('modal-champions')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
@@ -1745,9 +1804,9 @@
                         <h4 class="text-sm font-black text-white">Equipo A vs Equipo B</h4>
                     </div>
                     <div class="flex items-center justify-center gap-3">
-                        <img src="camion-azul.png" alt="Mascota Equipo A" class="w-16 h-16 object-contain drop-shadow-lg">
+                        <img id="mascota-equipo-a" src="camion-azul.png" alt="Mascota Equipo A" class="w-16 h-16 object-contain drop-shadow-lg mascota-equipo-idle-a">
                         <span class="text-slate-500 font-black text-xs">VS</span>
-                        <img src="camion-rojo.png" alt="Mascota Equipo B" class="w-14 h-14 object-contain drop-shadow-lg">
+                        <img id="mascota-equipo-b" src="camion-rojo.png" alt="Mascota Equipo B" class="w-14 h-14 object-contain drop-shadow-lg mascota-equipo-idle-b">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="unirseEquipoTorneo('A')" class="py-2 bg-verde text-black font-black rounded-xl shadow hover:opacity-90 transition text-xs">Unirme a Equipo A</button>
@@ -1934,7 +1993,7 @@
         <div class="bg-medio border border-morado/40 w-full max-w-5xl rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xl max-h-[94vh] overflow-y-auto">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2.5">
-                    <img src="dragon-morado.png" alt="Mascota VIP" class="w-11 h-11 object-contain drop-shadow-lg">
+                    <img src="dragon-morado.png" alt="Mascota VIP" class="w-11 h-11 object-contain mascota-vip-brillo">
                     <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-medal"></i> Pase VIP de Temporada</h3>
                 </div>
                 <button onclick="cerrarVentana('modal-pase-vip')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
@@ -2147,7 +2206,7 @@
                 <button onclick="cerrarVentana('modal-lootbox')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
             </div>
             <div class="flex items-center gap-3 bg-oscuro/60 border border-morado/30 rounded-2xl p-2.5">
-                <img src="yeti.png" alt="Mascota legendaria" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
+                <img id="mascota-yeti-lootbox" src="yeti.png" alt="Mascota legendaria" class="w-14 h-14 object-contain shrink-0 mascota-yeti-frost">
                 <p class="text-[11px] text-slate-400">Abre cofres sorpresa usando monedas o gemas y obtén premios aleatorios, algunos muy raros. ¡Cuidado, el más legendario está congelado ahí dentro! ❄️</p>
             </div>
             <div id="contenedor-lootboxes" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
@@ -4191,6 +4250,31 @@
 
             const campeonNombre = equipoCampeon ? equipoCampeon.nombre : '';
             const campeonMiembros = equipoCampeon ? equipoCampeon.slots.filter(s => s.nombre).map(s => s.nombre) : [];
+
+            // --- Animación de mascotas: la del equipo ganador festeja, la del perdedor se apaga ---
+            const mascotaA = document.getElementById('mascota-equipo-a');
+            const mascotaB = document.getElementById('mascota-equipo-b');
+            if (mascotaA && mascotaB) {
+                mascotaA.classList.remove('mascota-equipo-ganador', 'mascota-equipo-perdedor', 'mascota-equipo-idle-a');
+                mascotaB.classList.remove('mascota-equipo-ganador', 'mascota-equipo-perdedor', 'mascota-equipo-idle-b');
+                if (ganaA) {
+                    mascotaA.classList.add('mascota-equipo-ganador');
+                    mascotaB.classList.add('mascota-equipo-perdedor');
+                } else if (ganaB) {
+                    mascotaB.classList.add('mascota-equipo-ganador');
+                    mascotaA.classList.add('mascota-equipo-perdedor');
+                } else {
+                    mascotaA.classList.add('mascota-equipo-idle-a');
+                    mascotaB.classList.add('mascota-equipo-idle-b');
+                }
+            }
+            if (equipoCampeon) {
+                const claveCelebrado = `torneo_equipo_celebrado_${torneoEqId}_${campeonNombre}`;
+                if (localStorage.getItem(claveCelebrado) !== 'true') {
+                    localStorage.setItem(claveCelebrado, 'true');
+                    dispararConfeti(50);
+                }
+            }
 
             const imgPremio = document.getElementById('imagen-premio-torneoequipo-display');
             const iconoPremio = document.getElementById('icono-premio-torneoequipo-placeholder');
@@ -9775,6 +9859,24 @@
         // ============================================================
         let sfxActivado = localStorage.getItem('sfx_activado') !== 'false';
         let contextoAudioSFX = null;
+        // ===== Confeti genérico para celebraciones (victorias, premios legendarios) =====
+        function dispararConfeti(cantidad = 40) {
+            const colores = ['#facc15', '#22c55e', '#3b82f6', '#ef4444', '#a855f7', '#f97316'];
+            const cont = document.createElement('div');
+            cont.className = 'confeti-contenedor';
+            for (let i = 0; i < cantidad; i++) {
+                const pieza = document.createElement('div');
+                pieza.className = 'confeti-pieza';
+                pieza.style.left = Math.random() * 100 + 'vw';
+                pieza.style.background = colores[Math.floor(Math.random() * colores.length)];
+                pieza.style.animationDuration = (1.8 + Math.random() * 1.4) + 's';
+                pieza.style.animationDelay = (Math.random() * 0.4) + 's';
+                cont.appendChild(pieza);
+            }
+            document.body.appendChild(cont);
+            setTimeout(() => cont.remove(), 3600);
+        }
+
         function reproducirSFX(tipo) {
             if(!sfxActivado) return;
             try {
@@ -9997,6 +10099,14 @@
                 resultado.classList.remove('hidden');
                 resultado.className = 'p-4 rounded-2xl border text-center space-y-1 border-dorado bg-dorado/10';
                 resultado.innerHTML = `<div class="text-3xl">${caja.icono}</div><p class="text-xs font-black text-white">¡Obtuviste: ${elegido.nombre}!</p>`;
+                if (elegido.nombre.includes('LEGENDARIO')) {
+                    const mascotaYeti = document.getElementById('mascota-yeti-lootbox');
+                    if (mascotaYeti) {
+                        mascotaYeti.classList.add('mascota-yeti-legendario');
+                        setTimeout(() => mascotaYeti.classList.remove('mascota-yeti-legendario'), 900);
+                    }
+                    dispararConfeti(60);
+                }
                 reproducirSFX('ganar');
                 sumarPuntosMetaGlobal(3);
                 agregarExpUsuario(10);
