@@ -3927,6 +3927,13 @@
         function renderizarSlotsPreviewTorneoEquipo() {
             const cont = document.getElementById('teq-dashboard-slots-preview');
             if (!cont) return;
+            // Mismo resguardo que renderizarCuadroTorneoEquipo: si los datos llegaron
+            // corruptos o incompletos (por ejemplo a mitad de una sincronización con la
+            // nube), se reconstruyen vacíos en vez de romper esta vista previa.
+            if (!esTorneoEquipoValido(torneoEqEquipos)) {
+                torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqEquipos));
+            }
             const bloque = (letra, color) => {
                 const equipo = torneoEqEquipos[letra];
                 const filas = equipo.slots.map((s, i) => {
@@ -4151,6 +4158,10 @@
 
         function unirseEquipoTorneo(letra) {
             verificarCierreInscripcionTorneoEquipo();
+            if (!esTorneoEquipoValido(torneoEqEquipos)) {
+                torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqEquipos));
+            }
             const cierre = infoTorneoEquipo.cierreInscripcion;
             if (cierre && Date.now() >= new Date(cierre).getTime()) {
                 alert('⚠️ El tiempo de inscripción para este torneo ya finalizó.');
@@ -4182,6 +4193,10 @@
 
         // ===== Admin: marcadores =====
         function guardarMarcadoresTorneoEquipoAdmin() {
+            if (!esTorneoEquipoValido(torneoEqEquipos)) {
+                torneoEqEquipos = generarEquiposVaciosTorneoEquipo((torneoEqConfig && torneoEqConfig.tamEquipo) || 2);
+                localStorage.setItem('torneo_equipo_rondas_app', JSON.stringify(torneoEqEquipos));
+            }
             ['A', 'B'].forEach(letra => {
                 const equipo = torneoEqEquipos[letra];
                 equipo.slots.forEach((slot, i) => {
