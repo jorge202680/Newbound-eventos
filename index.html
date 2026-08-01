@@ -1804,6 +1804,49 @@
         </div>
     </div>
 
+    <!-- MODAL "REGALO RECIBIDO" (popup automático al abrir la app) -->
+    <div id="modal-regalo-recibido" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border-2 border-dorado" style="background: linear-gradient(180deg, #1E293B, #131C2E);">
+            <div class="px-4 py-2.5 flex items-center justify-between" style="background: linear-gradient(90deg, #F59E0B, #EA580C);">
+                <h3 class="font-black text-sm text-black flex items-center gap-2"><i class="fa fa-gift"></i> Regalo Recibido</h3>
+            </div>
+            <div class="p-5 space-y-3 text-center">
+                <p class="text-xs text-slate-300">Has recibido un regalo de</p>
+                <p id="regalo-popup-remitente" class="font-black text-dorado text-sm"></p>
+                <div id="regalo-popup-item" class="hidden flex items-center gap-3 bg-oscuro/60 border border-borde rounded-2xl p-3 text-left">
+                    <img id="regalo-popup-item-imagen" class="w-14 h-14 rounded-xl object-cover border border-borde shrink-0 hidden" src="">
+                    <div class="min-w-0">
+                        <p id="regalo-popup-item-nombre" class="font-black text-white text-xs"></p>
+                        <p id="regalo-popup-item-duracion" class="text-[10px] text-dorado hidden"></p>
+                    </div>
+                </div>
+                <p id="regalo-popup-monedas" class="hidden font-black text-verde text-sm"></p>
+                <p id="regalo-popup-mensaje" class="hidden text-[11px] text-slate-400 italic"></p>
+                <button onclick="cerrarPopupRegaloRecibido()" class="w-full py-2.5 bg-azul text-white font-black rounded-xl text-xs shadow mt-2">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ADMIN: ENVIAR REGALO A UN USUARIO -->
+    <div id="modal-enviar-regalo-admin" class="fixed inset-0 z-[60] bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-verde/40 w-full max-w-sm rounded-3xl p-6 space-y-3 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 id="titulo-modal-enviar-regalo" class="font-black text-sm text-verde flex items-center gap-2"><i class="fa fa-gift"></i> Enviar Regalo</h3>
+                <button onclick="cerrarVentana('modal-enviar-regalo-admin')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <input type="number" min="0" id="input-regalo-admin-monedas" placeholder="🪙 Monedas" class="px-2 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">
+                <input type="number" min="0" id="input-regalo-admin-gemas" placeholder="💎 Gemas" class="px-2 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">
+                <input type="number" min="0" id="input-regalo-admin-cristales" placeholder="💠 Cristales" class="px-2 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">
+            </div>
+            <input type="text" id="input-regalo-admin-item-nombre" placeholder="Nombre del premio (opcional)" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">
+            <input type="text" id="input-regalo-admin-item-imagen" placeholder="URL de imagen del premio (opcional)" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">
+            <input type="text" id="input-regalo-admin-item-duracion" placeholder="Duración (ej. 1 Semana, opcional)" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs">
+            <textarea id="input-regalo-admin-mensaje" placeholder="Mensaje para el jugador (opcional)" rows="2" class="w-full px-3 py-2 rounded-xl bg-oscuro border border-borde text-white text-xs"></textarea>
+            <button onclick="confirmarEnviarRegaloAdmin()" class="w-full py-2.5 bg-verde text-black font-black rounded-xl text-xs shadow">🎁 Enviar Regalo</button>
+        </div>
+    </div>
+
     <!-- MODAL REGALO DIARIO -->
     <div id="modal-regalo-diario" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border border-pink-500/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl text-center">
@@ -2512,6 +2555,14 @@
                         <input type="number" id="input-regalo-masivo-cristales" placeholder="Cantidad de cristales" class="flex-1 px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
                         <button onclick="regalarCristalesMasivo()" class="px-4 py-2 bg-azul text-white font-black rounded-xl text-xs shadow">Regalar a Todos</button>
                     </div>
+                </div>
+                <div class="p-4 bg-oscuro rounded-2xl border border-dorado/40 space-y-3">
+                    <h4 class="font-black text-xs text-dorado uppercase tracking-wider flex items-center gap-2">
+                        🎁 Premios Pendientes de Envío
+                        <span id="badge-premios-pendientes-admin" class="hidden w-2.5 h-2.5 rounded-full bg-rojo animate-pulse"></span>
+                    </h4>
+                    <p class="text-[10px] text-slate-400">Reclamos de premios con imagen (Torneo de Equipo, Champions, Top Semanal). Toca "Enviado" recién cuando ya le entregaste el premio real al jugador, para que le llegue el aviso "Regalo Recibido".</p>
+                    <div id="contenedor-premios-pendientes-admin" class="space-y-2 max-h-60 overflow-y-auto"></div>
                 </div>
                 <div id="contenedor-lista-usuarios" class="space-y-2 max-h-60 overflow-y-auto"></div>
             </div>
@@ -3373,6 +3424,7 @@
                 if (typeof d.multiplicadorSegundos === 'number') localStorage.setItem(`multiplicador_segundos_${d.usuario}`, d.multiplicadorSegundos);
             }
             if (Array.isArray(d.reclamosTop)) d.reclamosTop.forEach(clave => localStorage.setItem(`reclamado_top_${d.usuario}_${clave}`, 'true'));
+            if (Array.isArray(d.regalos)) localStorage.setItem(`regalos_${d.usuario}`, JSON.stringify(d.regalos));
         }
 
         async function cargarListaUsuariosDesdeNube() {
@@ -3415,7 +3467,7 @@
                 if (typeof renderizarListaUsuariosAdmin === 'function') renderizarListaUsuariosAdmin();
                 if (usuarioActual) {
                     const yo = dbUsuarios.find(u => u.usuario === usuarioActual);
-                    if (yo) { usuarioActualObj = yo; actualizarInterfazUsuario(); }
+                    if (yo) { usuarioActualObj = yo; actualizarInterfazUsuario(); if (typeof verificarRegalosPendientes === 'function') verificarRegalosPendientes(); }
                 }
             }, err => console.warn('Error escuchando cambios de usuarios en la nube:', err));
         }
@@ -3442,6 +3494,192 @@
                 : { usuario: nombreUsuario };
             dbFirebase.collection('usuarios').doc(nombreUsuario.toLowerCase()).set({ ...base, ...campos }, { merge: true })
                 .catch(e => console.warn('No se pudo sincronizar con la nube:', e));
+        }
+
+        // ============================================================
+        // ===== SISTEMA DE REGALOS (popup "Regalo Recibido") =====
+        // ============================================================
+        // Envía un regalo a un usuario específico (monedas/gemas/cristales y/o
+        // un premio con imagen, más un mensaje). Acredita lo que corresponda de
+        // inmediato y deja guardado el aviso para que le salga el popup "Regalo
+        // Recibido" la próxima vez que abra o refresque la app.
+        function enviarRegaloAUsuario(usuario, opciones) {
+            if (!usuario) return;
+            const { remitente, itemNombre, itemImagen, itemDuracion, monedas, gemas, cristales, mensaje } = opciones || {};
+
+            let sal = parseInt(localStorage.getItem(`saldo_${usuario}`)) || 100;
+            let gem = parseInt(localStorage.getItem(`gemas_${usuario}`)) || 0;
+            let cris = parseInt(localStorage.getItem(`cristales_${usuario}`)) || 0;
+            if (monedas > 0) { sal += monedas; localStorage.setItem(`saldo_${usuario}`, sal); }
+            if (gemas > 0) { gem += gemas; localStorage.setItem(`gemas_${usuario}`, gem); }
+            if (cristales > 0) { cris += cristales; localStorage.setItem(`cristales_${usuario}`, cris); }
+
+            const lista = JSON.parse(localStorage.getItem(`regalos_${usuario}`) || '[]');
+            lista.unshift({
+                id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+                remitente: remitente || 'Administración',
+                itemNombre: itemNombre || '',
+                itemImagen: itemImagen || '',
+                itemDuracion: itemDuracion || '',
+                monedas: monedas || 0,
+                gemas: gemas || 0,
+                cristales: cristales || 0,
+                mensaje: mensaje || '',
+                fecha: new Date().toISOString(),
+                visto: false
+            });
+            const recortada = lista.slice(0, 20);
+            localStorage.setItem(`regalos_${usuario}`, JSON.stringify(recortada));
+
+            guardarCampoUsuarioNube(usuario, { saldo: sal, gemas: gem, cristales: cris, regalos: recortada });
+
+            if (usuario === usuarioActual) {
+                actualizarInterfazUsuario();
+                verificarRegalosPendientes();
+            }
+        }
+
+        // Revisa si el usuario que tiene la sesión abierta en este dispositivo
+        // tiene algún regalo sin ver, y si es así muestra el popup. Si hay
+        // varios regalos sin ver, los va mostrando uno por uno.
+        let _colaRegalosPendientes = [];
+        let _mostrandoPopupRegalo = false;
+        function verificarRegalosPendientes() {
+            if (!usuarioActual) return;
+            const lista = JSON.parse(localStorage.getItem(`regalos_${usuarioActual}`) || '[]');
+            _colaRegalosPendientes = lista.filter(r => !r.visto);
+            if (_colaRegalosPendientes.length && !_mostrandoPopupRegalo) mostrarSiguientePopupRegalo();
+        }
+        function mostrarSiguientePopupRegalo() {
+            if (!_colaRegalosPendientes.length) { _mostrandoPopupRegalo = false; return; }
+            _mostrandoPopupRegalo = true;
+            const r = _colaRegalosPendientes[0];
+            const elRemitente = document.getElementById('regalo-popup-remitente');
+            const cajaItem = document.getElementById('regalo-popup-item');
+            const elImg = document.getElementById('regalo-popup-item-imagen');
+            const elNombre = document.getElementById('regalo-popup-item-nombre');
+            const elDuracion = document.getElementById('regalo-popup-item-duracion');
+            const elMonedas = document.getElementById('regalo-popup-monedas');
+            const elMensaje = document.getElementById('regalo-popup-mensaje');
+            if (!elRemitente) return;
+
+            elRemitente.textContent = r.remitente;
+            if (r.itemNombre || r.itemImagen) {
+                cajaItem.classList.remove('hidden');
+                elImg.src = r.itemImagen || '';
+                elImg.classList.toggle('hidden', !r.itemImagen);
+                elNombre.textContent = r.itemNombre || '';
+                elDuracion.textContent = r.itemDuracion || '';
+                elDuracion.classList.toggle('hidden', !r.itemDuracion);
+            } else {
+                cajaItem.classList.add('hidden');
+            }
+            const partes = [];
+            if (r.monedas) partes.push(`🪙 +${r.monedas} monedas`);
+            if (r.gemas) partes.push(`💎 +${r.gemas} gemas`);
+            if (r.cristales) partes.push(`💠 +${r.cristales} cristales`);
+            elMonedas.textContent = partes.join('   ');
+            elMonedas.classList.toggle('hidden', !partes.length);
+            elMensaje.textContent = r.mensaje ? `${r.remitente}: "${r.mensaje}"` : '';
+            elMensaje.classList.toggle('hidden', !r.mensaje);
+
+            abrirVentana('modal-regalo-recibido');
+            if (typeof reproducirSFX === 'function') { try { reproducirSFX('ganar'); } catch (e) {} }
+        }
+        function cerrarPopupRegaloRecibido() {
+            if (!usuarioActual || !_colaRegalosPendientes.length) { cerrarVentana('modal-regalo-recibido'); return; }
+            const r = _colaRegalosPendientes.shift();
+            const lista = JSON.parse(localStorage.getItem(`regalos_${usuarioActual}`) || '[]');
+            const idx = lista.findIndex(x => x.id === r.id);
+            if (idx !== -1) { lista[idx].visto = true; localStorage.setItem(`regalos_${usuarioActual}`, JSON.stringify(lista)); }
+            guardarCampoUsuarioNube(usuarioActual, { regalos: lista });
+            cerrarVentana('modal-regalo-recibido');
+            setTimeout(() => { if (_colaRegalosPendientes.length) mostrarSiguientePopupRegalo(); else _mostrandoPopupRegalo = false; }, 350);
+        }
+
+        // ===== PREMIOS PENDIENTES DE ENVÍO (reclamos con imagen: el admin
+        // confirma manualmente cuando ya entregó el premio real) =====
+        let premiosPendientesEnvio = JSON.parse(localStorage.getItem('premios_pendientes_envio_app') || '[]');
+
+        function registrarPremioPendienteEnvio(usuario, tipo, nombre, imagen, monedasExtra) {
+            premiosPendientesEnvio = JSON.parse(localStorage.getItem('premios_pendientes_envio_app') || '[]');
+            premiosPendientesEnvio.unshift({
+                id: Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+                usuario, tipo, nombre: nombre || '', imagen: imagen || '',
+                monedas: monedasExtra || 0, fecha: new Date().toISOString(), estado: 'pendiente'
+            });
+            localStorage.setItem('premios_pendientes_envio_app', JSON.stringify(premiosPendientesEnvio));
+            if (typeof renderizarPremiosPendientesAdmin === 'function') renderizarPremiosPendientesAdmin();
+        }
+
+        function renderizarPremiosPendientesAdmin() {
+            const cont = document.getElementById('contenedor-premios-pendientes-admin');
+            if (!cont) return;
+            premiosPendientesEnvio = JSON.parse(localStorage.getItem('premios_pendientes_envio_app') || '[]');
+            const pendientes = premiosPendientesEnvio.filter(p => p.estado === 'pendiente');
+            const badge = document.getElementById('badge-premios-pendientes-admin');
+            if (badge) badge.classList.toggle('hidden', pendientes.length === 0);
+            cont.innerHTML = pendientes.length === 0
+                ? '<p class="text-center text-[11px] text-slate-400 italic py-3">No hay premios pendientes de envío.</p>'
+                : pendientes.map(p => `
+                    <div class="p-3 bg-oscuro rounded-2xl border border-dorado/40 flex items-center gap-3 text-xs">
+                        ${p.imagen ? `<img src="${p.imagen}" class="w-12 h-12 rounded-xl object-cover border border-borde shrink-0">` : ''}
+                        <div class="flex-1 min-w-0">
+                            <span class="font-black text-white block truncate">${p.usuario}</span>
+                            <span class="text-[10px] text-slate-400 block truncate">${p.tipo}${p.nombre ? ' · ' + p.nombre : ''}${p.monedas ? ' · 🪙 ' + p.monedas : ''}</span>
+                        </div>
+                        <button onclick="marcarPremioComoEnviado('${p.id}')" class="px-3 py-1.5 bg-verde text-black font-black rounded-xl text-xs shadow shrink-0">✅ Enviado</button>
+                    </div>`).join('');
+        }
+
+        function marcarPremioComoEnviado(id) {
+            premiosPendientesEnvio = JSON.parse(localStorage.getItem('premios_pendientes_envio_app') || '[]');
+            const p = premiosPendientesEnvio.find(x => x.id === id);
+            if (!p || p.estado === 'enviado') return;
+            p.estado = 'enviado';
+            localStorage.setItem('premios_pendientes_envio_app', JSON.stringify(premiosPendientesEnvio));
+            enviarRegaloAUsuario(p.usuario, {
+                remitente: 'Administración',
+                itemNombre: p.nombre,
+                itemImagen: p.imagen,
+                monedas: p.monedas,
+                mensaje: '¡Gracias por participar! Aquí está tu premio.'
+            });
+            renderizarPremiosPendientesAdmin();
+            alert(`✅ Premio marcado como enviado a ${p.usuario}. Le va a llegar el aviso "Regalo Recibido" al abrir la app.`);
+        }
+
+        // ===== ADMIN: enviar un regalo directo a un usuario específico =====
+        let _usuarioDestinoRegaloAdmin = '';
+        function abrirModalEnviarRegalo(usuario) {
+            _usuarioDestinoRegaloAdmin = usuario;
+            const titulo = document.getElementById('titulo-modal-enviar-regalo');
+            if (titulo) titulo.textContent = `🎁 Enviar Regalo a ${usuario}`;
+            ['input-regalo-admin-monedas','input-regalo-admin-gemas','input-regalo-admin-cristales',
+             'input-regalo-admin-item-nombre','input-regalo-admin-item-imagen','input-regalo-admin-item-duracion',
+             'input-regalo-admin-mensaje'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+            abrirVentana('modal-enviar-regalo-admin');
+        }
+        function confirmarEnviarRegaloAdmin() {
+            if (!_usuarioDestinoRegaloAdmin) return;
+            const monedas = parseInt(document.getElementById('input-regalo-admin-monedas')?.value) || 0;
+            const gemas = parseInt(document.getElementById('input-regalo-admin-gemas')?.value) || 0;
+            const cristales = parseInt(document.getElementById('input-regalo-admin-cristales')?.value) || 0;
+            const itemNombre = document.getElementById('input-regalo-admin-item-nombre')?.value.trim() || '';
+            const itemImagen = document.getElementById('input-regalo-admin-item-imagen')?.value.trim() || '';
+            const itemDuracion = document.getElementById('input-regalo-admin-item-duracion')?.value.trim() || '';
+            const mensaje = document.getElementById('input-regalo-admin-mensaje')?.value.trim() || '';
+
+            if (!monedas && !gemas && !cristales && !itemNombre && !itemImagen) {
+                alert('⚠️ Agrega al menos monedas, gemas, cristales o un premio para enviar.');
+                return;
+            }
+            enviarRegaloAUsuario(_usuarioDestinoRegaloAdmin, {
+                remitente: 'Administración', itemNombre, itemImagen, itemDuracion, monedas, gemas, cristales, mensaje
+            });
+            alert(`✅ ¡Regalo enviado a ${_usuarioDestinoRegaloAdmin}! Le va a aparecer el popup "Regalo Recibido" al abrir la app.`);
+            cerrarVentana('modal-enviar-regalo-admin');
+            renderizarListaUsuariosAdmin();
         }
 
         // Sube el saldo actual del jugador a la nube. Se llama justo después de cada
@@ -3549,7 +3787,7 @@
             'horario_ini_gp', 'horario_fin_gp', 'horario_ini_gm', 'horario_fin_gm',
             'horario_ini_top', 'horario_fin_top', 'horario_ini_ruleta', 'horario_fin_ruleta',
             'torneo_equipo_config_app', 'torneo_equipo_rondas_app', 'torneo_equipo_id_app',
-            'imagen_premio_torneo_equipo_app', 'info_torneo_equipo_app'
+            'imagen_premio_torneo_equipo_app', 'info_torneo_equipo_app', 'premios_pendientes_envio_app'
         ];
         let _sincronizandoDesdeNube = false;
         const ETIQUETAS_CLAVES_SYNC = {
@@ -3627,6 +3865,7 @@
             torneoEqId = parseInt(localStorage.getItem('torneo_equipo_id_app')) || torneoEqId;
             imagenPremioTorneoEquipo = localStorage.getItem('imagen_premio_torneo_equipo_app') || imagenPremioTorneoEquipo;
             infoTorneoEquipo = JSON.parse(localStorage.getItem('info_torneo_equipo_app')) || infoTorneoEquipo;
+            premiosPendientesEnvio = JSON.parse(localStorage.getItem('premios_pendientes_envio_app')) || premiosPendientesEnvio;
 
             [
                 'renderizarRuletaVista', 'renderizarTiendaVista', 'renderizarTiendaAdmin',
@@ -3634,7 +3873,7 @@
                 'renderizarCuadroTorneoEquipo', 'actualizarBadgeTorneoEquipo',
                 'renderizarGarraVista', 'renderizarFutbolMiniVista', 'renderizarCalendarioVista', 'renderizarCalendarioAdmin',
                 'renderizarTopSemanal', 'renderizarTopAdmin', 'renderizarTinka',
-                'renderizarListaCodigosAdmin', 'aplicarConfiguracionApp'
+                'renderizarListaCodigosAdmin', 'aplicarConfiguracionApp', 'renderizarPremiosPendientesAdmin'
             ].forEach(fn => { if (typeof window[fn] === 'function') { try { window[fn](); } catch (e) {} } });
         }
 
@@ -4221,6 +4460,7 @@
                 }, { merge: true }).catch(e => console.warn('No se pudo sincronizar el reclamo del Torneo de Equipo:', e));
             }
             renderizarCuadroTorneoEquipo();
+            registrarPremioPendienteEnvio(usuarioActual, 'Torneo de Equipo', campeonNombre, imagenPremioTorneoEquipo, 0);
             alert('🎉 ¡Reclamo registrado! El admin verá tu aviso y se contactará contigo para la entrega del premio.');
             enviarNotificacionTelegramConImagen(`👑 El usuario ${usuarioActual} (equipo campeón "${campeonNombre}") está reclamando el premio del Torneo de Equipo. ¡Coordinar la entrega!`, imagenPremioTorneoEquipo);
             agregarNotificacionApp('👑 ¡Reclamaste tu premio de Campeón del Torneo de Equipo! El admin coordinará la entrega contigo.', 'fa-trophy', imagenPremioTorneoEquipo);
@@ -4337,14 +4577,25 @@
                 alert('⚠️ Ya reclamaste este premio esta semana.');
                 return;
             }
-            saldo += item.premio;
-            localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
             localStorage.setItem(claveReclamo, 'true');
             if (firebaseListo) {
                 dbFirebase.collection('usuarios').doc(usuarioActual.toLowerCase()).set({
                     reclamosTop: firebase.firestore.FieldValue.arrayUnion(`${semanaId}_${pos}`)
                 }, { merge: true }).catch(e => console.warn('No se pudo sincronizar el reclamo del Top Semanal:', e));
             }
+            if (item.imagen) {
+                // El premio de este puesto tiene una imagen configurada: es un premio
+                // real, así que queda pendiente de que el admin confirme la entrega
+                // (ahí recién se acreditan las monedas y le llega el popup).
+                registrarPremioPendienteEnvio(usuarioActual, `Top Semanal (puesto ${pos})`, '', item.imagen, item.premio);
+                renderizarTopSemanal();
+                alert('🎉 ¡Reclamo registrado! El admin verá tu aviso y se contactará contigo para la entrega del premio.');
+                enviarNotificacionTelegramConImagen(`🏆 El usuario ${usuarioActual} reclamó el premio del Top Semanal (puesto ${pos}). ¡Coordinar la entrega!`, item.imagen);
+                agregarNotificacionApp(`🏆 ¡Reclamaste el premio del Top Semanal (puesto ${pos})! El admin coordinará la entrega contigo.`, 'fa-trophy', item.imagen);
+                return;
+            }
+            saldo += item.premio;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
             actualizarInterfazUsuario();
             renderizarTopSemanal();
             alert(`🎉 ¡Premio del Top Semanal reclamado (+${item.premio} monedas)!`);
@@ -4383,6 +4634,7 @@
                 }, { merge: true }).catch(e => console.warn('No se pudo sincronizar el reclamo de Champions:', e));
             }
             renderizarCuadroChampions();
+            registrarPremioPendienteEnvio(usuarioActual, 'Champions Supreme', campeonNombre, imagenPremioChampions, 0);
             alert('🎉 ¡Reclamo registrado! El admin verá tu aviso y se contactará contigo para la entrega del premio.');
             enviarNotificacionTelegramConImagen(`👑 El usuario ${usuarioActual} (equipo/campeón "${campeonNombre}") está reclamando el premio de la Champions Supreme. ¡Coordinar la entrega!`, imagenPremioChampions);
             agregarNotificacionApp('👑 ¡Reclamaste tu premio de Campeón de la Champions Supreme! El admin coordinará la entrega contigo.', 'fa-trophy', imagenPremioChampions);
@@ -7451,10 +7703,11 @@
                         <span class="font-black text-white block">${u.usuario} <strong class="text-dorado">(VIP ${niv})</strong></span>
                         <span class="text-[10px] text-slate-400">ID: #${u.id} | Saldo: 🪙 ${sal} | Gemas: 💎 ${gem} | Cristales: 💠 ${cris}</span>
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 flex-wrap">
                         <button onclick="darMonedasUsuario('${u.usuario}')" class="px-3 py-1.5 bg-dorado text-black font-black rounded-xl text-xs shadow">+50 🪙</button>
                         <button onclick="darGemasUsuario('${u.usuario}')" class="px-3 py-1.5 bg-morado text-white font-black rounded-xl text-xs shadow">+50 💎</button>
                         <button onclick="darCristalesUsuario('${u.usuario}')" class="px-3 py-1.5 bg-azul text-white font-black rounded-xl text-xs shadow">+50 💠</button>
+                        <button onclick="abrirModalEnviarRegalo('${u.usuario}')" class="px-3 py-1.5 bg-verde text-black font-black rounded-xl text-xs shadow">🎁 Regalo</button>
                     </div>
                 `;
                 cont.appendChild(div);
@@ -10068,6 +10321,8 @@
             _intentar(generarOfertaRelampagoAutomaticaSiToca, 'generarOfertaRelampagoAutomaticaSiToca');
             _intentar(verificarSesionActiva, 'verificarSesionActiva');
             if(usuarioActual) _intentar(verificarRachaDiaria, 'verificarRachaDiaria');
+            _intentar(verificarRegalosPendientes, 'verificarRegalosPendientes');
+            _intentar(renderizarPremiosPendientesAdmin, 'renderizarPremiosPendientesAdmin');
 
             const reloj = document.getElementById('reloj-local');
             if(reloj) {
