@@ -3231,12 +3231,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.3.5";
+        const VERSION_APP_ACTUAL = "15.3.6";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '🔔 Notificaciones push reales',
-            descripcion: 'Ahora las notificaciones (como los avisos de cruces de Champions) llegan como push real al celular, aunque la app esté cerrada. El sistema usa OneSignal en vez de Firebase Cloud Messaging, así que no requiere plan pago de Firebase.'
+            titulo: '🔧 Corrección del push real',
+            descripcion: 'Se corrigió el envío de notificaciones push reales: OneSignal había cambiado el formato de su API y los avisos de cruces de Champions no estaban llegando fuera de la app. Ya está solucionado.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
@@ -7373,7 +7373,7 @@
         function enviarPushOneSignal(usuarioDestino, titulo, mensaje) {
             if (!ONESIGNAL_APP_ID || ONESIGNAL_APP_ID === 'PEGA_AQUI_TU_ONESIGNAL_APP_ID') return;
             if (!ONESIGNAL_REST_API_KEY || ONESIGNAL_REST_API_KEY === 'PEGA_AQUI_TU_ONESIGNAL_REST_API_KEY') return;
-            fetch('https://onesignal.com/api/v1/notifications', {
+            fetch('https://api.onesignal.com/notifications', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8',
@@ -7381,11 +7381,15 @@
                 },
                 body: JSON.stringify({
                     app_id: ONESIGNAL_APP_ID,
-                    include_external_user_ids: [usuarioDestino],
-                    channel_for_external_user_ids: 'push',
+                    include_aliases: { external_id: [usuarioDestino] },
+                    target_channel: 'push',
                     headings: { en: titulo },
                     contents: { en: mensaje }
                 })
+            }).then(r => r.json()).then(resp => {
+                // Si "id" viene vacío, OneSignal no encontró a nadie suscripto con ese external_id
+                // (ese jugador nunca activó el push en su celular, o falta re-suscribirlo).
+                if (!resp.id) console.warn('OneSignal no encontró suscriptor para ' + usuarioDestino + ':', resp);
             }).catch(e => console.warn('No se pudo enviar el push real (OneSignal) a ' + usuarioDestino + ':', e));
         }
 
