@@ -770,23 +770,6 @@
         }
         .mascota-vip-brillo { animation: mascotaVipPulso 2.2s ease-in-out infinite; }
 
-        /* --- Animaciones para las figuras de productos de la Tienda (solo la imagen, no la tarjeta) --- */
-        @keyframes productoFlotar {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        @keyframes productoBalanceo {
-            0%, 100% { transform: rotate(-3deg); }
-            50% { transform: rotate(3deg); }
-        }
-        @keyframes productoBrillo {
-            0%, 100% { filter: drop-shadow(0 0 3px rgba(167,139,250,0.4)) brightness(1); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 10px rgba(167,139,250,0.85)) brightness(1.12); transform: scale(1.05); }
-        }
-        .producto-anim-flotar { animation: productoFlotar 2.4s ease-in-out infinite; }
-        .producto-anim-balanceo { animation: productoBalanceo 2.6s ease-in-out infinite; }
-        .producto-anim-brillo { animation: productoBrillo 2s ease-in-out infinite; }
-
         /* --- Dragón anfitrión: ondea la bandera --- */
         @keyframes mascotaAnfitrionOndear {
             0%, 100% { transform: rotate(-4deg) translateY(0); }
@@ -3233,12 +3216,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.3.0";
+        const VERSION_APP_ACTUAL = "15.3.2";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '🐾 Nuevas mascotas animadas',
-            descripcion: 'Se agregaron mascotas nuevas con animación propia en Fútbol, Metas GP, Mata al GM, Top Semanal, Ruleta, Tienda, Oferta Relámpago, Regalo Diario, Casa de Cambios, Garra de Premios y Tinka. También hay efectos de confeti al coronar campeón del Torneo de Equipo y al ganar el premio legendario de las Cajas Misteriosas.'
+            titulo: '⚡ Mejora de rendimiento',
+            descripcion: 'Las imágenes de listas (calendario, notificaciones, garra de premios, top semanal) ahora cargan de forma diferida, para que la app abra más rápido cuando hay muchas imágenes en pantalla.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
@@ -3840,7 +3823,7 @@
                 ? '<p class="text-center text-[11px] text-slate-400 italic py-3">No hay premios pendientes de envío.</p>'
                 : pendientes.map(p => `
                     <div class="p-3 bg-oscuro rounded-2xl border border-dorado/40 flex items-center gap-3 text-xs">
-                        ${p.imagen ? `<img src="${p.imagen}" class="w-12 h-12 rounded-xl object-cover border border-borde shrink-0">` : ''}
+                        ${p.imagen ? `<img src="${p.imagen}" class="w-12 h-12 rounded-xl object-cover border border-borde shrink-0" loading="lazy">` : ''}
                         <div class="flex-1 min-w-0">
                             <span class="font-black text-white block truncate">${p.usuario}</span>
                             <span class="text-[10px] text-slate-400 block truncate">${p.tipo}${p.nombre ? ' · ' + p.nombre : ''}${p.monedas ? ' · 🪙 ' + p.monedas : ''}</span>
@@ -5004,7 +4987,7 @@
                     };
 
                     const monedasDia = datosDia.monedasPremio || 50;
-                    const imgHtml = datosDia.imagen ? `<img src="${datosDia.imagen}" class="w-full h-full object-cover">` : `<span class="text-xs text-slate-400">Sin imagen</span>`;
+                    const imgHtml = datosDia.imagen ? `<img src="${datosDia.imagen}" class="w-full h-full object-cover" loading="lazy">` : `<span class="text-xs text-slate-400">Sin imagen</span>`;
                     const recHtml = datosDia.recomendacion ? datosDia.recomendacion : 'Sin recomendación';
 
                     card.innerHTML = `
@@ -5338,7 +5321,7 @@
                         <i class="fa ${n.icono} text-dorado text-xs mt-0.5"></i>
                         <div class="min-w-0 flex-1">
                             <p class="text-[11px] text-white leading-snug">${n.mensaje}</p>
-                            ${n.imagen ? `<img src="${n.imagen}" class="w-full max-h-40 object-cover rounded-lg mt-1.5 cursor-pointer" onclick="verImagenCompleta('${n.imagen}')">` : ''}
+                            ${n.imagen ? `<img src="${n.imagen}" class="w-full max-h-40 object-cover rounded-lg mt-1.5 cursor-pointer" onclick="verImagenCompleta('${n.imagen}')" loading="lazy">` : ''}
                             <p class="text-[9px] text-slate-500 mt-0.5">${formatearTiempoRelativoNotif(n.fecha)}</p>
                         </div>
                     </div>`).join('');
@@ -6922,9 +6905,7 @@
                 const card = document.createElement('div');
                 card.className = 'p-3 bg-oscuro rounded-2xl border border-borde flex flex-col justify-between space-y-3 shadow relative';
                 
-                const animsProducto = ['producto-anim-flotar', 'producto-anim-balanceo', 'producto-anim-brillo'];
-                const animProducto = bloqueado ? '' : animsProducto[(idx + paginaTiendaVistaActiva) % animsProducto.length];
-                const imgHtml = prod.imagen ? `<div class="w-full h-24 rounded-xl bg-medio flex items-center justify-center overflow-hidden${bloqueado ? ' opacity-30' : ''}"><div class="w-full h-full bg-contain bg-no-repeat bg-center ${animProducto}" style="background-image: url('${prod.imagen}')"></div></div>` : `<div class="w-full h-24 rounded-xl bg-medio flex items-center justify-center text-morado text-2xl${bloqueado ? ' opacity-30' : ''}"><i class="fa fa-shopping-bag"></i></div>`;
+                const imgHtml = prod.imagen ? `<div class="w-full h-24 rounded-xl bg-medio bg-contain bg-no-repeat bg-center${bloqueado ? ' opacity-30' : ''}" style="background-image: url('${prod.imagen}')"></div>` : `<div class="w-full h-24 rounded-xl bg-medio flex items-center justify-center text-morado text-2xl${bloqueado ? ' opacity-30' : ''}"><i class="fa fa-shopping-bag"></i></div>`;
 
                 const botonHtml = bloqueado
                     ? `<button disabled class="w-full py-2 bg-claro text-slate-400 font-black text-[10px] rounded-xl cursor-not-allowed"><i class="fa fa-lock"></i> Requiere VIP ${nivelRequerido}</button>`
@@ -7673,7 +7654,7 @@
             const ultimo = historial[0];
             const fechaUltimo = new Date(ultimo.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'long', year: 'numeric' });
             contUltimo.innerHTML = `
-                ${ultimo.imagen ? `<img src="${ultimo.imagen}" class="w-14 h-14 rounded-xl object-cover border border-dorado/40 shrink-0">` : `<div class="w-14 h-14 rounded-xl bg-dorado/20 flex items-center justify-center text-dorado text-2xl shrink-0"><i class="fa fa-crown"></i></div>`}
+                ${ultimo.imagen ? `<img src="${ultimo.imagen}" class="w-14 h-14 rounded-xl object-cover border border-dorado/40 shrink-0" loading="lazy">` : `<div class="w-14 h-14 rounded-xl bg-dorado/20 flex items-center justify-center text-dorado text-2xl shrink-0"><i class="fa fa-crown"></i></div>`}
                 <div>
                     <p class="font-black text-white text-sm">🎉 ${ultimo.nombre}</p>
                     <p class="text-[10px] text-slate-400">Campeón el ${fechaUltimo}</p>
@@ -8954,7 +8935,7 @@
                 return `
                 <div class="w-20 sm:w-24 h-24 rounded-xl border shrink-0 flex flex-col items-center justify-center gap-1 p-1 relative ${reclamado ? 'border-verde bg-verde/10' : (alcanzada && poseeTier) ? 'border-dorado bg-dorado/10' : 'border-borde bg-oscuro opacity-70'}">
                     <div class="w-9 h-9 rounded-lg overflow-hidden bg-claro flex items-center justify-center shrink-0">
-                        ${celda.imagen ? `<img src="${celda.imagen}" class="w-full h-full object-cover">` : `<i class="fa fa-gift text-slate-500 text-xs"></i>`}
+                        ${celda.imagen ? `<img src="${celda.imagen}" class="w-full h-full object-cover" loading="lazy">` : `<i class="fa fa-gift text-slate-500 text-xs"></i>`}
                     </div>
                     <span class="text-[8px] text-white font-bold text-center leading-tight line-clamp-2">${celda.texto || ''}</span>
                     ${estadoInferior}
