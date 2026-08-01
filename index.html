@@ -745,21 +745,46 @@
             para recargar a mano en vez de dejarla pegada para siempre. -->
     <script>
     (function () {
-        // Guarda el primer error real de JS que ocurra en la página (de
-        // cualquier parte del código), para poder mostrarlo como diagnóstico
-        // si la pantalla de carga termina pegada. Esto no cambia el
-        // comportamiento de la app, solo lo deja anotado para revisarlo.
-        window.addEventListener('error', function (ev) {
-            if (!sessionStorage.getItem('vigilante_primer_error')) {
-                var msg = (ev && ev.message) || 'Error desconocido';
-                var origen = (ev && ev.filename) ? (ev.filename.split('/').pop() + ':' + ev.lineno) : '';
-                sessionStorage.setItem('vigilante_primer_error', msg + (origen ? ' (' + origen + ')' : ''));
+        // Guarda cada error real de JS que ocurra en la página (de cualquier
+        // parte del código, en cualquier momento, no solo durante la carga)
+        // y lo muestra chiquito en el pie de página. Esto no cambia el
+        // comportamiento de la app, solo lo deja anotado para poder
+        // mandar una captura de pantalla y revisarlo.
+        function registrarErrorDiagnostico(texto) {
+            var lista = [];
+            try { lista = JSON.parse(sessionStorage.getItem('vigilante_lista_errores') || '[]'); } catch (e) {}
+            if (lista.indexOf(texto) === -1) {
+                lista.push(texto);
+                if (lista.length > 5) lista.shift();
+                sessionStorage.setItem('vigilante_lista_errores', JSON.stringify(lista));
+                if (!sessionStorage.getItem('vigilante_primer_error')) {
+                    sessionStorage.setItem('vigilante_primer_error', texto);
+                }
             }
+            var footer = document.getElementById('texto-diagnostico-footer');
+            if (footer) {
+                footer.textContent = '⚠️ ' + lista.join(' | ');
+                footer.classList.remove('hidden');
+            }
+        }
+        window.addEventListener('error', function (ev) {
+            var msg = (ev && ev.message) || 'Error desconocido';
+            var origen = (ev && ev.filename) ? (ev.filename.split('/').pop() + ':' + ev.lineno) : '';
+            registrarErrorDiagnostico(msg + (origen ? ' (' + origen + ')' : ''));
         });
         window.addEventListener('unhandledrejection', function (ev) {
-            if (!sessionStorage.getItem('vigilante_primer_error')) {
-                var msg = (ev && ev.reason && (ev.reason.message || ev.reason)) || 'Promesa rechazada sin detalle';
-                sessionStorage.setItem('vigilante_primer_error', 'Promesa: ' + msg);
+            var msg = (ev && ev.reason && (ev.reason.message || ev.reason)) || 'Promesa rechazada sin detalle';
+            registrarErrorDiagnostico('Promesa: ' + msg);
+        });
+        // Si ya había errores guardados de antes en esta misma sesión (por
+        // ejemplo, de la última vez que se abrió una pantalla con un bug),
+        // los muestra apenas carga la página.
+        document.addEventListener('DOMContentLoaded', function () {
+            var lista = [];
+            try { lista = JSON.parse(sessionStorage.getItem('vigilante_lista_errores') || '[]'); } catch (e) {}
+            if (lista.length) {
+                var footer = document.getElementById('texto-diagnostico-footer');
+                if (footer) { footer.textContent = '⚠️ ' + lista.join(' | '); footer.classList.remove('hidden'); }
             }
         });
 
@@ -2870,6 +2895,7 @@
             <button onclick="solicitarCerrarSesion()" class="px-3 py-1 bg-rojo/20 text-rojo font-bold rounded-lg border border-rojo/30 hover:bg-rojo/30 transition text-xs"><i class="fa fa-right-from-bracket"></i> Salir</button>
         </div>
         <p id="texto-version-app" class="text-[9px] text-slate-600 font-mono"></p>
+        <p id="texto-diagnostico-footer" class="hidden text-[9px] text-rojo/70 font-mono px-4 break-words max-w-md"></p>
     </footer>
 
     <script>
