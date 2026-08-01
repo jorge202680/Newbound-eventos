@@ -732,6 +732,7 @@
         <button id="btn-forzar-recarga" onclick="location.href = location.pathname + '?_forzado=' + Date.now();" class="hidden mt-6 px-5 py-2 bg-dorado text-black font-black text-xs rounded-xl shadow-lg animate-pulse">
             🔄 Toca aquí para recargar
         </button>
+        <p id="texto-diagnostico-carga" class="hidden mt-3 text-[10px] text-slate-500 font-mono px-6 text-center break-words max-w-xs"></p>
     </div>
 
     <!-- ===== VIGILANTE DE CARGA (independiente del resto de la app) =====
@@ -744,6 +745,24 @@
             para recargar a mano en vez de dejarla pegada para siempre. -->
     <script>
     (function () {
+        // Guarda el primer error real de JS que ocurra en la página (de
+        // cualquier parte del código), para poder mostrarlo como diagnóstico
+        // si la pantalla de carga termina pegada. Esto no cambia el
+        // comportamiento de la app, solo lo deja anotado para revisarlo.
+        window.addEventListener('error', function (ev) {
+            if (!sessionStorage.getItem('vigilante_primer_error')) {
+                var msg = (ev && ev.message) || 'Error desconocido';
+                var origen = (ev && ev.filename) ? (ev.filename.split('/').pop() + ':' + ev.lineno) : '';
+                sessionStorage.setItem('vigilante_primer_error', msg + (origen ? ' (' + origen + ')' : ''));
+            }
+        });
+        window.addEventListener('unhandledrejection', function (ev) {
+            if (!sessionStorage.getItem('vigilante_primer_error')) {
+                var msg = (ev && ev.reason && (ev.reason.message || ev.reason)) || 'Promesa rechazada sin detalle';
+                sessionStorage.setItem('vigilante_primer_error', 'Promesa: ' + msg);
+            }
+        });
+
         try {
             var COOLDOWN_MS = 60000;
             var MAX_INTENTOS = 2;
@@ -759,6 +778,12 @@
             function mostrarBotonRescate() {
                 var btn = document.getElementById('btn-forzar-recarga');
                 if (btn) btn.classList.remove('hidden');
+                var diag = document.getElementById('texto-diagnostico-carga');
+                var err = sessionStorage.getItem('vigilante_primer_error');
+                if (diag && err) {
+                    diag.textContent = 'Detalle técnico: ' + err;
+                    diag.classList.remove('hidden');
+                }
             }
             function recargarSinCache() {
                 if (yaSuperoIntentos()) { mostrarBotonRescate(); return; }
@@ -9855,44 +9880,61 @@
             }, pasoCargaMs);
         }
 
-        window.onload = async function() {
-            reproducirMusicaSeccion('carga');
-            document.addEventListener('click', reintentarMusicaBloqueada, { once: true });
-            document.addEventListener('touchstart', reintentarMusicaBloqueada, { once: true });
-            aplicarConfiguracionApp();
-            inicializarVersionApp();
-            generarGridTragamonedas();
+        // Ejecuta una función "de forma segura": si truena, se queda solo en la
+        // consola (para poder revisarlo luego) y el resto de la app sigue
+        // arrancando con total normalidad, en vez de quedar todo congelado.
+        function _intentar(fn, nombreFn) {
+            try {
+                return fn();
+            } catch (e) {
+                console.error('⚠️ Falló "' + nombreFn + '" pero la app sigue cargando igual:', e);
+                return undefined;
+            }
+        }
 
-            // --- CORRECCIÓN: arrancar la barra de progreso YA, en paralelo con la carga ---
-            // Antes, todo lo de abajo (barra de progreso incluida) esperaba a que
-            // terminaran, UNA POR UNA, 5 consultas distintas a Firebase. Cada consulta
-            // podía tardar varios segundos, así que la pantalla de carga se quedaba
-            // congelada en 0% hasta que las 5 sumadas terminaran (de ahí los 20+ seg).
-            iniciarBarraDeProgresoCarga();
+        window.onload = async function() {
+            // --- CORRECCIÓN: la pantalla de carga se libera SIEMPRE, de entrada,
+            // sin depender de que nada más (música, Firebase, grids, etc.) salga
+            // bien. Así, si algo puntual falla más abajo, el usuario igual ve la
+            // app en vez de quedarse mirando el "0%" para siempre. ---
+            _intentar(iniciarBarraDeProgresoCarga, 'iniciarBarraDeProgresoCarga');
+
+            _intentar(() => reproducirMusicaSeccion('carga'), 'reproducirMusicaSeccion');
+            _intentar(() => {
+                document.addEventListener('click', reintentarMusicaBloqueada, { once: true });
+                document.addEventListener('touchstart', reintentarMusicaBloqueada, { once: true });
+            }, 'listeners de música');
+            _intentar(aplicarConfiguracionApp, 'aplicarConfiguracionApp');
+            _intentar(inicializarVersionApp, 'inicializarVersionApp');
+            _intentar(generarGridTragamonedas, 'generarGridTragamonedas');
 
             if (firebaseListo) {
-                // --- CORRECCIÓN: cargar todo en paralelo (Promise.all) en vez de en
-                // serie (await uno por uno). El tiempo total pasa a ser el de la
-                // consulta MÁS LENTA, no la SUMA de las 5 consultas. ---
-                await Promise.all([
-                    cargarListaUsuariosDesdeNube(),
-                    cargarConfigTelegramNube(),
-                    cargarMetaGlobalNube(),
-                    cargarMisionesNube(),
-                    cargarConfigGlobalNube()
-                ]);
-                escucharUsuariosEnVivo();
-                escucharMetaGlobalEnVivo();
-                escucharMisionesEnVivo();
-                escucharConfigGlobalEnVivo();
-                setInterval(() => { if (usuarioActual) guardarProgresoNube(true); }, 15000);
+                // --- Carga todo en paralelo (Promise.all) en vez de en serie. El
+                // tiempo total pasa a ser el de la consulta MÁS LENTA, no la SUMA
+                // de las 5. Si alguna falla, no tumba a las demás. ---
+                try {
+                    await Promise.allSettled([
+                        cargarListaUsuariosDesdeNube(),
+                        cargarConfigTelegramNube(),
+                        cargarMetaGlobalNube(),
+                        cargarMisionesNube(),
+                        cargarConfigGlobalNube()
+                    ]);
+                } catch (e) {
+                    console.error('⚠️ Error cargando datos de la nube:', e);
+                }
+                _intentar(escucharUsuariosEnVivo, 'escucharUsuariosEnVivo');
+                _intentar(escucharMetaGlobalEnVivo, 'escucharMetaGlobalEnVivo');
+                _intentar(escucharMisionesEnVivo, 'escucharMisionesEnVivo');
+                _intentar(escucharConfigGlobalEnVivo, 'escucharConfigGlobalEnVivo');
+                setInterval(() => { if (usuarioActual) _intentar(() => guardarProgresoNube(true), 'guardarProgresoNube'); }, 15000);
             }
-            asegurarTemporadaPaseVipActiva();
-            asegurarEventosTematicosAutomaticos();
-            aplicarEventoTematicoAutomatico();
-            generarOfertaRelampagoAutomaticaSiToca();
-            verificarSesionActiva();
-            if(usuarioActual) verificarRachaDiaria();
+            _intentar(asegurarTemporadaPaseVipActiva, 'asegurarTemporadaPaseVipActiva');
+            _intentar(asegurarEventosTematicosAutomaticos, 'asegurarEventosTematicosAutomaticos');
+            _intentar(aplicarEventoTematicoAutomatico, 'aplicarEventoTematicoAutomatico');
+            _intentar(generarOfertaRelampagoAutomaticaSiToca, 'generarOfertaRelampagoAutomaticaSiToca');
+            _intentar(verificarSesionActiva, 'verificarSesionActiva');
+            if(usuarioActual) _intentar(verificarRachaDiaria, 'verificarRachaDiaria');
 
             const reloj = document.getElementById('reloj-local');
             if(reloj) {
@@ -9900,19 +9942,19 @@
                     reloj.textContent = `📅 ${new Date().toLocaleString()}`;
                 }, 1000);
             }
-            renderizarRuletaVista();
-            actualizarMetaGlobal();
-            estadoConexionNube();
-            actualizarBadgesTarjetas();
-            actualizarCronometrosTarjetas();
-            renderizarBoostsFlotantes();
-            verificarCierreInscripcionChampions();
-            setInterval(actualizarBadgesTarjetas, 15000);
-            setInterval(actualizarCronometrosTarjetas, 1000);
-            setInterval(renderizarBoostsFlotantes, 1000);
-            setInterval(verificarCierreInscripcionChampions, 15000);
-            setInterval(() => { asegurarTemporadaPaseVipActiva(); reclamarTodosPaseVipDisponibles(); }, 300000);
-            setInterval(generarOfertaRelampagoAutomaticaSiToca, 300000);
+            _intentar(renderizarRuletaVista, 'renderizarRuletaVista');
+            _intentar(actualizarMetaGlobal, 'actualizarMetaGlobal');
+            _intentar(estadoConexionNube, 'estadoConexionNube');
+            _intentar(actualizarBadgesTarjetas, 'actualizarBadgesTarjetas');
+            _intentar(actualizarCronometrosTarjetas, 'actualizarCronometrosTarjetas');
+            _intentar(renderizarBoostsFlotantes, 'renderizarBoostsFlotantes');
+            _intentar(verificarCierreInscripcionChampions, 'verificarCierreInscripcionChampions');
+            setInterval(() => _intentar(actualizarBadgesTarjetas, 'actualizarBadgesTarjetas'), 15000);
+            setInterval(() => _intentar(actualizarCronometrosTarjetas, 'actualizarCronometrosTarjetas'), 1000);
+            setInterval(() => _intentar(renderizarBoostsFlotantes, 'renderizarBoostsFlotantes'), 1000);
+            setInterval(() => _intentar(verificarCierreInscripcionChampions, 'verificarCierreInscripcionChampions'), 15000);
+            setInterval(() => { _intentar(asegurarTemporadaPaseVipActiva, 'asegurarTemporadaPaseVipActiva'); _intentar(reclamarTodosPaseVipDisponibles, 'reclamarTodosPaseVipDisponibles'); }, 300000);
+            setInterval(() => _intentar(generarOfertaRelampagoAutomaticaSiToca, 'generarOfertaRelampagoAutomaticaSiToca'), 300000);
             setInterval(comprobarVersionServidorYAutoActualizar, 180000);
         };
     </script>
