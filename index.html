@@ -729,7 +729,77 @@
             <div id="barra-progreso-carga" class="h-full bg-gradient-to-r from-dorado via-yellow-300 to-dorado rounded-full" style="width:0%; transition: width 0.1s linear;"></div>
         </div>
         <p id="texto-porcentaje-carga" class="text-[11px] text-dorado font-mono mt-2 font-bold">0%</p>
+        <button id="btn-forzar-recarga" onclick="location.href = location.pathname + '?_forzado=' + Date.now();" class="hidden mt-6 px-5 py-2 bg-dorado text-black font-black text-xs rounded-xl shadow-lg animate-pulse">
+            🔄 Toca aquí para recargar
+        </button>
     </div>
+
+    <!-- ===== VIGILANTE DE CARGA (independiente del resto de la app) =====
+         Se ejecuta SIEMPRE, aunque el resto del código de más abajo tenga
+         algún error y no llegue a arrancar. Hace 2 cosas:
+         1) Si el servidor tiene una versión distinta a la última que cargó
+            bien en este dispositivo, fuerza una recarga fresca (sin caché).
+         2) Si tras unos segundos la pantalla de carga sigue en 0%, recarga
+            sola (hasta 2 intentos) y si no se resuelve, muestra un botón
+            para recargar a mano en vez de dejarla pegada para siempre. -->
+    <script>
+    (function () {
+        try {
+            var COOLDOWN_MS = 60000;
+            var MAX_INTENTOS = 2;
+
+            function yaSuperoIntentos() {
+                var n = parseInt(sessionStorage.getItem('vigilante_intentos') || '0', 10);
+                return n >= MAX_INTENTOS;
+            }
+            function registrarIntento() {
+                var n = parseInt(sessionStorage.getItem('vigilante_intentos') || '0', 10);
+                sessionStorage.setItem('vigilante_intentos', String(n + 1));
+            }
+            function mostrarBotonRescate() {
+                var btn = document.getElementById('btn-forzar-recarga');
+                if (btn) btn.classList.remove('hidden');
+            }
+            function recargarSinCache() {
+                if (yaSuperoIntentos()) { mostrarBotonRescate(); return; }
+                registrarIntento();
+                location.href = location.pathname + '?_fresh=' + Date.now();
+            }
+
+            // --- 1) Chequeo de versión contra el servidor real ---
+            var ultimoChequeoTs = parseInt(sessionStorage.getItem('vigilante_ultimo_chequeo') || '0', 10);
+            var infoPrevia = null;
+            try { infoPrevia = JSON.parse(localStorage.getItem('info_version_app') || 'null'); } catch (e) {}
+
+            if (infoPrevia && infoPrevia.actual && (Date.now() - ultimoChequeoTs > COOLDOWN_MS)) {
+                sessionStorage.setItem('vigilante_ultimo_chequeo', String(Date.now()));
+                fetch(location.pathname + '?_chk=' + Date.now(), { cache: 'no-store' })
+                    .then(function (r) { return r.text(); })
+                    .then(function (html) {
+                        var m = html.match(/VERSION_APP_ACTUAL\s*=\s*"([^"]+)"/);
+                        if (m && m[1] && m[1] !== infoPrevia.actual) {
+                            recargarSinCache();
+                        }
+                    })
+                    .catch(function () {});
+            }
+
+            // --- 2) Vigía de "pantalla de carga pegada" ---
+            setTimeout(function () {
+                var pantalla = document.getElementById('pantalla-carga');
+                var porcentaje = document.getElementById('texto-porcentaje-carga');
+                var sigueVisible = pantalla && getComputedStyle(pantalla).display !== 'none';
+                var sigueEnCero = porcentaje && porcentaje.textContent.trim() === '0%';
+                if (sigueVisible && sigueEnCero) {
+                    recargarSinCache();
+                }
+            }, 6000);
+        } catch (e) {
+            var btn = document.getElementById('btn-forzar-recarga');
+            if (btn) btn.classList.remove('hidden');
+        }
+    })();
+    </script>
 
     <!-- MODAL DE REGISTRO / AUTENTICACIÓN -->
     <div id="modal-registro" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
