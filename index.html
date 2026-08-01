@@ -1200,7 +1200,7 @@
 
         <!-- CATEGORÍA: MINIJUEGOS -->
         <div class="rounded-3xl overflow-hidden border border-naranja/30 bg-medio shadow-xl">
-            <button type="button" onclick="alternarSeccionAdmin('cat-minijuegos')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+            <button type="button" id="btn-cat-minijuegos" onclick="alternarSeccionAdmin('cat-minijuegos')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
                 <span class="font-black text-sm text-white flex items-center gap-2">🎮 Minijuegos</span>
                 <i id="cat-minijuegos-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
             </button>
@@ -1315,7 +1315,7 @@
 
         <!-- CATEGORÍA: TORNEO CHAMPIONS SUPREME -->
         <div class="rounded-3xl overflow-hidden border border-azul/30 bg-medio shadow-xl">
-            <button type="button" onclick="alternarSeccionAdmin('cat-champions')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+            <button type="button" id="btn-cat-champions" onclick="alternarSeccionAdmin('cat-champions')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
                 <span class="font-black text-sm text-white flex items-center gap-2">🏆 Torneo Champions Supreme</span>
                 <i id="cat-champions-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
             </button>
@@ -1593,7 +1593,7 @@
         <div class="bg-medio border border-azul/40 w-full max-w-3xl rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b border-borde pb-3">
                 <div class="flex items-center gap-2.5">
-                    <img src="imagenes/dragon-bandera.png" alt="Anfitrión del torneo" class="w-10 h-10 object-contain drop-shadow-lg">
+                    <img src="dragon-bandera.png" alt="Anfitrión del torneo" class="w-10 h-10 object-contain drop-shadow-lg">
                     <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-trophy"></i> Champions Supreme</h3>
                 </div>
                 <button onclick="cerrarVentana('modal-champions')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
@@ -1737,9 +1737,9 @@
                         <h4 class="text-sm font-black text-white">Equipo A vs Equipo B</h4>
                     </div>
                     <div class="flex items-center justify-center gap-3">
-                        <img src="imagenes/camion-azul.png" alt="Mascota Equipo A" class="w-16 h-16 object-contain drop-shadow-lg">
+                        <img src="camion-azul.png" alt="Mascota Equipo A" class="w-16 h-16 object-contain drop-shadow-lg">
                         <span class="text-slate-500 font-black text-xs">VS</span>
-                        <img src="imagenes/camion-rojo.png" alt="Mascota Equipo B" class="w-14 h-14 object-contain drop-shadow-lg">
+                        <img src="camion-rojo.png" alt="Mascota Equipo B" class="w-14 h-14 object-contain drop-shadow-lg">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <button onclick="unirseEquipoTorneo('A')" class="py-2 bg-verde text-black font-black rounded-xl shadow hover:opacity-90 transition text-xs">Unirme a Equipo A</button>
@@ -1926,7 +1926,7 @@
         <div class="bg-medio border border-morado/40 w-full max-w-5xl rounded-3xl p-4 sm:p-6 space-y-4 shadow-2xl max-h-[94vh] overflow-y-auto">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2.5">
-                    <img src="imagenes/dragon-morado.png" alt="Mascota VIP" class="w-11 h-11 object-contain drop-shadow-lg">
+                    <img src="dragon-morado.png" alt="Mascota VIP" class="w-11 h-11 object-contain drop-shadow-lg">
                     <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-medal"></i> Pase VIP de Temporada</h3>
                 </div>
                 <button onclick="cerrarVentana('modal-pase-vip')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
@@ -1963,7 +1963,7 @@
         <div class="bg-medio border border-azul/40 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center">
                 <div class="flex items-center gap-2.5">
-                    <img src="imagenes/guia-chica.png" alt="Guía" class="w-10 h-10 rounded-full object-cover object-top border-2 border-azul/60 shadow-lg bg-oscuro">
+                    <img src="guia-chica.png" alt="Guía" class="w-10 h-10 rounded-full object-cover object-top border-2 border-azul/60 shadow-lg bg-oscuro">
                     <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-circle-question"></i> Asistente / Guía</h3>
                 </div>
                 <button onclick="cerrarVentana('modal-asistente')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
@@ -1974,11 +1974,14 @@
         </div>
     </div>
 
+    <!-- Resalta la sección real de la app que la guía está explicando en el tour -->
+    <div id="spotlight-tutorial" class="fixed hidden rounded-2xl border-2 border-dorado pointer-events-none z-[59] transition-all duration-500" style="box-shadow: 0 0 0 9999px rgba(0,0,0,0.78), 0 0 25px 4px rgba(245,158,11,0.7);"></div>
+
     <!-- MODAL TUTORIAL DE BIENVENIDA -->
-    <div id="modal-tutorial" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
-        <div class="bg-medio border border-dorado/40 w-full max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl text-center">
-            <img src="imagenes/guia-chica.png" alt="Tu guía" class="w-16 h-16 rounded-full object-cover object-top border-2 border-dorado mx-auto shadow-lg bg-oscuro">
-            <div id="contenedor-paso-tutorial" class="min-h-[190px] flex flex-col items-center justify-center gap-3"></div>
+    <div id="modal-tutorial" class="fixed inset-0 z-[60] hidden items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-medio border-2 border-dorado w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 space-y-3 shadow-2xl text-center relative">
+            <img src="guia-chica.png" alt="Tu guía" class="w-16 h-16 rounded-full object-cover object-top border-2 border-dorado mx-auto shadow-lg bg-oscuro">
+            <div id="contenedor-paso-tutorial" class="min-h-[110px] flex flex-col items-center justify-center gap-2"></div>
             <div id="contenedor-puntos-tutorial" class="flex justify-center gap-1.5"></div>
             <div class="flex gap-2">
                 <button onclick="omitirTutorial()" class="flex-1 py-2.5 bg-claro text-slate-300 font-bold rounded-xl text-xs">Omitir</button>
@@ -1991,7 +1994,7 @@
     <div id="modal-regalo-bienvenida" class="fixed inset-0 z-[65] bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border-2 border-dorado w-full max-w-sm rounded-3xl p-6 space-y-3 shadow-2xl text-center relative overflow-hidden">
             <div class="absolute inset-0 opacity-10 pointer-events-none" style="background: radial-gradient(circle at 50% 0%, #F59E0B, transparent 70%);"></div>
-            <img src="imagenes/guia-chica.png" alt="Tu guía" class="w-24 h-24 rounded-full object-cover object-top border-4 border-dorado mx-auto shadow-xl relative z-10 bg-oscuro">
+            <img src="guia-chica.png" alt="Tu guía" class="w-24 h-24 rounded-full object-cover object-top border-4 border-dorado mx-auto shadow-xl relative z-10 bg-oscuro">
             <h3 class="font-black text-white text-base relative z-10">¡Antes de irme, un regalo! 🎁</h3>
             <p class="text-xs text-slate-400 relative z-10">Gracias por conocer la app conmigo. Aquí tienes algo para empezar con el pie derecho.</p>
             <p id="texto-premio-regalo-bienvenida" class="font-black text-verde text-lg relative z-10">🪙 +100 monedas</p>
@@ -2133,7 +2136,7 @@
                 <button onclick="cerrarVentana('modal-lootbox')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
             </div>
             <div class="flex items-center gap-3 bg-oscuro/60 border border-morado/30 rounded-2xl p-2.5">
-                <img src="imagenes/yeti.png" alt="Mascota legendaria" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
+                <img src="yeti.png" alt="Mascota legendaria" class="w-14 h-14 object-contain drop-shadow-lg shrink-0">
                 <p class="text-[11px] text-slate-400">Abre cofres sorpresa usando monedas o gemas y obtén premios aleatorios, algunos muy raros. ¡Cuidado, el más legendario está congelado ahí dentro! ❄️</p>
             </div>
             <div id="contenedor-lootboxes" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
@@ -3012,7 +3015,7 @@
     </div>
 
     <!-- BOTÓN FLOTANTE DE AYUDA -->
-    <button onclick="abrirVentana('modal-asistente'); renderizarModalAsistente();" class="fixed bottom-5 right-4 z-30 w-12 h-12 rounded-full bg-azul text-white shadow-2xl flex items-center justify-center text-lg hover:scale-110 transition" title="Ayuda / Guía">
+    <button onclick="abrirVentana('modal-asistente'); renderizarModalAsistente();" id="btn-ayuda-flotante" class="fixed bottom-5 right-4 z-30 w-12 h-12 rounded-full bg-azul text-white shadow-2xl flex items-center justify-center text-lg hover:scale-110 transition" title="Ayuda / Guía">
         <i class="fa fa-question"></i>
     </button>
 
@@ -9270,13 +9273,18 @@
         }
 
         // ===== TUTORIAL PARA NUEVOS USUARIOS =====
+        // Cada paso puede traer "objetivo" (id del elemento real a resaltar) y,
+        // si ese elemento vive dentro de una categoría colapsable, "seccionPadre"
+        // (id del contenedor que hay que abrir para que sea visible).
         const PASOS_TUTORIAL_APP = [
-            { icono: '👋', titulo: '¡Bienvenido a Gaming Premier VIP!', texto: 'Te doy un recorrido rapidito por lo más importante antes de empezar.' },
-            { icono: '🎁', titulo: 'Regalo Diario y Misión del Día', texto: 'Cada día tienes un regalo gratis y una misión nueva. Ábrelos apenas entres para no perdértelos.' },
-            { icono: '👑', titulo: 'Niveles VIP', texto: 'Mientras más juegas, más EXP ganas y más sube tu nivel VIP, dándote descuentos y multiplicador.' },
-            { icono: '🎮', titulo: 'Minijuegos', texto: 'Toca "🎮 Minijuegos" para ver Ruleta, Garra, Fútbol, Tinka y más — cada uno reparte monedas de forma distinta.' },
-            { icono: '🏆', titulo: 'Top Semanal y Champions', texto: 'Compite contra otros jugadores por premios semanales y sigue el torneo Champions.' },
-            { icono: '❓', titulo: '¿Tienes dudas?', texto: 'Toca el botón azul de ayuda (❓) en cualquier momento para ver la guía completa.' }
+            { icono: '👋', titulo: '¡Bienvenido a Gaming Premier VIP!', texto: 'Soy tu guía. Te voy a mostrar cada parte importante de la app antes de que empieces.', objetivo: 'header-logo-contenedor' },
+            { icono: '🎁', titulo: 'Regalo Diario', texto: 'Cada día tienes un regalo gratis esperándote aquí. Ábrelo apenas entres para no perdértelo.', objetivo: 'card-regalo-diario' },
+            { icono: '🎯', titulo: 'Misión del Día', texto: 'Todos los días hay una misión nueva. Complétala y reclama tu recompensa justo aquí.', objetivo: 'card-mision-dia' },
+            { icono: '👑', titulo: 'Tu Nivel VIP', texto: 'Mientras más juegas, más EXP ganas y más sube tu nivel VIP, dándote descuentos y multiplicador.', objetivo: 'badge-vip-display' },
+            { icono: '🏆', titulo: 'Top Semanal', texto: 'Compites solo por cuánto juegas cada semana. Los primeros puestos ganan un premio en monedas.', objetivo: 'card-top-semanal', seccionPadre: 'cat-diario-recompensas' },
+            { icono: '🎮', titulo: 'Minijuegos', texto: 'Toca aquí para ver Ruleta, Garra, Fútbol, Tinka y más — cada uno reparte monedas de forma distinta.', objetivo: 'btn-cat-minijuegos' },
+            { icono: '⚔️', titulo: 'Torneo Champions', texto: 'Inscríbete al torneo de eliminación directa con llaves de Cuartos, Semis y Gran Final, y gana premios épicos.', objetivo: 'btn-cat-champions' },
+            { icono: '❓', titulo: '¿Tienes dudas?', texto: 'Toca este botón azul cuando quieras y vuelvo a explicarte todo desde el principio.', objetivo: 'btn-ayuda-flotante' }
         ];
         let pasoTutorialActual = 0;
 
@@ -9298,14 +9306,48 @@
             abrirVentana('modal-tutorial');
         }
 
+        // Abre (sin togglear) una categoría colapsable, para que el elemento que
+        // la guía quiere resaltar quede visible en pantalla.
+        function asegurarSeccionAbiertaTutorial(id) {
+            const cont = document.getElementById(id);
+            const chevron = document.getElementById(id + '-chevron');
+            if (cont) cont.classList.remove('hidden');
+            if (chevron) chevron.classList.add('rotate-180');
+        }
+
+        // Mueve y dimensiona el recuadro dorado de "spotlight" para que quede
+        // encima del elemento real que la guía está explicando en este paso.
+        function posicionarSpotlightTutorial(paso) {
+            const spot = document.getElementById('spotlight-tutorial');
+            if (!spot) return;
+            if (paso.seccionPadre) asegurarSeccionAbiertaTutorial(paso.seccionPadre);
+            const el = paso.objetivo ? document.getElementById(paso.objetivo) : null;
+            if (!el) { spot.classList.add('hidden'); return; }
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setTimeout(() => {
+                const r = el.getBoundingClientRect();
+                const pad = 8;
+                spot.classList.remove('hidden');
+                spot.style.left = Math.max(4, r.left - pad) + 'px';
+                spot.style.top = Math.max(4, r.top - pad) + 'px';
+                spot.style.width = (r.width + pad * 2) + 'px';
+                spot.style.height = (r.height + pad * 2) + 'px';
+            }, 320);
+        }
+
+        function ocultarSpotlightTutorial() {
+            const spot = document.getElementById('spotlight-tutorial');
+            if (spot) spot.classList.add('hidden');
+        }
+
         function renderizarPasoTutorial() {
             const paso = PASOS_TUTORIAL_APP[pasoTutorialActual];
             const cont = document.getElementById('contenedor-paso-tutorial');
             if (cont) {
                 cont.innerHTML = `
-                    <div class="text-6xl">${paso.icono}</div>
-                    <h3 class="font-black text-white text-base">${paso.titulo}</h3>
-                    <p class="text-xs text-slate-400">${paso.texto}</p>`;
+                    <div class="text-4xl">${paso.icono}</div>
+                    <h3 class="font-black text-white text-sm">${paso.titulo}</h3>
+                    <p class="text-[11px] text-slate-400">${paso.texto}</p>`;
             }
             const puntos = document.getElementById('contenedor-puntos-tutorial');
             if (puntos) {
@@ -9315,6 +9357,7 @@
             }
             const btn = document.getElementById('btn-siguiente-tutorial');
             if (btn) btn.textContent = pasoTutorialActual === PASOS_TUTORIAL_APP.length - 1 ? '¡Empezar!' : 'Siguiente';
+            posicionarSpotlightTutorial(paso);
         }
 
         function avanzarTutorial() {
@@ -9330,6 +9373,7 @@
 
         function finalizarTutorial() {
             if (usuarioActual) localStorage.setItem(`tutorial_completado_${usuarioActual}`, 'true');
+            ocultarSpotlightTutorial();
             cerrarVentana('modal-tutorial');
             setTimeout(mostrarRegaloBienvenida, 350);
         }
