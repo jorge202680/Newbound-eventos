@@ -8,6 +8,20 @@
     <meta http-equiv="Expires" content="0">
     <title>Gaming Premier - VIP Supreme</title>
 
+    <!-- ===== CSS DE RESPALDO (crítico, no depende de Tailwind) =====
+         Se aplica de inmediato, antes de que cargue nada externo. Así, si
+         el CDN de Tailwind tarda o falla, los modales/paneles que usan la
+         clase "hidden" (más de 100 en la app) igual quedan ocultos, y la
+         pantalla de carga tiene un fondo sólido real en vez de quedar
+         transparente dejando ver todo lo de atrás amontonado. Cuando
+         Tailwind sí carga, esta regla coincide exactamente con su propia
+         clase "hidden", así que no cambia nada del diseño final. -->
+    <style>
+        .hidden { display: none !important; }
+        #pantalla-carga { background-color: #0B0F19; color: #e5e7eb; font-family: system-ui, -apple-system, sans-serif; }
+        #pantalla-carga #texto-porcentaje-carga { color: #F59E0B; }
+    </style>
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
