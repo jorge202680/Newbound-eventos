@@ -171,6 +171,15 @@
             0% { filter: hue-rotate(0deg); }
             100% { filter: hue-rotate(360deg); }
         }
+        .marco-mitica {
+            border-width: 4px !important;
+            border-image: linear-gradient(90deg, #FDE68A, #F59E0B, #FFFFFF, #F59E0B, #FDE68A) 1;
+            animation: girarArcoirisMarco 2.2s linear infinite, pulsoMitica 1.4s ease-in-out infinite;
+        }
+        @keyframes pulsoMitica {
+            0%, 100% { box-shadow: 0 0 14px 2px rgba(245,158,11,0.6); }
+            50% { box-shadow: 0 0 28px 8px rgba(255,255,255,0.85); }
+        }
         @keyframes girarRuleta {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(3600deg); }
@@ -910,6 +919,9 @@
 <body class="bg-oscuro text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-dorado selection:text-black">
 
     <!-- BANNER DE NUEVA ACTUALIZACIÓN (solo se muestra si la versión cambió) -->
+    <!-- Contenedor de toasts de logros globales: apilable, se llena por JS -->
+    <div id="contenedor-toasts-logros" class="fixed top-16 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center gap-2 pointer-events-none w-[92%] max-w-sm"></div>
+
     <div id="banner-nueva-actualizacion" class="hidden fixed top-0 left-0 right-0 z-[100] bg-gradient-to-r from-dorado to-naranja text-black font-bold text-xs sm:text-sm px-4 py-2 flex items-center justify-center gap-3 shadow-lg">
         <span id="banner-nueva-actualizacion-texto">🎉 ¡Nueva actualización disponible!</span>
         <button onclick="cerrarBannerActualizacion()" class="ml-2 w-5 h-5 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/30 transition"><i class="fa fa-times text-[10px]"></i></button>
@@ -1220,6 +1232,10 @@
                 </div>
 
                 <!-- BARRA DE PROGRESO VIP AVANZADA -->
+                <button onclick="abrirVentana('modal-mis-logros'); renderizarModalMisLogros();" class="w-full p-3 bg-oscuro rounded-2xl border border-morado/40 flex items-center justify-between gap-2 hover:border-morado transition">
+                    <span class="text-xs font-black text-white flex items-center gap-2"><i class="fa fa-trophy text-morado"></i> Mis Logros</span>
+                    <span id="perfil-badge-logros" class="text-[10px] font-bold text-morado bg-morado/10 border border-morado/40 rounded-full px-2.5 py-1">0/8</span>
+                </button>
                 <div class="p-4 bg-oscuro rounded-2xl border border-dorado/30 space-y-2 shadow-inner">
                     <div class="flex justify-between items-center text-xs">
                         <span id="txt-progreso-nivel-actual" class="font-black text-dorado uppercase tracking-wider">Progreso hacia VIP 2</span>
@@ -1240,6 +1256,19 @@
 
         <!-- ===================== PÁGINA: INICIO ===================== -->
         <div class="pagina-vista pagina-inicio space-y-6">
+        <!-- CARTEL INFORMATIVO: PRIX (evento especial, se juega fuera de la app) -->
+        <section id="cartel-prix" class="hidden p-4 rounded-3xl bg-gradient-to-br from-morado/20 to-oscuro border-2 border-morado shadow-xl space-y-2">
+            <div class="flex justify-between items-start gap-2">
+                <h3 id="prix-titulo" class="font-black text-sm text-white flex items-center gap-2"><i class="fa fa-trophy text-morado"></i> Prix</h3>
+                <span id="prix-fecha" class="text-[10px] font-bold text-morado bg-morado/10 border border-morado/40 rounded-full px-2.5 py-1 shrink-0"></span>
+            </div>
+            <p id="prix-descripcion" class="text-[11px] text-slate-300 leading-relaxed"></p>
+            <div class="pt-1 border-t border-morado/20">
+                <p class="text-[9px] uppercase tracking-wide text-morado font-bold mb-1">Reglas</p>
+                <p id="prix-reglas" class="text-[10px] text-slate-400 leading-relaxed whitespace-pre-line"></p>
+            </div>
+            <p class="text-[9px] text-slate-500 italic">🎮 Este evento se juega fuera de la app.</p>
+        </section>
         <!-- META GLOBAL COMUNITARIA (PROGRESO COLECTIVO) -->
         <section class="p-4 rounded-3xl bg-medio border border-borde shadow-xl space-y-2.5">
             <div class="flex justify-between items-center">
@@ -1253,6 +1282,24 @@
             <div class="flex justify-between items-center text-[10px] text-slate-400">
                 <span id="meta-global-puntos-txt">0 / 0 pts</span>
                 <span id="meta-global-estado" class="font-bold"></span>
+            </div>
+        </section>
+
+        <!-- ESPÍRITU RECOLECTOR (mascota AFK: junta recompensas mientras no estás) -->
+        <section class="p-4 rounded-3xl bg-medio border border-borde shadow-xl space-y-2.5">
+            <div class="flex justify-between items-center">
+                <h3 class="font-black text-xs text-white flex items-center gap-2">
+                    <span id="pet-emoji" class="text-lg">🐾</span> Espíritu Recolector
+                </h3>
+                <span id="pet-nivel-txt" class="text-xs font-black text-verde">Nv. 1</span>
+            </div>
+            <div class="w-full bg-oscuro h-2.5 rounded-full overflow-hidden border border-borde p-0.5 shadow-inner">
+                <div id="pet-exp-fill" class="h-full rounded-full bg-gradient-to-r from-verde to-emerald-300 transition-all duration-700" style="width:0%"></div>
+            </div>
+            <p id="pet-exp-txt" class="text-[9px] text-slate-500 text-right">0 / 100 EXP</p>
+            <div class="flex items-center justify-between gap-2 pt-1">
+                <p id="pet-recompensa-txt" class="text-[10px] text-slate-400 flex-1">Recolectando... vuelve más tarde 🕒</p>
+                <button id="pet-boton-recolectar" onclick="reclamarRecompensaPet()" disabled class="px-3 py-2 bg-verde/20 text-verde border border-verde/40 font-black rounded-xl text-[10px] shrink-0 disabled:opacity-40">🎁 Recolectar</button>
             </div>
         </section>
 
@@ -1656,6 +1703,21 @@
                     <p class="text-slate-300">50% OFF permanente en tienda, multiplicador de EXP x3.0, premios exclusivos semanales y estatus máximo.</p>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL MIS LOGROS -->
+    <div id="modal-mis-logros" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-morado/40 w-full max-w-lg rounded-3xl p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-borde pb-3">
+                <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-trophy"></i> Mis Logros</h3>
+                <button onclick="cerrarVentana('modal-mis-logros')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <div class="p-3 bg-oscuro rounded-2xl border border-morado/30 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400 uppercase font-bold">Progreso total</span>
+                <span id="mis-logros-resumen" class="text-sm font-black text-morado">0 / 8 desbloqueados</span>
+            </div>
+            <div id="contenedor-mis-logros" class="space-y-2 text-xs"></div>
         </div>
     </div>
 
@@ -2666,6 +2728,37 @@
                 </div>
 
                 <div class="bg-oscuro border border-morado/30 rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-prix')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-trophy"></i> Cartel de Prix</h4>
+                        <i id="seccion-admin-prix-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-prix" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Anuncio informativo visible para todos los jugadores en Inicio. El Prix se juega fuera de la app; aquí solo se muestra la info.</p>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 block text-[10px]">Título:</label>
+                            <input type="text" id="admin-prix-titulo" placeholder="Ej: Prix de Verano 2026" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 block text-[10px]">Fecha (texto libre):</label>
+                            <input type="text" id="admin-prix-fecha" placeholder="Ej: Sábado 15 de agosto, 7pm" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 block text-[10px]">Descripción:</label>
+                            <textarea id="admin-prix-descripcion" rows="2" placeholder="De qué se trata el evento" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 block text-[10px]">Reglas:</label>
+                            <textarea id="admin-prix-reglas" rows="3" placeholder="Una regla por línea" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="guardarConfigPrixAdmin()" class="flex-1 py-2 bg-verde text-black font-black rounded-xl text-xs">✅ Publicar Cartel</button>
+                            <button onclick="quitarConfigPrixAdmin()" class="px-3 py-2 bg-rojo/20 text-rojo border border-rojo/40 font-bold rounded-xl text-xs">Quitar</button>
+                        </div>
+                        <p id="admin-prix-estado" class="text-[10px] text-slate-500"></p>
+                    </div>
+                </div>
+
+                <div class="bg-oscuro border border-morado/30 rounded-2xl overflow-hidden">
                     <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-3')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
                         <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-calendar-star"></i> Eventos Temáticos Automáticos</h4>
                         <i id="seccion-admin-gen-3-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
@@ -3363,12 +3456,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.3.8";
+        const VERSION_APP_ACTUAL = "15.7.0";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '🎁 Corrección: regalo de bienvenida repetido',
-            descripcion: 'El tutorial de la guía, el regalo de bienvenida (+100 monedas) y la recompensa de la Meta Global solo se guardaban en este dispositivo. Si entrabas desde otro celular o se borraba la caché, se repetían y volvían a pagar. Ahora quedan guardados también en la nube, así que se reclaman una sola vez por cuenta, sin importar el dispositivo.'
+            titulo: '🚀 Gran actualización: Logros, Prix, Mascota y más',
+            descripcion: '¡Se viene cargado! 🏆 Sistema de Logros con anuncio global cuando alguien desbloquea uno. 📢 Cartel de Prix con la info del próximo evento especial. 🐾 Espíritu Recolector: tu mascota junta monedas y EXP mientras no estás. ✨ Fusión de Avatares: sintetiza el marco Mítico una vez que llegues a VIP 40. Revisa "Mis Logros" en tu perfil para ver el detalle.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
@@ -3793,6 +3886,8 @@
             if (typeof d.nivel === 'number') localStorage.setItem(`nivel_vip_${d.usuario}`, d.nivel);
             if (typeof d.exp === 'number') localStorage.setItem(`exp_vip_${d.usuario}`, d.exp);
             if (typeof d.racha === 'number') localStorage.setItem(`racha_dias_${d.usuario}`, d.racha);
+            if (d.pet && typeof d.pet.nivel === 'number') localStorage.setItem(`pet_datos_${d.usuario}`, JSON.stringify(d.pet));
+            if (typeof d.avatarMiticaDesbloqueada === 'boolean') localStorage.setItem(`avatar_mitica_desbloqueada_${d.usuario}`, String(d.avatarMiticaDesbloqueada));
             if (Array.isArray(d.reclamosGP)) d.reclamosGP.forEach(idx => localStorage.setItem(`reclamado_gp_${d.usuario}_${idx}`, 'true'));
             if (Array.isArray(d.reclamosGM)) d.reclamosGM.forEach(idx => localStorage.setItem(`reclamado_gm_${d.usuario}_${idx}`, 'true'));
             if (typeof d.gastoSemanal === 'number' && d.semanaGastoId) localStorage.setItem(`gasto_semanal_${d.semanaGastoId}_${d.usuario}`, d.gastoSemanal);
@@ -5956,6 +6051,8 @@
             actualizarBadgeNotificacionesApp();
             actualizarBadgesRegaloYMision();
             actualizarBadgeTelegramHeader();
+            _intentar(renderizarTarjetaPet, 'renderizarTarjetaPet');
+            _intentar(() => { const b = document.getElementById('perfil-badge-logros'); if (b && usuarioActual) b.textContent = `${logrosDesbloqueadosDe(usuarioActual).length}/${CATALOGO_LOGROS.length}`; }, 'badge logros');
             aplicarTemaColor(localStorage.getItem(`tema_color_${usuarioActual}`) || 'dorado');
             aplicarMarcoPerfil();
             
@@ -9670,7 +9767,8 @@
             { id: 'neon', nombre: 'Neón', nivel: 10, clase: 'marco-neon', icono: '💜' },
             { id: 'fuego', nombre: 'Fuego', nivel: 20, clase: 'marco-fuego', icono: '🔥' },
             { id: 'diamante', nombre: 'Diamante', nivel: 30, clase: 'marco-diamante', icono: '💎' },
-            { id: 'arcoiris', nombre: 'Arcoíris', nivel: 40, clase: 'marco-arcoiris', icono: '🌈' }
+            { id: 'arcoiris', nombre: 'Arcoíris', nivel: 40, clase: 'marco-arcoiris', icono: '🌈' },
+            { id: 'mitica', nombre: 'Mítica ✨', nivel: 40, clase: 'marco-mitica', icono: '✨', requiereFusion: true }
         ];
         const CLASES_MARCOS_PERFIL = MARCOS_PERFIL_APP.map(m => m.clase);
 
@@ -9683,9 +9781,34 @@
             avatar.classList.add(marco.clase);
         }
 
+        function marcoMiticaDesbloqueada() {
+            return usuarioActual && localStorage.getItem(`avatar_mitica_desbloqueada_${usuarioActual}`) === 'true';
+        }
+
+        const COSTO_GEMAS_FUSION_MITICA = 100;
+        function fusionarAvatarMitica() {
+            if (!usuarioActual) return;
+            if (nivelVipUsuario < 40) { alert('❌ Necesitas desbloquear primero el marco Arcoíris (VIP 40).'); return; }
+            if (marcoMiticaDesbloqueada()) return;
+            if (gemas < COSTO_GEMAS_FUSION_MITICA) { alert(`❌ Necesitas ${COSTO_GEMAS_FUSION_MITICA} 💎 para sintetizar la Versión Mítica.`); return; }
+            gemas -= COSTO_GEMAS_FUSION_MITICA;
+            localStorage.setItem(`gemas_${usuarioActual}`, gemas);
+            localStorage.setItem(`avatar_mitica_desbloqueada_${usuarioActual}`, 'true');
+            guardarCampoUsuarioNube(usuarioActual, { gemas, avatarMiticaDesbloqueada: true });
+            localStorage.setItem(`marco_perfil_${usuarioActual}`, 'mitica');
+            aplicarMarcoPerfil();
+            renderizarModalPersonalizacion();
+            if (typeof actualizarInterfazUsuario === 'function') actualizarInterfazUsuario();
+            if (typeof reproducirSFX === 'function') _intentar(() => reproducirSFX('ganar'), 'reproducirSFX fusion');
+            if (typeof dispararConfeti === 'function') _intentar(() => dispararConfeti(60), 'confeti fusion');
+            mostrarToastLogro('✨ ¡Sintetizaste la Versión Mítica de tu avatar!', '✨');
+        }
+
         function seleccionarMarcoPerfil(id) {
             const marco = MARCOS_PERFIL_APP.find(m => m.id === id);
-            if (!marco || nivelVipUsuario < marco.nivel) return;
+            if (!marco) return;
+            if (marco.requiereFusion) { if (!marcoMiticaDesbloqueada()) return; }
+            else if (nivelVipUsuario < marco.nivel) { return; }
             localStorage.setItem(`marco_perfil_${usuarioActual}`, id);
             aplicarMarcoPerfil();
             renderizarModalPersonalizacion();
@@ -9696,8 +9819,17 @@
             const contMarcos = document.getElementById('contenedor-marcos-perfil');
             if (contMarcos) {
                 contMarcos.innerHTML = MARCOS_PERFIL_APP.map(m => {
-                    const desbloqueado = nivelVipUsuario >= m.nivel;
+                    const desbloqueado = m.requiereFusion ? marcoMiticaDesbloqueada() : nivelVipUsuario >= m.nivel;
                     const seleccionado = marcoGuardado === m.id;
+                    if (m.requiereFusion && !desbloqueado) {
+                        const puedeFusionar = nivelVipUsuario >= m.nivel;
+                        return `
+                        <button onclick="fusionarAvatarMitica()" ${puedeFusionar ? '' : 'disabled'} class="p-2.5 rounded-xl border ${puedeFusionar ? 'border-dorado bg-dorado/10' : 'border-borde bg-oscuro opacity-50'} flex flex-col items-center gap-1">
+                            <span class="text-xl">🧪</span>
+                            <span class="text-[9px] text-white font-bold">${m.nombre}</span>
+                            <span class="text-[8px] text-slate-500">${puedeFusionar ? `Fusionar 💎${COSTO_GEMAS_FUSION_MITICA}` : 'Requiere Arcoíris'}</span>
+                        </button>`;
+                    }
                     return `
                     <button onclick="seleccionarMarcoPerfil('${m.id}')" ${desbloqueado ? '' : 'disabled'} class="p-2.5 rounded-xl border ${seleccionado ? 'border-morado bg-morado/20' : 'border-borde bg-oscuro'} ${desbloqueado ? '' : 'opacity-50'} flex flex-col items-center gap-1">
                         <span class="text-xl">${desbloqueado ? m.icono : '🔒'}</span>
@@ -11202,6 +11334,340 @@
             actualizarMetaGlobal();
         }
 
+        // ============================================================
+        // ===== CARTEL INFORMATIVO: PRIX (evento fuera de la app) =====
+        // ============================================================
+        async function cargarConfigPrixNube() {
+            if (!firebaseListo) return;
+            try {
+                const doc = await dbFirebase.collection('config').doc('prix').get();
+                if (!doc.exists) return;
+                localStorage.setItem('config_prix', JSON.stringify(doc.data()));
+                renderizarCartelPrix();
+            } catch (e) { console.warn('No se pudo cargar la config de Prix desde la nube:', e); }
+        }
+        function escucharConfigPrixEnVivo() {
+            if (!firebaseListo) return;
+            dbFirebase.collection('config').doc('prix').onSnapshot(doc => {
+                if (!doc.exists) return;
+                localStorage.setItem('config_prix', JSON.stringify(doc.data()));
+                renderizarCartelPrix();
+            }, err => console.warn('Error escuchando el cartel de Prix:', err));
+        }
+        function guardarConfigPrixAdmin() {
+            const titulo = document.getElementById('admin-prix-titulo')?.value?.trim();
+            const fecha = document.getElementById('admin-prix-fecha')?.value?.trim() || '';
+            const descripcion = document.getElementById('admin-prix-descripcion')?.value?.trim() || '';
+            const reglas = document.getElementById('admin-prix-reglas')?.value?.trim() || '';
+            if (!titulo) { alert('Ponle un título al Prix.'); return; }
+            const datos = { activo: true, titulo, fecha, descripcion, reglas };
+            localStorage.setItem('config_prix', JSON.stringify(datos));
+            if (firebaseListo) {
+                dbFirebase.collection('config').doc('prix').set(datos, { merge: true })
+                    .catch(e => console.warn('No se pudo publicar el cartel de Prix:', e));
+            }
+            renderizarCartelPrix();
+            actualizarEstadoPrixAdmin();
+        }
+        function quitarConfigPrixAdmin() {
+            const datos = { activo: false, titulo: '', fecha: '', descripcion: '', reglas: '' };
+            localStorage.setItem('config_prix', JSON.stringify(datos));
+            ['admin-prix-titulo', 'admin-prix-fecha', 'admin-prix-descripcion', 'admin-prix-reglas'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            if (firebaseListo) {
+                dbFirebase.collection('config').doc('prix').set(datos, { merge: true })
+                    .catch(e => console.warn('No se pudo quitar el cartel de Prix:', e));
+            }
+            renderizarCartelPrix();
+            actualizarEstadoPrixAdmin();
+        }
+        function actualizarEstadoPrixAdmin() {
+            const el = document.getElementById('admin-prix-estado');
+            if (!el) return;
+            let cfg = null;
+            try { cfg = JSON.parse(localStorage.getItem('config_prix')); } catch (e) {}
+            el.textContent = (cfg && cfg.activo && cfg.titulo)
+                ? '🟢 Cartel publicado y visible para todos en Inicio.'
+                : '⚪ No hay cartel de Prix activo ahora mismo.';
+        }
+        function renderizarCartelPrix() {
+            let cfg = null;
+            try { cfg = JSON.parse(localStorage.getItem('config_prix')); } catch (e) {}
+
+            const campoTitulo = document.getElementById('admin-prix-titulo');
+            if (campoTitulo && cfg) {
+                campoTitulo.value = cfg.titulo || '';
+                document.getElementById('admin-prix-fecha').value = cfg.fecha || '';
+                document.getElementById('admin-prix-descripcion').value = cfg.descripcion || '';
+                document.getElementById('admin-prix-reglas').value = cfg.reglas || '';
+            }
+            actualizarEstadoPrixAdmin();
+
+            const seccion = document.getElementById('cartel-prix');
+            if (!seccion) return;
+            if (!cfg || !cfg.activo || !cfg.titulo) { seccion.classList.add('hidden'); return; }
+            document.getElementById('prix-titulo').innerHTML = `<i class="fa fa-trophy text-morado"></i> ${cfg.titulo}`;
+            document.getElementById('prix-fecha').textContent = cfg.fecha || '';
+            document.getElementById('prix-fecha').classList.toggle('hidden', !cfg.fecha);
+            document.getElementById('prix-descripcion').textContent = cfg.descripcion || '';
+            document.getElementById('prix-descripcion').classList.toggle('hidden', !cfg.descripcion);
+            document.getElementById('prix-reglas').textContent = cfg.reglas || '';
+            seccion.querySelector('.border-t')?.classList.toggle('hidden', !cfg.reglas);
+            seccion.classList.remove('hidden');
+        }
+
+        // ============================================================
+        // ===== ESPÍRITU RECOLECTOR (AFK PET) =====
+        // ============================================================
+        // Junta recompensas mientras el jugador está desconectado. Al volver,
+        // se calcula cuánto tiempo pasó (con un tope) y se puede reclamar.
+        const PET_TOPE_HORAS = 8;          // no sigue acumulando después de esto
+        const PET_MONEDAS_POR_HORA = 8;    // base; sube con el nivel de la mascota
+        const PET_EXP_POR_HORA = 10;
+        const PET_EMOJIS = ['🥚', '🐣', '🐤', '🦊', '🐺', '🦁', '🐉']; // evoluciona cada 10 niveles aprox.
+
+        function obtenerDatosPet() {
+            if (!usuarioActual) return { nivel: 1, exp: 0, ultimaRecoleccion: Date.now() };
+            try {
+                const guardado = JSON.parse(localStorage.getItem(`pet_datos_${usuarioActual}`));
+                if (guardado && typeof guardado.nivel === 'number') return guardado;
+            } catch (e) {}
+            const nuevo = { nivel: 1, exp: 0, ultimaRecoleccion: Date.now() };
+            localStorage.setItem(`pet_datos_${usuarioActual}`, JSON.stringify(nuevo));
+            return nuevo;
+        }
+
+        function guardarDatosPet(datos) {
+            if (!usuarioActual) return;
+            localStorage.setItem(`pet_datos_${usuarioActual}`, JSON.stringify(datos));
+            guardarCampoUsuarioNube(usuarioActual, { pet: datos });
+        }
+
+        function emojiPetPorNivel(nivel) {
+            const idx = Math.min(PET_EMOJIS.length - 1, Math.floor((nivel - 1) / 10));
+            return PET_EMOJIS[idx];
+        }
+
+        function expRequeridaPet(nivel) {
+            return nivel * 100;
+        }
+
+        // Calcula lo acumulado desde la última vez que se reclamó, con tope de horas.
+        function calcularAcumuladoPet(datos) {
+            const horasTranscurridas = Math.min(PET_TOPE_HORAS, (Date.now() - datos.ultimaRecoleccion) / 3600000);
+            const horasEnteras = Math.max(0, horasTranscurridas);
+            const tasaMonedas = PET_MONEDAS_POR_HORA + (datos.nivel - 1) * 2;
+            const monedas = Math.floor(horasEnteras * tasaMonedas);
+            const exp = Math.floor(horasEnteras * PET_EXP_POR_HORA);
+            const gemasBonus = horasEnteras >= PET_TOPE_HORAS ? 1 : 0;
+            return { horas: horasEnteras, monedas, exp, gemasBonus, lleno: horasEnteras >= PET_TOPE_HORAS };
+        }
+
+        function renderizarTarjetaPet() {
+            if (!usuarioActual) return;
+            const datos = obtenerDatosPet();
+            const acumulado = calcularAcumuladoPet(datos);
+            const expNecesaria = expRequeridaPet(datos.nivel);
+
+            const elEmoji = document.getElementById('pet-emoji');
+            const elNivel = document.getElementById('pet-nivel-txt');
+            const elFill = document.getElementById('pet-exp-fill');
+            const elExpTxt = document.getElementById('pet-exp-txt');
+            const elRecompensa = document.getElementById('pet-recompensa-txt');
+            const elBoton = document.getElementById('pet-boton-recolectar');
+            if (!elEmoji) return;
+
+            elEmoji.textContent = emojiPetPorNivel(datos.nivel);
+            elNivel.textContent = `Nv. ${datos.nivel}`;
+            elFill.style.width = `${Math.min(100, Math.floor((datos.exp / expNecesaria) * 100))}%`;
+            elExpTxt.textContent = `${datos.exp} / ${expNecesaria} EXP`;
+
+            if (acumulado.monedas > 0 || acumulado.exp > 0) {
+                elRecompensa.textContent = `🪙 +${acumulado.monedas}  ✨ +${acumulado.exp} EXP` + (acumulado.gemasBonus ? '  💎 +1' : '') + (acumulado.lleno ? ' (¡lleno!)' : '');
+                elBoton.disabled = false;
+            } else {
+                elRecompensa.textContent = 'Recolectando... vuelve más tarde 🕒';
+                elBoton.disabled = true;
+            }
+        }
+
+        function reclamarRecompensaPet() {
+            if (!usuarioActual) return;
+            const datos = obtenerDatosPet();
+            const acumulado = calcularAcumuladoPet(datos);
+            if (acumulado.monedas <= 0 && acumulado.exp <= 0) return;
+
+            saldo += acumulado.monedas;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo);
+            sincronizarSaldoNube();
+            if (acumulado.gemasBonus) {
+                gemas += acumulado.gemasBonus;
+                localStorage.setItem(`gemas_${usuarioActual}`, gemas);
+            }
+
+            datos.exp += acumulado.exp;
+            let subioDeNivel = false;
+            while (datos.exp >= expRequeridaPet(datos.nivel)) {
+                datos.exp -= expRequeridaPet(datos.nivel);
+                datos.nivel += 1;
+                subioDeNivel = true;
+            }
+            datos.ultimaRecoleccion = Date.now();
+            guardarDatosPet(datos);
+
+            if (typeof actualizarInterfazUsuario === 'function') actualizarInterfazUsuario();
+            if (typeof reproducirSFX === 'function') _intentar(() => reproducirSFX('ganar'), 'reproducirSFX pet');
+            renderizarTarjetaPet();
+
+            if (subioDeNivel) {
+                mostrarToastLogro(`${emojiPetPorNivel(datos.nivel)} ¡Tu Espíritu Recolector subió a nivel ${datos.nivel}!`, '🐾');
+            }
+        }
+
+        // Pinta la lista completa de logros (desbloqueados y bloqueados) en el modal,
+        // y actualiza el badge chico del perfil con el conteo total.
+        function renderizarModalMisLogros() {
+            if (!usuarioActual) return;
+            const desbloqueados = logrosDesbloqueadosDe(usuarioActual);
+            const cont = document.getElementById('contenedor-mis-logros');
+            const resumen = document.getElementById('mis-logros-resumen');
+            const badgePerfil = document.getElementById('perfil-badge-logros');
+            if (resumen) resumen.textContent = `${desbloqueados.length} / ${CATALOGO_LOGROS.length} desbloqueados`;
+            if (badgePerfil) badgePerfil.textContent = `${desbloqueados.length}/${CATALOGO_LOGROS.length}`;
+            if (!cont) return;
+            cont.innerHTML = CATALOGO_LOGROS.map(logro => {
+                const logrado = desbloqueados.includes(logro.id);
+                const recompensaTxt = logro.recompensa
+                    ? [logro.recompensa.saldo ? `🪙+${logro.recompensa.saldo}` : '', logro.recompensa.gemas ? `💎+${logro.recompensa.gemas}` : ''].filter(Boolean).join('  ')
+                    : '';
+                return `
+                <div class="p-3 rounded-2xl border flex items-center gap-3 ${logrado ? 'border-morado/50 bg-morado/10' : 'border-borde bg-oscuro opacity-60'}">
+                    <span class="text-2xl shrink-0">${logrado ? logro.icono : '🔒'}</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-black text-white">${logro.nombre}</p>
+                        <p class="text-[10px] text-slate-400">${logro.descripcion}</p>
+                    </div>
+                    <span class="text-[9px] font-bold ${logrado ? 'text-morado' : 'text-slate-500'} shrink-0">${logrado ? recompensaTxt : '???'}</span>
+                </div>`;
+            }).join('');
+        }
+
+        // ============================================================
+        // ===== SISTEMA DE LOGROS + NOTIFICACIÓN GLOBAL =====
+        // ============================================================
+        // Catálogo de logros: cada uno se revisa contra los datos ya cargados
+        // del usuario (nivel VIP, racha, saldo, gemas). No requiere tocar el
+        // resto del código: solo lee variables que ya existen.
+        const CATALOGO_LOGROS = [
+            { id: 'vip_5',      nombre: 'Aprendiz VIP',        icono: '⭐', descripcion: 'Alcanza VIP nivel 5',      condicion: () => nivelVipUsuario >= 5,  recompensa: { saldo: 50,  gemas: 5 } },
+            { id: 'vip_10',     nombre: 'VIP en ascenso',      icono: '🌟', descripcion: 'Alcanza VIP nivel 10',     condicion: () => nivelVipUsuario >= 10, recompensa: { saldo: 100, gemas: 10 } },
+            { id: 'vip_25',     nombre: 'VIP de élite',        icono: '💫', descripcion: 'Alcanza VIP nivel 25',     condicion: () => nivelVipUsuario >= 25, recompensa: { saldo: 250, gemas: 25 } },
+            { id: 'vip_50',     nombre: 'Leyenda VIP',         icono: '👑', descripcion: 'Alcanza VIP nivel 50',     condicion: () => nivelVipUsuario >= 50, recompensa: { saldo: 500, gemas: 50 } },
+            { id: 'racha_7',    nombre: 'Racha de fuego',      icono: '🔥', descripcion: '7 días seguidos de racha', condicion: () => (parseInt(localStorage.getItem(`racha_dias_${usuarioActual}`)) || 0) >= 7,  recompensa: { saldo: 75,  gemas: 5 } },
+            { id: 'racha_30',   nombre: 'Racha imparable',     icono: '🌋', descripcion: '30 días seguidos de racha', condicion: () => (parseInt(localStorage.getItem(`racha_dias_${usuarioActual}`)) || 0) >= 30, recompensa: { saldo: 300, gemas: 30 } },
+            { id: 'saldo_5000', nombre: 'Bolsillos llenos',    icono: '🪙', descripcion: 'Junta 5,000 monedas',      condicion: () => saldo >= 5000,  recompensa: { gemas: 20 } },
+            { id: 'gemas_500',  nombre: 'Coleccionista de gemas', icono: '💎', descripcion: 'Junta 500 gemas',       condicion: () => gemas >= 500,   recompensa: { saldo: 200 } },
+        ];
+
+        function logrosDesbloqueadosDe(usuario) {
+            try { return JSON.parse(localStorage.getItem(`logros_desbloqueados_${usuario}`)) || []; }
+            catch (e) { return []; }
+        }
+
+        // Revisa el catálogo contra el estado actual del usuario. Cualquier logro
+        // recién cumplido se marca como desbloqueado, entrega su recompensa,
+        // y se transmite a TODOS los jugadores conectados (no solo al dueño).
+        function verificarLogros() {
+            if (!usuarioActual) return;
+            const desbloqueados = logrosDesbloqueadosDe(usuarioActual);
+            CATALOGO_LOGROS.forEach(logro => {
+                if (desbloqueados.includes(logro.id)) return;
+                let cumplido = false;
+                try { cumplido = !!logro.condicion(); } catch (e) { cumplido = false; }
+                if (!cumplido) return;
+
+                desbloqueados.push(logro.id);
+                localStorage.setItem(`logros_desbloqueados_${usuarioActual}`, JSON.stringify(desbloqueados));
+
+                if (logro.recompensa) {
+                    if (logro.recompensa.saldo) { saldo += logro.recompensa.saldo; localStorage.setItem(`saldo_${usuarioActual}`, saldo); }
+                    if (logro.recompensa.gemas) { gemas += logro.recompensa.gemas; localStorage.setItem(`gemas_${usuarioActual}`, gemas); }
+                    guardarCampoUsuarioNube(usuarioActual, { saldo, gemas, logrosDesbloqueados: desbloqueados });
+                    if (typeof actualizarInterfazUsuario === 'function') actualizarInterfazUsuario();
+                }
+                if (typeof reproducirSFX === 'function') _intentar(() => reproducirSFX('ganar'), 'reproducirSFX logro');
+
+                anunciarLogroGlobal(logro);
+            });
+        }
+
+        // Escribe el logro en Firestore para que se propague a todos los
+        // dispositivos conectados vía el listener en vivo. Si no hay nube
+        // disponible, igual se muestra localmente para el propio jugador.
+        function anunciarLogroGlobal(logro) {
+            const mensaje = `🏆 ${usuarioActual} desbloqueó "${logro.nombre}" ${logro.icono}`;
+            if (firebaseListo) {
+                dbFirebase.collection('logrosGlobales').add({
+                    usuario: usuarioActual,
+                    logroId: logro.id,
+                    nombre: logro.nombre,
+                    icono: logro.icono,
+                    fecha: firebase.firestore.FieldValue.serverTimestamp()
+                }).catch(e => {
+                    console.warn('No se pudo anunciar el logro globalmente:', e);
+                    mostrarToastLogro(mensaje, logro.icono);
+                });
+            } else {
+                mostrarToastLogro(mensaje, logro.icono);
+            }
+            if (typeof enviarNotificacionTelegram === 'function') _intentar(() => enviarNotificacionTelegram(mensaje), 'telegram logro');
+        }
+
+        let _ultimoLogroVistoTs = null;
+        function escucharLogrosGlobalesEnVivo() {
+            if (!firebaseListo) return;
+            dbFirebase.collection('logrosGlobales').orderBy('fecha', 'desc').limit(5)
+                .onSnapshot(snap => {
+                    snap.docChanges().forEach(cambio => {
+                        if (cambio.type !== 'added') return;
+                        const d = cambio.doc.data();
+                        if (!d || !d.fecha) return;
+                        const ts = d.fecha.toMillis ? d.fecha.toMillis() : Date.now();
+                        // Evita re-mostrar logros viejos al conectarse por primera vez en la sesión.
+                        if (_ultimoLogroVistoTs !== null && ts <= _ultimoLogroVistoTs) return;
+                        mostrarToastLogro(`🏆 ${d.usuario} desbloqueó "${d.nombre}" ${d.icono || ''}`, d.icono);
+                    });
+                    const masReciente = snap.docs[0];
+                    if (masReciente) {
+                        const d = masReciente.data();
+                        _ultimoLogroVistoTs = d.fecha && d.fecha.toMillis ? d.fecha.toMillis() : Date.now();
+                    } else if (_ultimoLogroVistoTs === null) {
+                        _ultimoLogroVistoTs = Date.now();
+                    }
+                }, err => console.warn('Error escuchando logros globales:', err));
+        }
+
+        // Toast visual apilable, estilo banner flotante. Se auto-elimina solo.
+        function mostrarToastLogro(mensaje, icono) {
+            const contenedor = document.getElementById('contenedor-toasts-logros');
+            if (!contenedor) { console.log(mensaje); return; }
+            const toast = document.createElement('div');
+            toast.className = 'pointer-events-auto w-full bg-gradient-to-r from-morado to-azul text-white font-bold text-xs sm:text-sm px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-white/20';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px)';
+            toast.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+            toast.innerHTML = `<span class="text-lg">${icono || '🏆'}</span><span class="flex-1">${mensaje}</span>`;
+            contenedor.appendChild(toast);
+            requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; });
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-12px)';
+                setTimeout(() => toast.remove(), 400);
+            }, 5500);
+        }
+
         // Animación visual de la pantalla de carga. Es puramente cosmética (dura
         // ~1 seg) y ya NO depende de que Firebase termine de responder: por eso
         // ahora se llama al principio de window.onload, antes de esperar datos.
@@ -11296,6 +11762,7 @@
                 document.addEventListener('touchstart', reintentarMusicaBloqueada, { once: true });
             }, 'listeners de música');
             _intentar(aplicarConfiguracionApp, 'aplicarConfiguracionApp');
+            _intentar(renderizarCartelPrix, 'renderizarCartelPrix');
             _intentar(inicializarVersionApp, 'inicializarVersionApp');
             _intentar(generarGridTragamonedas, 'generarGridTragamonedas');
 
@@ -11309,7 +11776,8 @@
                         cargarConfigTelegramNube(),
                         cargarMetaGlobalNube(),
                         cargarMisionesNube(),
-                        cargarConfigGlobalNube()
+                        cargarConfigGlobalNube(),
+                        cargarConfigPrixNube()
                     ]);
                 } catch (e) {
                     console.error('⚠️ Error cargando datos de la nube:', e);
@@ -11318,6 +11786,8 @@
                 _intentar(escucharMetaGlobalEnVivo, 'escucharMetaGlobalEnVivo');
                 _intentar(escucharMisionesEnVivo, 'escucharMisionesEnVivo');
                 _intentar(escucharConfigGlobalEnVivo, 'escucharConfigGlobalEnVivo');
+                _intentar(escucharLogrosGlobalesEnVivo, 'escucharLogrosGlobalesEnVivo');
+                _intentar(escucharConfigPrixEnVivo, 'escucharConfigPrixEnVivo');
                 setInterval(() => { if (usuarioActual) _intentar(() => guardarProgresoNube(true), 'guardarProgresoNube'); }, 15000);
             }
             _intentar(asegurarTemporadaPaseVipActiva, 'asegurarTemporadaPaseVipActiva');
@@ -11326,8 +11796,10 @@
             _intentar(generarOfertaRelampagoAutomaticaSiToca, 'generarOfertaRelampagoAutomaticaSiToca');
             _intentar(verificarSesionActiva, 'verificarSesionActiva');
             if(usuarioActual) _intentar(verificarRachaDiaria, 'verificarRachaDiaria');
+            if(usuarioActual) _intentar(verificarLogros, 'verificarLogros');
             _intentar(verificarRegalosPendientes, 'verificarRegalosPendientes');
             _intentar(renderizarPremiosPendientesAdmin, 'renderizarPremiosPendientesAdmin');
+            if (usuarioActual) _intentar(renderizarTarjetaPet, 'renderizarTarjetaPet');
 
             const reloj = document.getElementById('reloj-local');
             if(reloj) {
@@ -11346,6 +11818,8 @@
             setInterval(() => _intentar(actualizarCronometrosTarjetas, 'actualizarCronometrosTarjetas'), 1000);
             setInterval(() => _intentar(renderizarBoostsFlotantes, 'renderizarBoostsFlotantes'), 1000);
             setInterval(() => _intentar(verificarCierreInscripcionChampions, 'verificarCierreInscripcionChampions'), 15000);
+            setInterval(() => { if (usuarioActual) _intentar(verificarLogros, 'verificarLogros'); }, 20000);
+            setInterval(() => { if (usuarioActual) _intentar(renderizarTarjetaPet, 'renderizarTarjetaPet'); }, 60000);
             setInterval(() => { _intentar(asegurarTemporadaPaseVipActiva, 'asegurarTemporadaPaseVipActiva'); _intentar(reclamarTodosPaseVipDisponibles, 'reclamarTodosPaseVipDisponibles'); }, 300000);
             setInterval(() => _intentar(generarOfertaRelampagoAutomaticaSiToca, 'generarOfertaRelampagoAutomaticaSiToca'), 300000);
             setInterval(comprobarVersionServidorYAutoActualizar, 180000);
