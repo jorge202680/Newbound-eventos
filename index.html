@@ -3231,12 +3231,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.3.6";
+        const VERSION_APP_ACTUAL = "15.3.7";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '🔧 Corrección del push real',
-            descripcion: 'Se corrigió el envío de notificaciones push reales: OneSignal había cambiado el formato de su API y los avisos de cruces de Champions no estaban llegando fuera de la app. Ya está solucionado.'
+            titulo: '🔧 Corrección de la suscripción push',
+            descripcion: 'Se corrigió la ruta del service worker de OneSignal: como la app vive en una subcarpeta de GitHub Pages y no en la raíz del dominio, las suscripciones al push real no se estaban registrando. Ya está solucionado.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
@@ -3584,7 +3584,11 @@
         if (ONESIGNAL_APP_ID && ONESIGNAL_APP_ID !== "PEGA_AQUI_TU_ONESIGNAL_APP_ID") {
             window.OneSignalDeferred = window.OneSignalDeferred || [];
             OneSignalDeferred.push(async function (OneSignal) {
-                await OneSignal.init({ appId: ONESIGNAL_APP_ID });
+                await OneSignal.init({
+                    appId: ONESIGNAL_APP_ID,
+                    serviceWorkerParam: { scope: '/Newbound-eventos/' },
+                    serviceWorkerPath: '/Newbound-eventos/OneSignalSDKWorker.js'
+                });
             });
         }
 
