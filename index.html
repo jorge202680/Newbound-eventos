@@ -904,6 +904,7 @@
             content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
             width: 28px; height: 3px; border-radius: 0 0 4px 4px; background: #F59E0B;
         }
+        #carrusel-banners-inicio::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-oscuro text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-dorado selection:text-black">
@@ -1255,8 +1256,11 @@
             </div>
         </section>
 
+        <!-- ===== CARRUSEL DE BANNERS (deslizable, estilo Claro) ===== -->
+        <div class="relative">
+        <div id="carrusel-banners-inicio" onscroll="actualizarPuntosCarruselInicio()" class="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-1" style="scroll-behavior:smooth; scrollbar-width:none; -ms-overflow-style:none;">
         <!-- BANNER INFORMACIÓN Y EVENTOS -->
-        <button onclick="abrirVentana('modal-informacion'); renderizarModalInformacion();" id="card-informacion" class="w-full p-4 rounded-3xl bg-medio border border-sky-500/40 hover:border-sky-500 transition shadow-xl flex items-center gap-3 group">
+        <button onclick="abrirVentana('modal-informacion'); renderizarModalInformacion();" id="card-informacion" class="shrink-0 snap-center w-full p-4 rounded-3xl bg-medio border border-sky-500/40 hover:border-sky-500 transition shadow-xl flex items-center gap-3 group">
             <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-lg group-hover:scale-110 transition shrink-0">
                 <i class="fa fa-circle-info"></i>
             </div>
@@ -1268,7 +1272,7 @@
         </button>
 
         <!-- BANNER OFERTA RELÁMPAGO / HERO DE EVENTO (solo visible mientras está vigente) -->
-        <button onclick="abrirVentana('modal-oferta-relampago'); renderizarModalOfertaRelampago();" id="banner-oferta-relampago" class="banner-v15 hidden w-full p-4 rounded-3xl border border-naranja/50 shadow-xl relative flex-col items-start justify-end gap-2 overflow-hidden text-left">
+        <button onclick="abrirVentana('modal-oferta-relampago'); renderizarModalOfertaRelampago();" id="banner-oferta-relampago" class="banner-v15 hidden shrink-0 snap-center w-full p-4 rounded-3xl border border-naranja/50 shadow-xl relative flex-col items-start justify-end gap-2 overflow-hidden text-left">
             <div class="banner-v15-overlay"></div>
             <span class="chip-nuevo-v15">⚡ Oferta</span>
             <div class="relative z-10 flex flex-col gap-1.5 w-full">
@@ -1287,6 +1291,15 @@
             <!-- compatibilidad: elemento antiguo, se mantiene oculto para no romper otras referencias -->
             <span id="texto-cronometro-oferta-banner" class="hidden"></span>
         </button>
+
+        <!-- BANNER PROMOCIONAL PERSONALIZADO (imagen subida por el admin, opcional) -->
+        <button type="button" onclick="clicPromoPersonalizada()" id="banner-promo-personalizada" class="hidden shrink-0 snap-center w-full rounded-3xl border border-verde/40 shadow-xl overflow-hidden">
+            <img id="img-promo-personalizada" src="" alt="Promoción" class="w-full h-40 object-cover block">
+        </button>
+        </div>
+        <div id="puntos-carrusel-inicio" class="flex justify-center gap-1.5 mt-2"></div>
+        </div>
+        <!-- ===== FIN CARRUSEL DE BANNERS ===== -->
 
         <!-- REGALO DIARIO Y MISIÓN DEL DÍA -->
         <div class="grid grid-cols-2 gap-3">
@@ -2623,6 +2636,35 @@
                     </div>
                 </div>
 
+                <div class="bg-oscuro border border-verde/30 rounded-2xl overflow-hidden">
+                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-promo')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                        <h4 class="font-black text-xs text-verde uppercase tracking-wider"><i class="fa fa-image"></i> Banner Promocional (carrusel de Inicio)</h4>
+                        <i id="seccion-admin-gen-promo-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
+                    </button>
+                    <div id="seccion-admin-gen-promo" class="hidden px-4 pb-4 space-y-3">
+                        <p class="text-[10px] text-slate-400">Sube una imagen para que aparezca como un slide más en el carrusel deslizable de Inicio (junto a Información y Oferta Relámpago).</p>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 block text-[10px]">Imagen (URL o Subir archivo):</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="admin-promo-imagen" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                                <label class="px-3 py-2 bg-claro text-white rounded-xl cursor-pointer hover:bg-slate-700 text-[10px] font-bold flex items-center gap-1 shrink-0">
+                                    <i class="fa fa-camera"></i> Archivo
+                                    <input type="file" accept="image/*" class="hidden" onchange="subirImagenTelefono(this, 'admin-promo-imagen')">
+                                </label>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 block text-[10px]">Enlace al tocar el banner (opcional):</label>
+                            <input type="text" id="admin-promo-link" placeholder="https://... o vacío para no abrir nada" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="guardarPromoPersonalizadaAdmin()" class="flex-1 py-2 bg-verde text-black font-black rounded-xl text-xs">✅ Publicar Banner</button>
+                            <button onclick="quitarPromoPersonalizadaAdmin()" class="px-3 py-2 bg-rojo/20 text-rojo border border-rojo/40 font-bold rounded-xl text-xs">Quitar</button>
+                        </div>
+                        <p id="admin-promo-estado" class="text-[10px] text-slate-500"></p>
+                    </div>
+                </div>
+
                 <div class="bg-oscuro border border-morado/30 rounded-2xl overflow-hidden">
                     <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-3')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
                         <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-calendar-star"></i> Eventos Temáticos Automáticos</h4>
@@ -3557,6 +3599,7 @@
                 if (typeof renderizarAdminMetasPaseVip === 'function') renderizarAdminMetasPaseVip();
 
                 actualizarEstadoOfertaAdmin();
+                actualizarEstadoPromoAdmin();
                 renderizarListaEventosTematicosAdmin();
             }
             if(tab === 'champions') { cargardatosFormularioChampions(); cambiarSubTabChampionsAdmin('cuadro'); }
@@ -4159,6 +4202,7 @@
             'modo_mantenimiento_activo', 'mensaje_mantenimiento_app',
             'tasa_cambio_monedas_por_gema', 'config_pase_vip_app', 'tasa_cambio_monedas_por_cristal',
             'oferta_relampago_app', 'eventos_tematicos_app', 'preguntas_frecuentes_app',
+            'promo_personalizada_app',
             'top_semanal_app', 'cuartos_champions_v2_app', 'semis_champions_v2_app',
             'final_champions_v2_app', 'fondo_app_v15', 'champions_torneo_id', 'champions_modo_equipo',
             'horario_ini_gp', 'horario_fin_gp', 'horario_ini_gm', 'horario_fin_gm',
@@ -9746,6 +9790,7 @@
                 banner.classList.add('hidden');
                 banner.classList.remove('flex');
             }
+            renderizarCarruselInicio();
         }
         setInterval(actualizarBannerOfertaRelampago, 1000);
 
@@ -9822,6 +9867,88 @@
             el.textContent = ofertaRelampagoVigente(oferta)
                 ? `🟢 Vigente: "${oferta.nombre}" — termina ${new Date(oferta.finTimestamp).toLocaleString('es-PE')}`
                 : '⚪ No hay oferta activa ahora mismo.';
+        }
+
+        // ===== BANNER PROMOCIONAL PERSONALIZADO (slide extra del carrusel de Inicio) =====
+        function guardarPromoPersonalizadaAdmin() {
+            const imagen = document.getElementById('admin-promo-imagen')?.value?.trim();
+            const link = document.getElementById('admin-promo-link')?.value?.trim() || '';
+            if (!imagen) { alert('Sube o pega la URL de una imagen para el banner.'); return; }
+            localStorage.setItem('promo_personalizada_app', JSON.stringify({ activo: true, imagen, link }));
+            aplicarPromoPersonalizada();
+            actualizarEstadoPromoAdmin();
+        }
+
+        function quitarPromoPersonalizadaAdmin() {
+            localStorage.setItem('promo_personalizada_app', JSON.stringify({ activo: false, imagen: '', link: '' }));
+            document.getElementById('admin-promo-imagen').value = '';
+            document.getElementById('admin-promo-link').value = '';
+            aplicarPromoPersonalizada();
+            actualizarEstadoPromoAdmin();
+        }
+
+        function actualizarEstadoPromoAdmin() {
+            const el = document.getElementById('admin-promo-estado');
+            if (!el) return;
+            let promo = null;
+            try { promo = JSON.parse(localStorage.getItem('promo_personalizada_app')); } catch (e) {}
+            el.textContent = (promo && promo.activo && promo.imagen)
+                ? '🟢 Banner publicado y visible en el carrusel de Inicio.'
+                : '⚪ No hay banner promocional activo ahora mismo.';
+        }
+
+        function aplicarPromoPersonalizada() {
+            let promo = null;
+            try { promo = JSON.parse(localStorage.getItem('promo_personalizada_app')); } catch (e) {}
+            const banner = document.getElementById('banner-promo-personalizada');
+            const img = document.getElementById('img-promo-personalizada');
+            if (!banner || !img) return;
+            if (promo && promo.activo && promo.imagen) {
+                img.src = promo.imagen;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+            renderizarCarruselInicio();
+        }
+
+        function clicPromoPersonalizada() {
+            let promo = null;
+            try { promo = JSON.parse(localStorage.getItem('promo_personalizada_app')); } catch (e) {}
+            if (promo && promo.link) window.open(promo.link, '_blank');
+        }
+
+        // ===== CARRUSEL DESLIZABLE DE BANNERS (Inicio) =====
+        function renderizarCarruselInicio() {
+            const cont = document.getElementById('carrusel-banners-inicio');
+            const puntos = document.getElementById('puntos-carrusel-inicio');
+            if (!cont || !puntos) return;
+            const visibles = Array.from(cont.children).filter(el => !el.classList.contains('hidden'));
+            puntos.innerHTML = visibles.map((_, i) =>
+                `<span class="punto-carrusel-inicio rounded-full transition-all ${i === 0 ? 'w-4 h-2 bg-dorado' : 'w-2 h-2 bg-slate-600'}"></span>`
+            ).join('');
+        }
+
+        function actualizarPuntosCarruselInicio() {
+            const cont = document.getElementById('carrusel-banners-inicio');
+            const puntos = document.getElementById('puntos-carrusel-inicio');
+            if (!cont || !puntos) return;
+            const visibles = Array.from(cont.children).filter(el => !el.classList.contains('hidden'));
+            if (!visibles.length) return;
+            const centroScroll = cont.scrollLeft + cont.clientWidth / 2;
+            let idxActivo = 0, mejorDist = Infinity;
+            visibles.forEach((el, i) => {
+                const centroEl = el.offsetLeft + el.offsetWidth / 2;
+                const dist = Math.abs(centroEl - centroScroll);
+                if (dist < mejorDist) { mejorDist = dist; idxActivo = i; }
+            });
+            puntos.querySelectorAll('.punto-carrusel-inicio').forEach((p, i) => {
+                const activo = i === idxActivo;
+                p.classList.toggle('bg-dorado', activo);
+                p.classList.toggle('bg-slate-600', !activo);
+                p.classList.toggle('w-4', activo);
+                p.classList.toggle('w-2', !activo);
+            });
         }
 
         // ===== EVENTOS TEMÁTICOS AUTOMÁTICOS (cambian el título de la app solos, por fecha) =====
@@ -10226,6 +10353,7 @@
             aplicarModoMantenimiento();
             aplicarEventoTematicoAutomatico();
             actualizarBannerOfertaRelampago();
+            aplicarPromoPersonalizada();
             aplicarFondoAppV15(localStorage.getItem('fondo_app_v15') || '');
             actualizarBadgeModoChampions();
             actualizarBadgeTorneoEquipo();
