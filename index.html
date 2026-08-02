@@ -894,6 +894,16 @@
             50% { transform: translateX(-3px) rotate(-4deg); }
         }
         .mascota-guepardo-correr { animation: mascotaGuepardoCorrer 0.7s ease-in-out infinite; }
+
+        /* ===== NAVEGACIÓN INFERIOR POR PESTAÑAS ===== */
+        main { padding-bottom: 5.5rem !important; }
+        .btn-nav-app.activo { color: #F59E0B; }
+        .btn-nav-app.activo i { transform: translateY(-2px); filter: drop-shadow(0 0 6px rgba(245,158,11,0.6)); }
+        .btn-nav-app { position: relative; }
+        .btn-nav-app.activo::after {
+            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 28px; height: 3px; border-radius: 0 0 4px 4px; background: #F59E0B;
+        }
     </style>
 </head>
 <body class="bg-oscuro text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-dorado selection:text-black">
@@ -1164,6 +1174,8 @@
     <!-- CONTENIDO PRINCIPAL -->
     <main class="max-w-4xl mx-auto w-full p-4 space-y-6 flex-grow">
 
+        <!-- ===================== PÁGINA: PERFIL ===================== -->
+        <div class="pagina-vista pagina-perfil hidden space-y-6">
         <!-- SECCIÓN PERFIL / ESTADÍSTICAS VIP -->
         <section class="p-5 rounded-3xl bg-gradient-to-br from-medio via-claro to-medio border border-borde shadow-xl relative overflow-visible">
             <div class="absolute -right-10 -bottom-10 text-dorado/5 text-9xl pointer-events-none"><i class="fa fa-star"></i></div>
@@ -1222,7 +1234,11 @@
                 </div>
             </div>
         </section>
+        </div>
+        <!-- ===================== FIN PÁGINA: PERFIL ===================== -->
 
+        <!-- ===================== PÁGINA: INICIO ===================== -->
+        <div class="pagina-vista pagina-inicio space-y-6">
         <!-- META GLOBAL COMUNITARIA (PROGRESO COLECTIVO) -->
         <section class="p-4 rounded-3xl bg-medio border border-borde shadow-xl space-y-2.5">
             <div class="flex justify-between items-center">
@@ -1288,13 +1304,33 @@
             </button>
         </div>
 
+        <!-- ACCESOS RÁPIDOS (estilo Minijuegos / Tienda / Torneos) -->
+        <div class="grid grid-cols-3 gap-3">
+            <button type="button" onclick="mostrarPaginaApp('juegos')" class="p-4 rounded-3xl bg-medio border border-naranja/40 hover:border-naranja transition shadow-xl flex flex-col items-center text-center gap-1.5">
+                <div class="w-11 h-11 rounded-2xl bg-naranja/20 text-naranja flex items-center justify-center text-xl"><i class="fa fa-dice"></i></div>
+                <h3 class="font-black text-xs text-white">Minijuegos</h3>
+            </button>
+            <button type="button" onclick="mostrarPaginaApp('tienda')" class="p-4 rounded-3xl bg-medio border border-morado/40 hover:border-morado transition shadow-xl flex flex-col items-center text-center gap-1.5">
+                <div class="w-11 h-11 rounded-2xl bg-morado/20 text-morado flex items-center justify-center text-xl"><i class="fa fa-shop"></i></div>
+                <h3 class="font-black text-xs text-white">Tienda</h3>
+            </button>
+            <button type="button" onclick="mostrarPaginaApp('torneos')" class="p-4 rounded-3xl bg-medio border border-azul/40 hover:border-azul transition shadow-xl flex flex-col items-center text-center gap-1.5">
+                <div class="w-11 h-11 rounded-2xl bg-azul/20 text-azul flex items-center justify-center text-xl"><i class="fa fa-trophy"></i></div>
+                <h3 class="font-black text-xs text-white">Torneos</h3>
+            </button>
+        </div>
+        </div>
+        <!-- ===================== FIN PÁGINA: INICIO ===================== -->
+
+        <!-- ===================== PÁGINA: TORNEOS (parte 1: Diario y Recompensas) ===================== -->
+        <div class="pagina-vista pagina-torneos hidden space-y-6">
         <!-- CATEGORÍA: DIARIO Y RECOMPENSAS -->
         <div class="rounded-3xl overflow-hidden border border-dorado/30 bg-medio shadow-xl">
             <button type="button" onclick="alternarSeccionAdmin('cat-diario-recompensas')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
                 <span class="font-black text-sm text-white flex items-center gap-2">🎯 Diario y Recompensas</span>
                 <i id="cat-diario-recompensas-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
             </button>
-            <div id="cat-diario-recompensas" class="hidden px-4 pb-4">
+            <div id="cat-diario-recompensas" class="px-4 pb-4">
                 <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
 <button onclick="abrirVentana('modal-gp', 'gp'); renderizarVistasGP();" id="card-metas-gp" class="tarjeta-led led-dorado p-4 rounded-2xl bg-dorado/20 border border-dorado/30 text-dorado flex items-center justify-between text-lg group hover:scale-110 transition-all duration-300">
     <div class="w-10 h-10 rounded-xl bg-dorado/20 text-dorado flex items-center justify-center text-lg group-hover:scale-110 transition">
@@ -1347,14 +1383,18 @@
                 </div>
             </div>
         </div>
+        </div>
+        <!-- ===================== FIN PÁGINA: TORNEOS (parte 1) ===================== -->
 
+        <!-- ===================== PÁGINA: JUEGOS ===================== -->
+        <div class="pagina-vista pagina-juegos hidden space-y-6">
         <!-- CATEGORÍA: MINIJUEGOS -->
         <div class="rounded-3xl overflow-hidden border border-naranja/30 bg-medio shadow-xl">
             <button type="button" id="btn-cat-minijuegos" onclick="alternarSeccionAdmin('cat-minijuegos')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
                 <span class="font-black text-sm text-white flex items-center gap-2">🎮 Minijuegos</span>
                 <i id="cat-minijuegos-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
             </button>
-            <div id="cat-minijuegos" class="hidden px-4 pb-4">
+            <div id="cat-minijuegos" class="px-4 pb-4">
                 <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
 <button onclick="abrirVentanaValidando('modal-ruleta', 'ruleta')" id="card-ruleta" class="tarjeta-led led-naranja p-4 rounded-2xl bg-medio border border-naranja/40 hover:border-naranja transition text-left space-y-2 shadow group">
                 <div class="w-10 h-10 rounded-xl bg-naranja/20 text-naranja flex items-center justify-center text-lg group-hover:scale-110 transition">
@@ -1411,17 +1451,30 @@
                     <p class="text-[10px] text-slate-400">Suelta la Bola y Gana</p>
                 </div>
             </button>
+<button onclick="abrirVentana('modal-tragamonedas')" id="card-tragamonedas" class="tarjeta-led led-dorado p-4 rounded-2xl bg-medio border border-dorado/40 hover:border-dorado transition text-left space-y-2 shadow group">
+                <div class="w-10 h-10 rounded-xl bg-dorado/20 text-dorado flex items-center justify-center text-lg group-hover:scale-110 transition">
+                    <i class="fa fa-dice"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-xs text-white">Tragamonedas VIP</h3>
+                    <p class="text-[10px] text-slate-400">30 Casilleros + Bonus</p>
+                </div>
+            </button>
                 </div>
             </div>
         </div>
+        </div>
+        <!-- ===================== FIN PÁGINA: JUEGOS ===================== -->
 
+        <!-- ===================== PÁGINA: TIENDA ===================== -->
+        <div class="pagina-vista pagina-tienda hidden space-y-6">
         <!-- CATEGORÍA: TIENDA Y EXTRAS -->
         <div class="rounded-3xl overflow-hidden border border-morado/30 bg-medio shadow-xl">
             <button type="button" onclick="alternarSeccionAdmin('cat-tienda-extras')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
                 <span class="font-black text-sm text-white flex items-center gap-2">🛍️ Tienda y Extras</span>
                 <i id="cat-tienda-extras-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
             </button>
-            <div id="cat-tienda-extras" class="hidden px-4 pb-4">
+            <div id="cat-tienda-extras" class="px-4 pb-4">
                 <div class="grid grid-cols-2 sm:grid-cols-6 gap-3">
 <button onclick="abrirVentana('modal-tienda')" id="card-tienda" class="tarjeta-led led-morado p-4 rounded-2xl bg-medio border border-morado/40 hover:border-morado transition text-left space-y-2 shadow group">
                 <div class="w-10 h-10 rounded-xl bg-morado/20 text-morado flex items-center justify-center text-lg group-hover:scale-110 transition">
@@ -1462,98 +1515,47 @@
                 </div>
             </div>
         </div>
+        </div>
+        <!-- ===================== FIN PÁGINA: TIENDA ===================== -->
 
-        <!-- CATEGORÍA: TORNEO CHAMPIONS SUPREME -->
+        <!-- ===================== PÁGINA: TORNEOS (parte 2: Champions + Torneo de Equipo) ===================== -->
+        <div class="pagina-vista pagina-torneos hidden space-y-6">
+        <!-- CATEGORÍA: TORNEOS (Champions Supreme + Torneo de Equipo) -->
         <div class="rounded-3xl overflow-hidden border border-azul/30 bg-medio shadow-xl">
-            <button type="button" id="btn-cat-champions" onclick="alternarSeccionAdmin('cat-champions')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
-                <span class="font-black text-sm text-white flex items-center gap-2">🏆 Torneo Champions Supreme</span>
-                <i id="cat-champions-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
+            <button type="button" id="btn-cat-torneos" onclick="alternarSeccionAdmin('cat-torneos')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
+                <span class="font-black text-sm text-white flex items-center gap-2">🏆 Torneos</span>
+                <i id="cat-torneos-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
             </button>
-            <div id="cat-champions" class="hidden px-4 pb-4 space-y-4">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 rounded-xl bg-azul/20 text-azul flex items-center justify-center font-bold"><i class="fa fa-trophy"></i></div>
-                        <div>
-                            <h3 class="font-black text-white text-sm uppercase tracking-wider">Torneo Champions Supreme</h3>
-                            <span id="badge-modo-champions-dashboard" class="text-[9px] font-black text-morado bg-morado/20 px-1.5 py-0.5 rounded-md"></span>
+            <div id="cat-torneos" class="px-4 pb-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="abrirVentana('modal-champions')" id="card-champions" class="tarjeta-led led-azul p-4 rounded-2xl bg-medio border border-azul/40 hover:border-azul transition text-left space-y-2 shadow group">
+                        <div class="w-10 h-10 rounded-xl bg-azul/20 text-azul flex items-center justify-center text-lg group-hover:scale-110 transition">
+                            <i class="fa fa-trophy"></i>
                         </div>
-                    </div>
-                    <button onclick="abrirVentana('modal-champions')" class="px-3 py-1.5 bg-azul/20 text-azul border border-azul/40 rounded-xl text-xs font-bold hover:bg-azul/30 transition">Ver Llaves Completas</button>
-                </div>
-                <p class="text-xs text-slate-400">Participa en el torneo de eliminación directa con llaves interactivas de Cuartos, Semis y Gran Final. ¡Inscribete y gana premios épicos!</p>
-                <div class="p-3 bg-oscuro rounded-2xl border border-borde flex items-center justify-between text-xs">
-                    <div>
-                        <span class="text-slate-300 font-bold">Estado: <strong class="text-dorado">Fase de Inscripción Abierta</strong></span>
-                        <div id="cronometro-champions-inscripcion" class="text-[9px] text-slate-400 font-mono mt-0.5"></div>
-                    </div>
-                    <button onclick="abrirModalInscripcionChampions()" class="px-4 py-2 bg-azul text-white font-black rounded-xl shadow hover:opacity-90 transition">Inscribirse</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- CATEGORÍA: TORNEO DE EQUIPO (independiente de Champions) -->
-        <div class="rounded-3xl overflow-hidden border border-verde/30 bg-medio shadow-xl">
-            <button type="button" onclick="alternarSeccionAdmin('cat-torneoequipo')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
-                <span class="font-black text-sm text-white flex items-center gap-2">🥊 Torneo de Equipo</span>
-                <i id="cat-torneoequipo-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-            </button>
-            <div id="cat-torneoequipo" class="hidden px-4 pb-4 space-y-4">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-8 h-8 rounded-xl bg-verde/20 text-verde flex items-center justify-center font-bold"><i class="fa fa-people-group"></i></div>
                         <div>
-                            <h3 class="font-black text-white text-sm uppercase tracking-wider">Torneo de Equipo</h3>
-                            <span id="badge-modo-torneoequipo-dashboard" class="text-[9px] font-black text-verde bg-verde/20 px-1.5 py-0.5 rounded-md"></span>
+                            <h3 class="font-black text-xs text-white">Champions Supreme</h3>
+                            <span id="badge-modo-champions-dashboard" class="text-[9px] font-black text-morado bg-morado/20 px-1.5 py-0.5 rounded-md inline-block mt-0.5"></span>
                         </div>
-                    </div>
-                    <button onclick="abrirVentana('modal-torneo-equipo')" class="px-3 py-1.5 bg-verde/20 text-verde border border-verde/40 rounded-xl text-xs font-bold hover:bg-verde/30 transition">Ver Llaves</button>
+                    </button>
+                    <button onclick="abrirVentana('modal-torneo-equipo')" id="card-torneoequipo" class="tarjeta-led led-verde p-4 rounded-2xl bg-medio border border-verde/40 hover:border-verde transition text-left space-y-2 shadow group">
+                        <div class="w-10 h-10 rounded-xl bg-verde/20 text-verde flex items-center justify-center text-lg group-hover:scale-110 transition">
+                            <i class="fa fa-people-group"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-black text-xs text-white">Torneo de Equipo</h3>
+                            <span id="badge-modo-torneoequipo-dashboard" class="text-[9px] font-black text-verde bg-verde/20 px-1.5 py-0.5 rounded-md inline-block mt-0.5"></span>
+                        </div>
+                    </button>
                 </div>
-                <p class="text-xs text-slate-400">Torneo Equipo A vs Equipo B (2v2, 3v3, 4v4... según lo configure el admin). Únete al equipo que prefieras y gana el premio si tu equipo se corona campeón.</p>
-                <div class="p-3 bg-oscuro rounded-2xl border border-borde space-y-2 text-xs">
-                    <span class="text-slate-300 font-bold block">Estado: <strong class="text-verde">Fase de Inscripción Abierta</strong></span>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="unirseEquipoTorneo('A')" class="py-2 bg-verde text-black font-black rounded-xl shadow hover:opacity-90 transition">Unirme a Equipo A</button>
-                        <button onclick="unirseEquipoTorneo('B')" class="py-2 bg-azul text-white font-black rounded-xl shadow hover:opacity-90 transition">Unirme a Equipo B</button>
-                    </div>
-                </div>
-                <div id="teq-dashboard-slots-preview" class="grid grid-cols-2 gap-2 text-[11px]"></div>
-            </div>
-        </div>
-
-        <!-- CATEGORÍA: TRAGAMONEDAS VIP -->
-        <div class="rounded-3xl overflow-hidden border border-dorado/40 bg-medio shadow-xl">
-            <button type="button" onclick="alternarSeccionAdmin('cat-tragamonedas')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
-                <span class="font-black text-sm text-white flex items-center gap-2">🎰 Tragamonedas VIP</span>
-                <i id="cat-tragamonedas-chevron" class="fa fa-chevron-down text-slate-400 text-xs transition-transform"></i>
-            </button>
-            <div id="cat-tragamonedas" class="hidden px-4 pb-4 space-y-4">
-                <div class="flex items-center justify-between relative z-10">
-                    <h3 class="font-black text-sm text-white flex items-center gap-2"><i class="fa fa-dice text-verde"></i> <span class="trag-titulo-neon text-dorado">Tragamonedas VIP</span></h3>
-                    <span class="text-[8px] text-slate-400">30 casilleros + BONUS</span>
-                </div>
-                <div class="flex justify-between gap-2 text-[9px] font-black relative z-10">
-                    <div class="flex-1 px-2 py-1.5 rounded-lg bg-oscuro border border-dorado/40 text-dorado text-center">PREMIO MÁX<br><span id="trag-premio-actual">0</span></div>
-                    <div class="flex-1 px-2 py-1.5 rounded-lg bg-oscuro border border-verde/40 text-verde text-center">TU SALDO<br><span id="trag-saldo-actual">0</span></div>
-                </div>
-                <div id="grid-trag-30" class="relative grid gap-1 p-2 bg-oscuro rounded-2xl border border-dorado/30 z-10" style="grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(8, 1fr); aspect-ratio: 9/7.5;">
-                    <div class="trag-pantalla-central flex flex-col items-center justify-center gap-1 rounded-xl bg-gradient-to-br from-emerald-900/60 to-oscuro border border-dorado/30" style="grid-column: 2 / 9; grid-row: 2 / 8;">
-                        <span class="text-3xl">🍸</span>
-                        <span class="text-base font-black letrero-bar-neon">NEON BAR</span>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between relative z-10">
-                    <p class="text-[8px] text-slate-400 uppercase tracking-wider"><span id="texto-contador-seleccion-trag">Ninguna fruta seleccionada</span></p>
-                    <button type="button" onclick="limpiarSeleccionFrutasTrag()" class="text-[8px] font-bold text-slate-400 hover:text-rojo transition underline">Limpiar selección</button>
-                </div>
-                <button id="btn-girar-trag" onclick="girarTragamonedas()" class="w-full py-3 bg-gradient-to-r from-verde to-emerald-600 text-black font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">GIRAR TRAGAMONEDAS (<span id="texto-precio-trag">🪙 10</span>)</button>
-                <div id="resultado-trag" class="hidden text-xs font-bold text-center"></div>
-                <div class="space-y-1.5 relative z-10">
-                    <p class="text-[8px] text-slate-400 uppercase tracking-wider text-center">Tabla de premios · selecciona varias frutas antes de girar (opcional)</p>
-                    <div id="tabla-premios-trag" class="grid grid-cols-5 gap-1.5"></div>
+                <!-- Se mantienen ocultos para no romper referencias de otras funciones que los actualizan -->
+                <div class="hidden">
+                    <div id="cronometro-champions-inscripcion"></div>
+                    <div id="teq-dashboard-slots-preview"></div>
                 </div>
             </div>
         </div>
-
+        </div>
+        <!-- ===================== FIN PÁGINA: TORNEOS (parte 2) ===================== -->
 
         <!-- MODAL BONUS DEL TRAGAMONEDAS: BOLAS DE LA SUERTE -->
         <div id="modal-bonus-bolas" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
@@ -1589,6 +1591,32 @@
         </div>
 
     </main>
+
+    <!-- ===================== BARRA DE NAVEGACIÓN INFERIOR ===================== -->
+    <nav id="barra-nav-inferior" class="fixed bottom-0 inset-x-0 z-30 bg-medio border-t border-borde shadow-2xl">
+        <div class="max-w-4xl mx-auto grid grid-cols-5">
+            <button type="button" onclick="mostrarPaginaApp('inicio')" id="btn-nav-inicio" class="btn-nav-app activo flex flex-col items-center justify-center gap-1 py-2.5 text-slate-400 hover:text-white transition">
+                <i class="fa fa-house text-base"></i>
+                <span class="text-[9px] font-black tracking-wide">INICIO</span>
+            </button>
+            <button type="button" onclick="mostrarPaginaApp('juegos')" id="btn-nav-juegos" class="btn-nav-app flex flex-col items-center justify-center gap-1 py-2.5 text-slate-400 hover:text-white transition">
+                <i class="fa fa-gamepad text-base"></i>
+                <span class="text-[9px] font-black tracking-wide">JUEGOS</span>
+            </button>
+            <button type="button" onclick="mostrarPaginaApp('torneos')" id="btn-nav-torneos" class="btn-nav-app flex flex-col items-center justify-center gap-1 py-2.5 text-slate-400 hover:text-white transition">
+                <i class="fa fa-trophy text-base"></i>
+                <span class="text-[9px] font-black tracking-wide">TORNEOS</span>
+            </button>
+            <button type="button" onclick="mostrarPaginaApp('tienda')" id="btn-nav-tienda" class="btn-nav-app flex flex-col items-center justify-center gap-1 py-2.5 text-slate-400 hover:text-white transition">
+                <i class="fa fa-shop text-base"></i>
+                <span class="text-[9px] font-black tracking-wide">TIENDA</span>
+            </button>
+            <button type="button" onclick="mostrarPaginaApp('perfil')" id="btn-nav-perfil" class="btn-nav-app flex flex-col items-center justify-center gap-1 py-2.5 text-slate-400 hover:text-white transition">
+                <i class="fa fa-user text-base"></i>
+                <span class="text-[9px] font-black tracking-wide">PERFIL</span>
+            </button>
+        </div>
+    </nav>
 
     <!-- MODAL BENEFICIOS VIP -->
     <div id="modal-beneficios-vip" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
@@ -2316,6 +2344,38 @@
     </div>
 
     <!-- MODAL TINKA - PRUEBA TU SUERTE -->
+    <div id="modal-tragamonedas" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-medio border border-dorado/40 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl relative overflow-hidden">
+            <div class="flex justify-between items-center border-b border-borde pb-3 relative z-10">
+                <h3 class="font-black text-sm text-white flex items-center gap-2"><i class="fa fa-dice text-verde"></i> <span class="trag-titulo-neon text-dorado">Tragamonedas VIP</span></h3>
+                <button onclick="cerrarVentana('modal-tragamonedas')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+            </div>
+            <div class="flex items-center justify-between relative z-10">
+                <span class="text-[8px] text-slate-400">30 casilleros + BONUS</span>
+            </div>
+            <div class="flex justify-between gap-2 text-[9px] font-black relative z-10">
+                <div class="flex-1 px-2 py-1.5 rounded-lg bg-oscuro border border-dorado/40 text-dorado text-center">PREMIO MÁX<br><span id="trag-premio-actual">0</span></div>
+                <div class="flex-1 px-2 py-1.5 rounded-lg bg-oscuro border border-verde/40 text-verde text-center">TU SALDO<br><span id="trag-saldo-actual">0</span></div>
+            </div>
+            <div id="grid-trag-30" class="relative grid gap-1 p-2 bg-oscuro rounded-2xl border border-dorado/30 z-10" style="grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(8, 1fr); aspect-ratio: 9/7.5;">
+                <div class="trag-pantalla-central flex flex-col items-center justify-center gap-1 rounded-xl bg-gradient-to-br from-emerald-900/60 to-oscuro border border-dorado/30" style="grid-column: 2 / 9; grid-row: 2 / 8;">
+                    <span class="text-3xl">🍸</span>
+                    <span class="text-base font-black letrero-bar-neon">NEON BAR</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between relative z-10">
+                <p class="text-[8px] text-slate-400 uppercase tracking-wider"><span id="texto-contador-seleccion-trag">Ninguna fruta seleccionada</span></p>
+                <button type="button" onclick="limpiarSeleccionFrutasTrag()" class="text-[8px] font-bold text-slate-400 hover:text-rojo transition underline">Limpiar selección</button>
+            </div>
+            <button id="btn-girar-trag" onclick="girarTragamonedas()" class="w-full py-3 bg-gradient-to-r from-verde to-emerald-600 text-black font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">GIRAR TRAGAMONEDAS (<span id="texto-precio-trag">🪙 10</span>)</button>
+            <div id="resultado-trag" class="hidden text-xs font-bold text-center"></div>
+            <div class="space-y-1.5 relative z-10">
+                <p class="text-[8px] text-slate-400 uppercase tracking-wider text-center">Tabla de premios · selecciona varias frutas antes de girar (opcional)</p>
+                <div id="tabla-premios-trag" class="grid grid-cols-5 gap-1.5"></div>
+            </div>
+        </div>
+    </div>
+
     <div id="modal-tinka" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
         <div class="bg-medio border border-dorado/40 w-full max-w-md rounded-3xl p-6 space-y-4 shadow-2xl">
             <div class="flex justify-between items-center border-b border-borde pb-3">
@@ -3227,7 +3287,7 @@
     </div>
 
     <!-- BOTÓN FLOTANTE DE AYUDA -->
-    <button onclick="abrirVentana('modal-asistente'); renderizarModalAsistente();" id="btn-ayuda-flotante" class="fixed bottom-5 right-4 z-30 w-12 h-12 rounded-full bg-azul text-white shadow-2xl flex items-center justify-center text-lg hover:scale-110 transition" title="Ayuda / Guía">
+    <button onclick="abrirVentana('modal-asistente'); renderizarModalAsistente();" id="btn-ayuda-flotante" class="fixed bottom-24 right-4 z-30 w-12 h-12 rounded-full bg-azul text-white shadow-2xl flex items-center justify-center text-lg hover:scale-110 transition" title="Ayuda / Guía">
         <i class="fa fa-question"></i>
     </button>
 
@@ -3428,6 +3488,18 @@
             localStorage.removeItem('usuario_actual_obj');
             localStorage.removeItem('usuario_actual_nombre');
             location.reload();
+        }
+
+        // ===== NAVEGACIÓN POR PESTAÑAS (barra inferior: Inicio / Juegos / Torneos / Tienda / Perfil) =====
+        function mostrarPaginaApp(nombre) {
+            document.querySelectorAll('.pagina-vista').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.pagina-' + nombre).forEach(el => el.classList.remove('hidden'));
+            document.querySelectorAll('.btn-nav-app').forEach(btn => btn.classList.remove('activo'));
+            const btnActivo = document.getElementById('btn-nav-' + nombre);
+            if (btnActivo) btnActivo.classList.add('activo');
+            const main = document.querySelector('main');
+            if (main) main.scrollTo({ top: 0, behavior: 'instant' });
+            window.scrollTo({ top: 0, behavior: 'instant' });
         }
 
         // Abre/cierra una sección tipo "desglose" del panel admin (una a la vez no es obligatorio, se puede tener varias abiertas).
@@ -6154,7 +6226,7 @@
             agregarExpUsuario(50);
             renderizarVistasGP(); 
             alert(`🎉 ¡Recompensa de Meta GP reclamada (+${meta.recompensas} monedas)!`);
-            enviarNotificacionTelegram(`El usuario ${usuarioActual} reclamó la Meta GP #${idx + 1} (+${meta.recompensas} monedas) 🪙`);
+            enviarNotificacionTelegramConImagen(`El usuario ${usuarioActual} reclamó la Meta GP #${idx + 1} (+${meta.recompensas} monedas) 🪙`, meta.imagen);
             agregarNotificacionApp(`🪙 ¡Reclamaste la Meta GP #${idx + 1}! +${meta.recompensas} monedas`, 'fa-star');
             registrarProgresoMisionDiaria('reclamo');
         }
@@ -9937,7 +10009,7 @@
             { icono: '👑', titulo: 'Tu Nivel VIP', texto: 'Mientras más juegas, más EXP ganas y más sube tu nivel VIP, dándote descuentos y multiplicador.', objetivo: 'badge-vip-display' },
             { icono: '🏆', titulo: 'Top Semanal', texto: 'Compites solo por cuánto juegas cada semana. Los primeros puestos ganan un premio en monedas.', objetivo: 'card-top-semanal', seccionPadre: 'cat-diario-recompensas' },
             { icono: '🎮', titulo: 'Minijuegos', texto: 'Toca aquí para ver Ruleta, Garra, Fútbol, Tinka y más — cada uno reparte monedas de forma distinta.', objetivo: 'btn-cat-minijuegos' },
-            { icono: '⚔️', titulo: 'Torneo Champions', texto: 'Inscríbete al torneo de eliminación directa con llaves de Cuartos, Semis y Gran Final, y gana premios épicos.', objetivo: 'btn-cat-champions' },
+            { icono: '⚔️', titulo: 'Torneos', texto: 'Aquí están el Torneo Champions Supreme y el Torneo de Equipo. Inscríbete y gana premios épicos.', objetivo: 'btn-cat-torneos' },
             { icono: '❓', titulo: '¿Tienes dudas?', texto: 'Toca este botón azul cuando quieras y vuelvo a explicarte todo desde el principio.', objetivo: 'btn-ayuda-flotante' }
         ];
         let pasoTutorialActual = 0;
