@@ -1653,33 +1653,58 @@
                     <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-spell-check"></i> <span id="letras-modal-titulo">Letras: Defiende y Gana</span></h3>
                     <button onclick="cerrarVentana('modal-letras')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
                 </div>
-                <p class="text-[11px] text-slate-400" id="letras-intro-txt">Mueve y dispara con tu Mobil para que el BOSS no atrape las letras. Te quedan <strong id="letras-intentos-txt" class="text-azul">1</strong> intentos hoy.</p>
+                <p class="text-[11px] text-slate-400" id="letras-intro-txt">Es por turnos: en tu turno te mueves, disparas al BOSS y juntas letras. En el turno del BOSS, su disparo siempre acierta. Te quedan <strong id="letras-intentos-txt" class="text-azul">1</strong> intentos hoy.</p>
                 <div id="letras-palabra-grid" class="flex flex-wrap justify-center gap-1.5"></div>
 
-                <!-- SELECCIÓN DE MOBIL (antes de iniciar la ronda) -->
-                <div id="letras-seleccion-mobil" class="space-y-2">
+                <!-- SELECCIÓN DE MOBIL Y DURACIÓN DE TURNO (antes de iniciar la ronda) -->
+                <div id="letras-seleccion-mobil" class="space-y-3">
+                    <div>
+                        <p class="text-[11px] text-slate-400 font-bold mb-1">Duración de cada turno:</p>
+                        <div id="letras-duracion-grid" class="grid grid-cols-4 gap-2">
+                            <button type="button" data-dur="5" onclick="elegirDuracionTurnoLetras(5)" class="letras-btn-duracion py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-black">5s</button>
+                            <button type="button" data-dur="10" onclick="elegirDuracionTurnoLetras(10)" class="letras-btn-duracion py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-black">10s</button>
+                            <button type="button" data-dur="15" onclick="elegirDuracionTurnoLetras(15)" class="letras-btn-duracion py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-black">15s</button>
+                            <button type="button" data-dur="20" onclick="elegirDuracionTurnoLetras(20)" class="letras-btn-duracion py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-black">20s</button>
+                        </div>
+                    </div>
                     <p class="text-[11px] text-slate-400 font-bold">Elige tu Mobil para enfrentar al BOSS:</p>
                     <div id="letras-mobiles-grid" class="grid grid-cols-4 gap-2"></div>
                 </div>
 
-                <!-- ÁREA DE JUEGO: canvas + joystick + botón disparar -->
+                <!-- ÁREA DE JUEGO: canvas + D-pad + zona de arrastre para disparar -->
                 <div id="letras-area-juego" class="hidden space-y-2">
-                    <div class="flex items-center justify-between px-1">
+                    <div class="flex items-center justify-between px-1 gap-2">
                         <span class="text-[10px] font-black text-azul flex items-center gap-1 truncate"><span id="letras-mobil-actual">-</span></span>
+                        <span id="letras-turno-txt" class="text-[10px] font-black text-white bg-claro px-2 py-1 rounded-lg shrink-0">Turno</span>
                         <span class="text-[10px] font-black text-rojo flex items-center gap-1 truncate"><i class="fa fa-skull"></i> <span id="letras-boss-nombre">BOSS</span></span>
-                        <span class="text-[11px] font-black text-dorado shrink-0" id="letras-timer-txt">02:00</span>
+                        <span class="text-[11px] font-black text-dorado shrink-0" id="letras-timer-txt">10</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 px-1">
+                        <div>
+                            <div class="flex justify-between text-[9px] font-bold text-azul mb-0.5"><span id="letras-mobil-actual-2">Tu Mobil</span><span id="letras-vida-jugador-txt">3000/3000</span></div>
+                            <div class="w-full h-2 rounded-full bg-oscuro border border-borde overflow-hidden"><div id="letras-vida-jugador-barra" class="h-full bg-azul transition-all" style="width:100%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[9px] font-bold text-rojo mb-0.5"><span>BOSS</span><span id="letras-vida-boss-txt">3000/3000</span></div>
+                            <div class="w-full h-2 rounded-full bg-oscuro border border-borde overflow-hidden"><div id="letras-vida-boss-barra" class="h-full bg-rojo transition-all" style="width:100%"></div></div>
+                        </div>
                     </div>
                     <div id="letras-canvas-wrap" class="relative w-full rounded-2xl overflow-hidden border border-borde bg-oscuro touch-none select-none" style="aspect-ratio:300/420;">
                         <canvas id="letras-canvas" class="w-full h-full block"></canvas>
-                        <!-- joystick virtual -->
-                        <div id="letras-joy-wrap" class="absolute left-3 bottom-3 w-20 h-20 touch-none">
-                            <div id="letras-joy-base" class="absolute inset-0 rounded-full bg-white/10 border border-white/20"></div>
-                            <div id="letras-joy-knob" class="absolute w-9 h-9 rounded-full bg-white/40 border border-white/50" style="left:50%;top:50%;transform:translate(-50%,-50%);"></div>
+                        <!-- zona de arrastre: arrastrar y soltar para disparar en esa dirección -->
+                        <div id="letras-disparo-zona" class="absolute left-3 bottom-3 w-20 h-20 rounded-full bg-naranja/25 border-2 border-naranja/70 flex items-center justify-center text-center text-[8px] font-black text-white leading-tight touch-none select-none">
+                            <span id="letras-disparo-txt">Arrastra<br>para<br>disparar</span>
+                            <div id="letras-disparo-flecha" class="absolute left-1/2 top-1/2 h-1 bg-dorado rounded-full pointer-events-none hidden" style="transform-origin:left center; width:10px;"></div>
                         </div>
-                        <!-- botón disparar -->
-                        <button id="letras-btn-disparar" type="button" class="absolute right-3 bottom-3 w-16 h-16 rounded-full bg-rojo/80 border-2 border-rojo text-white font-black text-[9px] leading-tight active:scale-95 transition">🔫<br>DISPARAR</button>
+                        <!-- d-pad de movimiento -->
+                        <div id="letras-dpad" class="absolute right-3 bottom-3 w-24 h-24 touch-none select-none">
+                            <button type="button" data-dir="up" class="absolute left-1/2 top-0 -translate-x-1/2 w-9 h-9 rounded-lg bg-white/15 border border-white/25 text-white active:bg-white/35"><i class="fa fa-caret-up"></i></button>
+                            <button type="button" data-dir="down" class="absolute left-1/2 bottom-0 -translate-x-1/2 w-9 h-9 rounded-lg bg-white/15 border border-white/25 text-white active:bg-white/35"><i class="fa fa-caret-down"></i></button>
+                            <button type="button" data-dir="left" class="absolute left-0 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-white/15 border border-white/25 text-white active:bg-white/35"><i class="fa fa-caret-left"></i></button>
+                            <button type="button" data-dir="right" class="absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-white/15 border border-white/25 text-white active:bg-white/35"><i class="fa fa-caret-right"></i></button>
+                        </div>
                     </div>
-                    <p class="text-[9px] text-slate-500">Arrastra el círculo izquierdo para moverte. Toca "DISPARAR" para aturdir al BOSS.</p>
+                    <p class="text-[9px] text-slate-500">En tu turno: usa las flechas para moverte y arrastra el círculo naranja hacia atrás y suelta para disparar. En el turno del BOSS no puedes actuar — su disparo siempre acierta.</p>
                 </div>
 
                 <div id="letras-premio-preview" class="p-3 bg-oscuro rounded-2xl border border-borde flex items-center gap-3 text-left">
@@ -3396,8 +3421,8 @@
             <!-- TAB LETRAS -->
             <div id="tab-contenido-letras" class="hidden space-y-4">
                 <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-2">
-                    <h4 class="font-black text-xs text-azul uppercase tracking-wider">Minijuego Letras: Defiende y Gana</h4>
-                    <p class="text-[10px] text-slate-400">El jugador elige un Mobil, se mueve y dispara para evitar que el BOSS atrape las letras de la palabra antes de que se acabe el tiempo. Cambiar la palabra reinicia el progreso de todos.</p>
+                    <h4 class="font-black text-xs text-azul uppercase tracking-wider">Minijuego Letras: Defiende y Gana (por turnos)</h4>
+                    <p class="text-[10px] text-slate-400">Jugador vs BOSS por turnos (se sortea quién empieza). El jugador elige la duración del turno (5/10/15/20s) y en su turno se mueve, dispara al BOSS y recoge letras. En su turno, el BOSS siempre acierta un impacto certero. Gana el jugador si junta todas las letras o si derrota al BOSS; pierde si su vida llega a 0. Cambiar la palabra reinicia el progreso de todos.</p>
                     <div>
                         <label class="text-slate-400 block mb-1 text-xs">Palabra a completar:</label>
                         <input type="text" id="admin-letras-palabra" placeholder="Ej: NEWBOUND" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs uppercase">
@@ -3407,8 +3432,18 @@
                         <input type="number" id="admin-letras-limite" min="1" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
                     </div>
                     <div>
-                        <label class="text-slate-400 block mb-1 text-xs">Tiempo límite por ronda (segundos, dificultad):</label>
+                        <label class="text-slate-400 block mb-1 text-xs">Tiempo límite total de seguridad (segundos, por si la ronda se cuelga):</label>
                         <input type="number" id="admin-letras-tiempo" min="30" placeholder="Ej: 120 (2 minutos)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-slate-400 block mb-1 text-xs">Vida (jugador y BOSS):</label>
+                            <input type="number" id="admin-letras-vida" min="100" placeholder="Ej: 3000" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="text-slate-400 block mb-1 text-xs">Daño por impacto:</label>
+                            <input type="number" id="admin-letras-dano" min="1" placeholder="Ej: 100" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        </div>
                     </div>
                 </div>
                 <h4 class="font-black text-xs text-azul uppercase tracking-wider">Premio al Completar (Imagen + Monedas + Gemas)</h4>
@@ -5304,7 +5339,7 @@
 
         let premiosGarra = JSON.parse(localStorage.getItem('premios_garra_app')) || Array(8).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 25 }));
         let premiosFutbolMini = JSON.parse(localStorage.getItem('premios_futbol_mini_app')) || Array(5).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 20 }));
-        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, tiempoLimite: 120, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 } };
+        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, tiempoLimite: 120, vida: 3000, dano: 100, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 } };
         let configGarra = JSON.parse(localStorage.getItem('config_garra_app')) || { costo: 15 };
         let jugandoGarra = false;
 
@@ -7166,50 +7201,103 @@
             } else {
                 seleccion?.classList.remove('hidden');
                 if (btnReclamar) btnReclamar.classList.add('hidden');
+                elegirDuracionTurnoLetras(letrasDuracionTurnoSeleccionada);
             }
         }
 
-        // ===== RONDA DE ACCIÓN: mover y disparar con el Mobil elegido para defender las letras del BOSS =====
+        // ===== RONDA DE ACCIÓN: mover con D-pad y disparar arrastrando, para defender las letras del BOSS =====
         let letrasJuego = null;              // estado de la ronda activa (o null si no se está jugando)
-        let letrasJoyVector = { x: 0, y: 0 }; // vector normalizado del joystick virtual (-1..1)
+        let letrasMoveDir = { x: 0, y: 0 };   // dirección de movimiento actual según el D-pad (normalizada)
+        let letrasDispararCallback = null;    // función de la ronda activa que dispara un proyectil (dx, dy, potencia)
         let letrasRafId = null;               // id del requestAnimationFrame activo
         let letrasLimpiarRonda = null;        // función de limpieza de la ronda activa (listeners, loop, etc.)
-        let letrasJoystickListo = false;
+        let letrasControlesListos = false;
+        let letrasDuracionTurnoSeleccionada = 10; // segundos por turno, elegido por el jugador (5/10/15/20)
 
-        function inicializarJoystickLetras() {
-            if (letrasJoystickListo) return;
-            const wrap = document.getElementById('letras-joy-wrap');
-            const knob = document.getElementById('letras-joy-knob');
-            if (!wrap || !knob) return;
-            letrasJoystickListo = true;
-            const RADIO = 22;
-            let activo = false;
+        function elegirDuracionTurnoLetras(segundos) {
+            letrasDuracionTurnoSeleccionada = segundos;
+            document.querySelectorAll('.letras-btn-duracion').forEach(btn => {
+                const activo = parseInt(btn.getAttribute('data-dur')) === segundos;
+                btn.classList.toggle('bg-azul', activo);
+                btn.classList.toggle('border-azul', activo);
+                btn.classList.toggle('bg-oscuro', !activo);
+                btn.classList.toggle('border-borde', !activo);
+            });
+        }
 
-            function moverKnob(dx, dy) {
-                knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        function inicializarControlesLetras() {
+            if (letrasControlesListos) return;
+            letrasControlesListos = true;
+
+            // D-PAD: mantener presionada una flecha mueve al Mobil en esa dirección.
+            const dpad = document.getElementById('letras-dpad');
+            if (dpad) {
+                const presionados = new Set();
+                function recalcularDireccion() {
+                    let x = 0, y = 0;
+                    if (presionados.has('up')) y -= 1;
+                    if (presionados.has('down')) y += 1;
+                    if (presionados.has('left')) x -= 1;
+                    if (presionados.has('right')) x += 1;
+                    const mag = Math.hypot(x, y);
+                    letrasMoveDir.x = mag ? x / mag : 0;
+                    letrasMoveDir.y = mag ? y / mag : 0;
+                }
+                dpad.querySelectorAll('[data-dir]').forEach(btn => {
+                    const dir = btn.getAttribute('data-dir');
+                    const presionar = (e) => { e.preventDefault(); presionados.add(dir); recalcularDireccion(); };
+                    const soltar = () => { presionados.delete(dir); recalcularDireccion(); };
+                    btn.addEventListener('touchstart', presionar, { passive: false });
+                    btn.addEventListener('touchend', soltar);
+                    btn.addEventListener('touchcancel', soltar);
+                    btn.addEventListener('mousedown', presionar);
+                    btn.addEventListener('mouseup', soltar);
+                    btn.addEventListener('mouseleave', soltar);
+                });
             }
-            function manejarMover(clientX, clientY) {
-                const r = wrap.getBoundingClientRect();
-                const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-                let dx = clientX - cx, dy = clientY - cy;
-                const dist = Math.hypot(dx, dy);
-                if (dist > RADIO) { dx = dx / dist * RADIO; dy = dy / dist * RADIO; }
-                moverKnob(dx, dy);
-                letrasJoyVector.x = dx / RADIO;
-                letrasJoyVector.y = dy / RADIO;
+
+            // ZONA DE DISPARO: arrastra desde el círculo naranja y suelta para disparar hacia donde apuntaste
+            // (igual que "Drag me to shoot" del juego original).
+            const zona = document.getElementById('letras-disparo-zona');
+            const flecha = document.getElementById('letras-disparo-flecha');
+            if (zona) {
+                const MAX_ARRASTRE = 70;
+                let arrastrando = false, cx = 0, cy = 0;
+                function iniciar(clientX, clientY) {
+                    arrastrando = true;
+                    const r = zona.getBoundingClientRect();
+                    cx = r.left + r.width / 2; cy = r.top + r.height / 2;
+                    flecha?.classList.remove('hidden');
+                }
+                function mover(clientX, clientY) {
+                    if (!arrastrando) return;
+                    const dx = clientX - cx, dy = clientY - cy;
+                    const dist = Math.min(Math.hypot(dx, dy), MAX_ARRASTRE);
+                    const ang = Math.atan2(dy, dx);
+                    if (flecha) {
+                        flecha.style.width = `${Math.max(10, dist)}px`;
+                        flecha.style.transform = `translateY(-50%) rotate(${ang}rad)`;
+                    }
+                }
+                function soltar(clientX, clientY) {
+                    if (!arrastrando) return;
+                    arrastrando = false;
+                    flecha?.classList.add('hidden');
+                    const dx = clientX - cx, dy = clientY - cy;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist > 10 && typeof letrasDispararCallback === 'function') {
+                        const potencia = Math.min(1, dist / MAX_ARRASTRE);
+                        letrasDispararCallback(dx / dist, dy / dist, 0.5 + potencia * 0.5);
+                    }
+                }
+                zona.addEventListener('touchstart', e => { iniciar(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+                zona.addEventListener('touchmove', e => { mover(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+                zona.addEventListener('touchend', e => { const t = e.changedTouches[0]; soltar(t.clientX, t.clientY); });
+                zona.addEventListener('touchcancel', () => { arrastrando = false; flecha?.classList.add('hidden'); });
+                zona.addEventListener('mousedown', e => iniciar(e.clientX, e.clientY));
+                window.addEventListener('mousemove', e => mover(e.clientX, e.clientY));
+                window.addEventListener('mouseup', e => soltar(e.clientX, e.clientY));
             }
-            function soltar() {
-                activo = false;
-                moverKnob(0, 0);
-                letrasJoyVector.x = 0; letrasJoyVector.y = 0;
-            }
-            wrap.addEventListener('touchstart', e => { activo = true; manejarMover(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
-            wrap.addEventListener('touchmove', e => { if (activo) { manejarMover(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); } }, { passive: false });
-            wrap.addEventListener('touchend', soltar);
-            wrap.addEventListener('touchcancel', soltar);
-            wrap.addEventListener('mousedown', e => { activo = true; manejarMover(e.clientX, e.clientY); });
-            window.addEventListener('mousemove', e => { if (activo) manejarMover(e.clientX, e.clientY); });
-            window.addEventListener('mouseup', () => { if (activo) soltar(); });
         }
 
         // Detiene y limpia una ronda en curso (se llama al ganar, perder, o cerrar el modal a medias).
@@ -7217,7 +7305,8 @@
             if (letrasLimpiarRonda) { try { letrasLimpiarRonda(); } catch (e) {} letrasLimpiarRonda = null; }
             if (letrasRafId) { cancelAnimationFrame(letrasRafId); letrasRafId = null; }
             letrasJuego = null;
-            letrasJoyVector = { x: 0, y: 0 };
+            letrasMoveDir = { x: 0, y: 0 };
+            letrasDispararCallback = null;
         }
 
         function iniciarRondaLetras(mobilId) {
@@ -7248,7 +7337,7 @@
             const mobilFinal = elegido.id === 'random' ? disponibles[Math.floor(Math.random() * disponibles.length)] : elegido;
             const nombreBoss = (typeof obtenerNombreBossAleatorio === 'function') ? obtenerNombreBossAleatorio() : 'BOSS';
 
-            inicializarJoystickLetras();
+            inicializarControlesLetras();
             document.getElementById('letras-seleccion-mobil')?.classList.add('hidden');
             document.getElementById('letras-premio-preview')?.classList.add('hidden');
             document.getElementById('btn-reclamar-letras')?.classList.add('hidden');
@@ -7258,6 +7347,8 @@
             areaJuego?.classList.remove('hidden');
             const elMobilTxt = document.getElementById('letras-mobil-actual');
             if (elMobilTxt) elMobilTxt.textContent = `${mobilFinal.icono} ${mobilFinal.nombre}`;
+            const elMobilTxt2 = document.getElementById('letras-mobil-actual-2');
+            if (elMobilTxt2) elMobilTxt2.textContent = `${mobilFinal.icono} ${mobilFinal.nombre}`;
             const elBossTxt = document.getElementById('letras-boss-nombre');
             if (elBossTxt) elBossTxt.textContent = nombreBoss;
 
@@ -7275,18 +7366,31 @@
                 return { x: ANCHO / 2 + (Math.random() - 0.5) * 40, y: ALTO / 2 + (Math.random() - 0.5) * 40 };
             }
 
-            const jugador = { x: ANCHO / 2, y: ALTO - 45, r: 14, vel: 100, faceX: 0, faceY: -1 };
-            const boss = { x: ANCHO / 2, y: 65, r: 16, vel: 42, aturdidoHasta: 0 };
+            // ===== JUGADOR vs BOSS, por turnos: se sortea quién empieza. En su turno, cada
+            // uno tiene "duracionTurno" segundos. El jugador se mueve, dispara al BOSS y
+            // recoge letras. El BOSS se acerca y, al final de su turno, dispara un impacto
+            // que SIEMPRE acierta (nunca falla). Cada uno tiene vida; el daño es configurable
+            // por el admin (configLetras.vida / configLetras.dano). =====
+            const VIDA_MAX = Math.max(100, configLetras.vida || 3000);
+            const DANO_IMPACTO = Math.max(1, configLetras.dano || 100);
+            const DURACION_TURNO = letrasDuracionTurnoSeleccionada || 10;
+
+            const jugador = { x: ANCHO / 2, y: ALTO - 45, r: 14, vel: 110, vida: VIDA_MAX };
+            const boss = { x: ANCHO / 2, y: 65, r: 16, vel: 55, vida: VIDA_MAX, derrotado: false, aturdidoHasta: 0 };
             const ocupadosIniciales = [{ x: jugador.x, y: jugador.y, r: jugador.r }, { x: boss.x, y: boss.y, r: boss.r }];
             const letrasTiles = faltantes.map(letra => {
                 const pos = posicionLibre(13, ocupadosIniciales);
                 ocupadosIniciales.push({ x: pos.x, y: pos.y, r: 13 });
-                return { letra, x: pos.x, y: pos.y, r: 13, robada: false, recolectada: false, respawnEn: 0 };
+                return { letra, x: pos.x, y: pos.y, r: 13, recolectada: false };
             });
-            const proyectiles = [];
+            const proyectiles = [];       // disparos del jugador (visuales + dañan al BOSS)
+            const disparosBoss = [];      // disparo(s) certero(s) del BOSS hacia el jugador
 
-            const TIEMPO_TOTAL = Math.max(30, configLetras.tiempoLimite || 120);
-            let tiempoRestante = TIEMPO_TOTAL;
+            let turno = Math.random() < 0.5 ? 'jugador' : 'boss'; // se sortea quién empieza
+            let tiempoTurnoRestante = DURACION_TURNO;
+            let bossYaDisparoEsteTurno = false;
+            const TIEMPO_TOTAL_SEGURIDAD = Math.max(60, configLetras.tiempoLimite || 120); // límite de seguridad por si la ronda se alarga
+            let tiempoTotalRestante = TIEMPO_TOTAL_SEGURIDAD;
             let ultimoDisparo = 0;
             let ultimoFrame = performance.now();
             let terminado = false;
@@ -7294,29 +7398,45 @@
 
             letrasJuego = { activo: true };
 
+            function actualizarBarrasVidaUI() {
+                const txtJ = document.getElementById('letras-vida-jugador-txt');
+                const barraJ = document.getElementById('letras-vida-jugador-barra');
+                const txtB = document.getElementById('letras-vida-boss-txt');
+                const barraB = document.getElementById('letras-vida-boss-barra');
+                const vJ = Math.max(0, Math.round(jugador.vida)), vB = Math.max(0, Math.round(boss.vida));
+                if (txtJ) txtJ.textContent = `${vJ}/${VIDA_MAX}`;
+                if (barraJ) barraJ.style.width = `${Math.max(0, (vJ / VIDA_MAX) * 100)}%`;
+                if (txtB) txtB.textContent = `${vB}/${VIDA_MAX}`;
+                if (barraB) barraB.style.width = `${Math.max(0, (vB / VIDA_MAX) * 100)}%`;
+            }
+            actualizarBarrasVidaUI();
+
             function actualizarTimerUI() {
-                const t = Math.max(0, tiempoRestante);
-                const m = Math.floor(t / 60), s = Math.floor(t % 60);
+                const t = Math.max(0, Math.ceil(tiempoTurnoRestante));
                 const txt = document.getElementById('letras-timer-txt');
-                if (txt) txt.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+                if (txt) txt.textContent = `${t}s`;
+                const turnoEl = document.getElementById('letras-turno-txt');
+                if (turnoEl) {
+                    turnoEl.textContent = turno === 'jugador' ? '🎮 Tu turno' : `💀 Turno de ${nombreBoss}`;
+                    turnoEl.classList.toggle('text-azul', turno === 'jugador');
+                    turnoEl.classList.toggle('text-rojo', turno === 'boss');
+                }
             }
             actualizarTimerUI();
 
-            function dispara() {
+            function dispara(dx, dy, potencia) {
+                if (turno !== 'jugador') return; // solo se puede disparar en el propio turno
                 const ahora = performance.now();
-                if (ahora - ultimoDisparo < 320) return;
+                if (ahora - ultimoDisparo < 260) return;
                 ultimoDisparo = ahora;
-                proyectiles.push({ x: jugador.x, y: jugador.y, dx: jugador.faceX, dy: jugador.faceY });
+                const vel = 220 + (potencia || 0.7) * 160;
+                proyectiles.push({ x: jugador.x, y: jugador.y, dx, dy, vel });
                 if (typeof reproducirSFX === 'function') { try { reproducirSFX('click'); } catch (e) {} }
             }
-            const btnDisparar = document.getElementById('letras-btn-disparar');
-            const manejarDisparo = (e) => { e.preventDefault(); dispara(); };
-            btnDisparar?.addEventListener('touchstart', manejarDisparo, { passive: false });
-            btnDisparar?.addEventListener('mousedown', manejarDisparo);
+            letrasDispararCallback = dispara;
 
             function limpiar() {
-                btnDisparar?.removeEventListener('touchstart', manejarDisparo);
-                btnDisparar?.removeEventListener('mousedown', manejarDisparo);
+                letrasDispararCallback = null;
             }
 
             function terminarRonda(gano) {
@@ -7326,15 +7446,20 @@
                 letrasLimpiarRonda = null;
                 if (letrasRafId) { cancelAnimationFrame(letrasRafId); letrasRafId = null; }
                 letrasJuego = null;
-                letrasJoyVector = { x: 0, y: 0 };
+                letrasMoveDir = { x: 0, y: 0 };
+                letrasDispararCallback = null;
                 if (typeof reproducirSFX === 'function') { try { reproducirSFX(gano ? 'ganar' : 'perder'); } catch (e) {} }
                 areaJuego?.classList.add('hidden');
                 const resultado = document.getElementById('resultado-letras');
                 if (resultado) {
                     resultado.classList.remove('hidden');
-                    resultado.innerHTML = gano
-                        ? `<span class="text-verde">🛡️ ¡${mobilFinal.nombre} defendió todas las letras de ${nombreBoss}! Reclama tu premio si completaste la palabra.</span>`
-                        : `<span class="text-rojo">⏱️ Se acabó el tiempo. ${nombreBoss} evitó que ${mobilFinal.nombre} recuperara todas las letras esta vez.</span>`;
+                    if (gano) {
+                        resultado.innerHTML = boss.vida <= 0
+                            ? `<span class="text-verde">🏆 ¡${mobilFinal.nombre} derrotó a ${nombreBoss}! Reclama tu premio si completaste la palabra.</span>`
+                            : `<span class="text-verde">🛡️ ¡${mobilFinal.nombre} juntó todas las letras esquivando a ${nombreBoss}! Reclama tu premio si completaste la palabra.</span>`;
+                    } else {
+                        resultado.innerHTML = `<span class="text-rojo">💀 ${nombreBoss} derrotó a ${mobilFinal.nombre} antes de que juntara todas las letras. ¡Inténtalo de nuevo!</span>`;
+                    }
                 }
                 renderizarLetrasVista();
             }
@@ -7343,72 +7468,97 @@
             function bucle(ahora) {
                 const dt = Math.min(0.05, (ahora - ultimoFrame) / 1000);
                 ultimoFrame = ahora;
-                tiempoRestante -= dt;
+
+                tiempoTotalRestante -= dt;
+                if (tiempoTotalRestante <= 0) { terminarRonda(false); return; }
+
+                tiempoTurnoRestante -= dt;
                 actualizarTimerUI();
-                if (tiempoRestante <= 0) { terminarRonda(false); return; }
 
-                const mag = Math.hypot(letrasJoyVector.x, letrasJoyVector.y);
-                if (mag > 0.12) {
-                    jugador.faceX = letrasJoyVector.x / mag;
-                    jugador.faceY = letrasJoyVector.y / mag;
-                    jugador.x += letrasJoyVector.x * jugador.vel * dt;
-                    jugador.y += letrasJoyVector.y * jugador.vel * dt;
-                    jugador.x = Math.max(jugador.r, Math.min(ANCHO - jugador.r, jugador.x));
-                    jugador.y = Math.max(jugador.r, Math.min(ALTO - jugador.r, jugador.y));
+                if (turno === 'jugador') {
+                    // --- Turno del jugador: se mueve libremente por el mapa y puede disparar ---
+                    const mag = Math.hypot(letrasMoveDir.x, letrasMoveDir.y);
+                    if (mag > 0.05) {
+                        jugador.x += letrasMoveDir.x * jugador.vel * dt;
+                        jugador.y += letrasMoveDir.y * jugador.vel * dt;
+                        jugador.x = Math.max(jugador.r, Math.min(ANCHO - jugador.r, jugador.x));
+                        jugador.y = Math.max(jugador.r, Math.min(ALTO - jugador.r, jugador.y));
+                    }
+
+                    letrasTiles.forEach(t => {
+                        if (t.recolectada) return;
+                        if (Math.hypot(t.x - jugador.x, t.y - jugador.y) < t.r + jugador.r) {
+                            t.recolectada = true;
+                            data.letras[t.letra] = (data.letras[t.letra] || 0) + 1;
+                            guardarProgresoLetras(data);
+                            renderizarPillsLetras(data);
+                            recolectadas++;
+                            if (typeof reproducirSFX === 'function') { try { reproducirSFX('subirNivel'); } catch (e) {} }
+                        }
+                    });
+                    if (recolectadas >= faltantes.length) { terminarRonda(true); return; }
+
+                    for (let i = proyectiles.length - 1; i >= 0; i--) {
+                        const p = proyectiles[i];
+                        p.x += p.dx * p.vel * dt;
+                        p.y += p.dy * p.vel * dt;
+                        if (p.x < -10 || p.x > ANCHO + 10 || p.y < -10 || p.y > ALTO + 10) { proyectiles.splice(i, 1); continue; }
+                        if (!boss.derrotado && Math.hypot(p.x - boss.x, p.y - boss.y) < boss.r + 4) {
+                            boss.vida -= DANO_IMPACTO;
+                            boss.aturdidoHasta = ahora + 500;
+                            proyectiles.splice(i, 1);
+                            actualizarBarrasVidaUI();
+                            if (boss.vida <= 0) { boss.vida = 0; boss.derrotado = true; terminarRonda(true); return; }
+                        }
+                    }
+
+                    if (tiempoTurnoRestante <= 0) {
+                        // Pasa el turno al BOSS (si no fue derrotado)
+                        turno = 'boss';
+                        tiempoTurnoRestante = DURACION_TURNO;
+                        bossYaDisparoEsteTurno = false;
+                        actualizarTimerUI();
+                    }
+                } else {
+                    // --- Turno del BOSS: se acerca al jugador y, al final del turno, dispara
+                    // un impacto certero que nunca falla (salvo que ya haya sido derrotado) ---
+                    if (boss.derrotado) {
+                        turno = 'jugador';
+                        tiempoTurnoRestante = DURACION_TURNO;
+                        actualizarTimerUI();
+                    } else {
+                        const dx = jugador.x - boss.x, dy = jugador.y - boss.y;
+                        const d = Math.hypot(dx, dy) || 1;
+                        boss.x += (dx / d) * boss.vel * dt;
+                        boss.y += (dy / d) * boss.vel * dt;
+
+                        // Dispara su tiro certero cuando queda ~35% del turno (una sola vez por turno)
+                        if (!bossYaDisparoEsteTurno && tiempoTurnoRestante <= DURACION_TURNO * 0.35) {
+                            bossYaDisparoEsteTurno = true;
+                            disparosBoss.push({ x: boss.x, y: boss.y, destX: jugador.x, destY: jugador.y, progreso: 0 });
+                            if (typeof reproducirSFX === 'function') { try { reproducirSFX('click'); } catch (e) {} }
+                        }
+
+                        for (let i = disparosBoss.length - 1; i >= 0; i--) {
+                            const p = disparosBoss[i];
+                            p.progreso = Math.min(1, p.progreso + dt * 3.2);
+                            p.x = p.x + (p.destX - p.x) * 0.4;
+                            p.y = p.y + (p.destY - p.y) * 0.4;
+                            if (p.progreso >= 1) {
+                                disparosBoss.splice(i, 1);
+                                jugador.vida -= DANO_IMPACTO; // el disparo del BOSS nunca falla
+                                actualizarBarrasVidaUI();
+                                if (jugador.vida <= 0) { jugador.vida = 0; terminarRonda(false); return; }
+                            }
+                        }
+
+                        if (tiempoTurnoRestante <= 0) {
+                            turno = 'jugador';
+                            tiempoTurnoRestante = DURACION_TURNO;
+                            actualizarTimerUI();
+                        }
+                    }
                 }
-
-                const vivas = letrasTiles.filter(t => !t.robada);
-                if (vivas.length && ahora > boss.aturdidoHasta) {
-                    let objetivo = vivas[0], mejorDist = Infinity;
-                    vivas.forEach(t => { const d = Math.hypot(t.x - boss.x, t.y - boss.y); if (d < mejorDist) { mejorDist = d; objetivo = t; } });
-                    const dx = objetivo.x - boss.x, dy = objetivo.y - boss.y;
-                    const d = Math.hypot(dx, dy) || 1;
-                    boss.x += (dx / d) * boss.vel * dt;
-                    boss.y += (dy / d) * boss.vel * dt;
-                }
-
-                letrasTiles.forEach(t => {
-                    if (t.robada || t.recolectada) return;
-                    if (Math.hypot(t.x - jugador.x, t.y - jugador.y) < t.r + jugador.r) {
-                        t.recolectada = true; t.robada = true;
-                        letrasJuego.data = letrasJuego.data || data;
-                        data.letras[t.letra] = (data.letras[t.letra] || 0) + 1;
-                        guardarProgresoLetras(data);
-                        renderizarPillsLetras(data);
-                        recolectadas++;
-                        if (typeof reproducirSFX === 'function') { try { reproducirSFX('subirNivel'); } catch (e) {} }
-                    }
-                });
-
-                letrasTiles.forEach(t => {
-                    if (t.robada || t.recolectada) return;
-                    if (Math.hypot(t.x - boss.x, t.y - boss.y) < t.r + boss.r) {
-                        t.robada = true;
-                        t.respawnEn = ahora + 5500;
-                    }
-                });
-
-                letrasTiles.forEach(t => {
-                    if (t.robada && !t.recolectada && ahora >= t.respawnEn) {
-                        const ocupados = [{ x: jugador.x, y: jugador.y, r: jugador.r }, { x: boss.x, y: boss.y, r: boss.r }]
-                            .concat(letrasTiles.filter(o => !o.robada).map(o => ({ x: o.x, y: o.y, r: o.r })));
-                        const pos = posicionLibre(t.r, ocupados);
-                        t.x = pos.x; t.y = pos.y; t.robada = false;
-                    }
-                });
-
-                for (let i = proyectiles.length - 1; i >= 0; i--) {
-                    const p = proyectiles[i];
-                    p.x += p.dx * 300 * dt;
-                    p.y += p.dy * 300 * dt;
-                    if (p.x < -10 || p.x > ANCHO + 10 || p.y < -10 || p.y > ALTO + 10) { proyectiles.splice(i, 1); continue; }
-                    if (Math.hypot(p.x - boss.x, p.y - boss.y) < boss.r + 4) {
-                        boss.aturdidoHasta = ahora + 1300;
-                        proyectiles.splice(i, 1);
-                    }
-                }
-
-                if (recolectadas >= faltantes.length) { terminarRonda(true); return; }
 
                 ctx.clearRect(0, 0, ANCHO, ALTO);
                 ctx.fillStyle = '#0B0F19';
@@ -7418,7 +7568,7 @@
                 for (let gy = 0; gy < ALTO; gy += 30) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(ANCHO, gy); ctx.stroke(); }
 
                 letrasTiles.forEach(t => {
-                    if (t.robada) return;
+                    if (t.recolectada) return;
                     ctx.beginPath();
                     ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
                     ctx.fillStyle = '#F59E0B';
@@ -7436,13 +7586,29 @@
                     ctx.fill();
                 });
 
-                const bossAturdido = ahora < boss.aturdidoHasta;
-                ctx.beginPath();
-                ctx.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
-                ctx.fillStyle = bossAturdido ? '#94A3B8' : '#DC2626';
-                ctx.fill();
-                ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                ctx.fillText('💀', boss.x, boss.y + 1);
+                disparosBoss.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#DC2626';
+                    ctx.fill();
+                });
+
+                if (!boss.derrotado) {
+                    const bossAturdido = performance.now() < boss.aturdidoHasta;
+                    ctx.beginPath();
+                    ctx.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
+                    ctx.fillStyle = bossAturdido ? '#94A3B8' : '#DC2626';
+                    ctx.fill();
+                    ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText('💀', boss.x, boss.y + 1);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(148,163,184,0.35)';
+                    ctx.fill();
+                    ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText('☠️', boss.x, boss.y + 1);
+                }
 
                 ctx.beginPath();
                 ctx.arc(jugador.x, jugador.y, jugador.r, 0, Math.PI * 2);
@@ -7486,9 +7652,13 @@
             const inpMonedas = document.getElementById('admin-letras-premio-monedas');
             const inpGemas = document.getElementById('admin-letras-premio-gemas');
             const inpImg = document.getElementById('admin-letras-premio-img');
+            const inpVida = document.getElementById('admin-letras-vida');
+            const inpDano = document.getElementById('admin-letras-dano');
             if (inpPalabra) inpPalabra.value = configLetras.palabra || '';
             if (inpLimite) inpLimite.value = configLetras.limiteDiario || 1;
             if (inpTiempo) inpTiempo.value = configLetras.tiempoLimite || 120;
+            if (inpVida) inpVida.value = configLetras.vida || 3000;
+            if (inpDano) inpDano.value = configLetras.dano || 100;
             if (inpNombre) inpNombre.value = (configLetras.premio && configLetras.premio.nombre) || '';
             if (inpMonedas) inpMonedas.value = (configLetras.premio && configLetras.premio.monedas) || 0;
             if (inpGemas) inpGemas.value = (configLetras.premio && configLetras.premio.gemas) || 0;
@@ -11156,9 +11326,13 @@
                 const monedas = parseInt(document.getElementById('admin-letras-premio-monedas')?.value);
                 const gemasPremio = parseInt(document.getElementById('admin-letras-premio-gemas')?.value);
                 const img = document.getElementById('admin-letras-premio-img')?.value;
+                const vidaConfig = parseInt(document.getElementById('admin-letras-vida')?.value);
+                const danoConfig = parseInt(document.getElementById('admin-letras-dano')?.value);
                 if (palabra !== undefined) configLetras.palabra = palabra.trim().toUpperCase();
                 if (!isNaN(limite)) configLetras.limiteDiario = limite;
                 if (!isNaN(tiempoLimite)) configLetras.tiempoLimite = tiempoLimite;
+                if (!isNaN(vidaConfig)) configLetras.vida = vidaConfig;
+                if (!isNaN(danoConfig)) configLetras.dano = danoConfig;
                 if (nombre !== undefined) configLetras.premio.nombre = nombre;
                 if (!isNaN(monedas)) configLetras.premio.monedas = monedas;
                 if (!isNaN(gemasPremio)) configLetras.premio.gemas = gemasPremio;
