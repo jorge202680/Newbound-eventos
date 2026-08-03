@@ -1694,8 +1694,19 @@
                         <canvas id="letras-canvas" class="w-full h-full block"></canvas>
                         <!-- zona de arrastre: arrastrar y soltar para disparar en esa dirección -->
                         <div id="letras-disparo-zona" class="absolute left-3 bottom-3 w-20 h-20 rounded-full bg-naranja/25 border-2 border-naranja/70 flex items-center justify-center text-center text-[8px] font-black text-white leading-tight touch-none select-none">
+                            <svg id="letras-radar-svg" class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6"></circle>
+                                <circle id="letras-radar-arco" cx="50" cy="50" r="42" fill="none" stroke="#4ADE80" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 264" transform="rotate(-90 50 50)"></circle>
+                            </svg>
                             <span id="letras-disparo-txt">Arrastra<br>para<br>disparar</span>
                             <div id="letras-disparo-flecha" class="absolute left-1/2 top-1/2 h-1 bg-dorado rounded-full pointer-events-none hidden" style="transform-origin:left center; width:10px;"></div>
+                        </div>
+                        <!-- barra de potencia + ángulo de disparo, visible mientras se arrastra -->
+                        <div id="letras-potencia-wrap" class="absolute left-3 bottom-24 w-24 hidden pointer-events-none">
+                            <div class="text-[9px] font-black text-dorado text-center mb-0.5" id="letras-angulo-txt">0°</div>
+                            <div class="w-full h-2.5 rounded-full bg-oscuro/90 border border-borde overflow-hidden">
+                                <div id="letras-potencia-barra" class="h-full bg-gradient-to-r from-dorado to-rojo" style="width:0%"></div>
+                            </div>
                         </div>
                         <!-- d-pad de movimiento -->
                         <div id="letras-dpad" class="absolute right-3 bottom-3 w-24 h-24 touch-none select-none">
@@ -1705,7 +1716,7 @@
                             <button type="button" data-dir="right" class="absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-white/15 border border-white/25 text-white active:bg-white/35"><i class="fa fa-caret-right"></i></button>
                         </div>
                     </div>
-                    <p class="text-[9px] text-slate-500">En tu turno: usa las flechas para moverte y arrastra el círculo naranja hacia atrás y suelta para disparar. En el turno del BOSS no puedes actuar — su disparo siempre acierta.</p>
+                    <p class="text-[9px] text-slate-500">En tu turno: usa las flechas para moverte y arrastra el círculo naranja hacia atrás y suelta para disparar; mientras arrastras ves la barra de potencia y el ángulo. En el turno del BOSS no puedes actuar — su disparo siempre acierta.</p>
                 </div>
 
                 <div id="letras-premio-preview" class="p-3 bg-oscuro rounded-2xl border border-borde flex items-center gap-3 text-left">
@@ -7310,6 +7321,20 @@
             // (igual que "Drag me to shoot" del juego original).
             const zona = document.getElementById('letras-disparo-zona');
             const flecha = document.getElementById('letras-disparo-flecha');
+            const potenciaWrap = document.getElementById('letras-potencia-wrap');
+            const potenciaBarra = document.getElementById('letras-potencia-barra');
+            const anguloTxt = document.getElementById('letras-angulo-txt');
+            const radarArco = document.getElementById('letras-radar-arco');
+            const RADAR_CIRCUNFERENCIA = 264;
+            function colorPotencia(p) {
+                // Verde (baja potencia) -> amarillo -> rojo (potencia máxima), como un radar de carga.
+                if (p < 0.5) {
+                    const t = p / 0.5;
+                    return `rgb(${Math.round(74 + t * (234 - 74))},${Math.round(222 + t * (179 - 222))},${Math.round(128 + t * (8 - 128))})`;
+                }
+                const t = (p - 0.5) / 0.5;
+                return `rgb(${Math.round(234 + t * (239 - 234))},${Math.round(179 + t * (68 - 179))},${Math.round(8 + t * (68 - 8))})`;
+            }
             if (zona) {
                 const MAX_ARRASTRE = 70;
                 let arrastrando = false, cx = 0, cy = 0;
@@ -7318,21 +7343,35 @@
                     const r = zona.getBoundingClientRect();
                     cx = r.left + r.width / 2; cy = r.top + r.height / 2;
                     flecha?.classList.remove('hidden');
+                    potenciaWrap?.classList.remove('hidden');
                 }
                 function mover(clientX, clientY) {
                     if (!arrastrando) return;
                     const dx = clientX - cx, dy = clientY - cy;
                     const dist = Math.min(Math.hypot(dx, dy), MAX_ARRASTRE);
                     const ang = Math.atan2(dy, dx);
+                    const potencia = dist / MAX_ARRASTRE;
                     if (flecha) {
                         flecha.style.width = `${Math.max(10, dist)}px`;
                         flecha.style.transform = `translateY(-50%) rotate(${ang}rad)`;
+                    }
+                    if (potenciaBarra) potenciaBarra.style.width = `${Math.round(potencia * 100)}%`;
+                    if (radarArco) {
+                        radarArco.setAttribute('stroke-dasharray', `${potencia * RADAR_CIRCUNFERENCIA} ${RADAR_CIRCUNFERENCIA}`);
+                        radarArco.setAttribute('stroke', colorPotencia(potencia));
+                    }
+                    if (anguloTxt) {
+                        let grados = Math.round(-ang * 180 / Math.PI);
+                        grados = ((grados % 360) + 360) % 360;
+                        anguloTxt.textContent = `${grados}°`;
                     }
                 }
                 function soltar(clientX, clientY) {
                     if (!arrastrando) return;
                     arrastrando = false;
                     flecha?.classList.add('hidden');
+                    potenciaWrap?.classList.add('hidden');
+                    if (radarArco) radarArco.setAttribute('stroke-dasharray', `0 ${RADAR_CIRCUNFERENCIA}`);
                     const dx = clientX - cx, dy = clientY - cy;
                     const dist = Math.hypot(dx, dy);
                     if (dist > 10 && typeof letrasDispararCallback === 'function') {
@@ -7343,7 +7382,7 @@
                 zona.addEventListener('touchstart', e => { iniciar(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
                 zona.addEventListener('touchmove', e => { mover(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
                 zona.addEventListener('touchend', e => { const t = e.changedTouches[0]; soltar(t.clientX, t.clientY); });
-                zona.addEventListener('touchcancel', () => { arrastrando = false; flecha?.classList.add('hidden'); });
+                zona.addEventListener('touchcancel', () => { arrastrando = false; flecha?.classList.add('hidden'); potenciaWrap?.classList.add('hidden'); });
                 zona.addEventListener('mousedown', e => iniciar(e.clientX, e.clientY));
                 window.addEventListener('mousemove', e => mover(e.clientX, e.clientY));
                 window.addEventListener('mouseup', e => soltar(e.clientX, e.clientY));
@@ -7438,6 +7477,10 @@
             }) : [];
             const proyectiles = [];       // disparos del jugador (visuales + dañan al BOSS)
             const disparosBoss = [];      // disparo(s) certero(s) del BOSS hacia el jugador
+            const numerosFlotantes = [];  // números de daño que suben y se desvanecen al golpear
+            function agregarNumeroFlotante(x, y, valor, color) {
+                numerosFlotantes.push({ x, y, valor, color, t: 0 });
+            }
             const estrellasFondo = Array.from({ length: 34 }, () => ({
                 x: Math.random() * ANCHO, y: Math.random() * ALTO, r: Math.random() * 1.2 + 0.3, a: Math.random() * 0.6 + 0.2
             }));
@@ -7588,6 +7631,7 @@
                         if (p.x < -10 || p.x > ANCHO + 10 || p.y < -10 || p.y > ALTO + 10) { proyectiles.splice(i, 1); continue; }
                         if (!boss.derrotado && Math.hypot(p.x - boss.x, p.y - boss.y) < boss.r + 4) {
                             boss.vida -= DANO_IMPACTO;
+                            agregarNumeroFlotante(boss.x, boss.y - boss.r, DANO_IMPACTO, '#FDE047');
                             boss.aturdidoHasta = ahora + 500;
                             proyectiles.splice(i, 1);
                             actualizarBarrasVidaUI();
@@ -7635,6 +7679,7 @@
                             if (p.progreso >= 1) {
                                 disparosBoss.splice(i, 1);
                                 jugador.vida -= DANO_IMPACTO; // el disparo del BOSS nunca falla
+                                agregarNumeroFlotante(jugador.x, jugador.y - jugador.r, DANO_IMPACTO, '#F87171');
                                 actualizarBarrasVidaUI();
                                 if (jugador.vida <= 0) { jugador.vida = 0; terminarRonda(false); return; }
                             }
@@ -7717,14 +7762,43 @@
                     ctx.fill();
                 });
 
+                for (let i = numerosFlotantes.length - 1; i >= 0; i--) {
+                    const n = numerosFlotantes[i];
+                    n.t += dt;
+                    if (n.t >= 1) { numerosFlotantes.splice(i, 1); continue; }
+                    ctx.globalAlpha = 1 - n.t;
+                    ctx.font = 'bold 15px sans-serif';
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillStyle = n.color;
+                    ctx.fillText(`-${n.valor}`, n.x, n.y - n.t * 26);
+                    ctx.globalAlpha = 1;
+                }
+
+                // Pequeño bamboleo para que los Mobiles y el BOSS se vean con movimiento
+                // incluso parados, y humo/vapor cuando les queda poca vida.
+                function dibujarHumo(x, y, ahora) {
+                    for (let i = 0; i < 3; i++) {
+                        const fase = ((ahora / 650) + i / 3) % 1;
+                        const py = y - fase * 24;
+                        const px = x + Math.sin(fase * 7 + i * 2) * 5;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 3 + fase * 3, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(203,213,225,${(1 - fase) * 0.5})`;
+                        ctx.fill();
+                    }
+                }
+                const bobBoss = Math.sin(ahora / 220) * 2;
+                const bobJugador = Math.sin(ahora / 220 + 1.5) * 2;
+
                 if (!boss.derrotado) {
                     const bossAturdido = performance.now() < boss.aturdidoHasta;
                     ctx.beginPath();
-                    ctx.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
+                    ctx.arc(boss.x, boss.y + bobBoss, boss.r, 0, Math.PI * 2);
                     ctx.fillStyle = bossAturdido ? '#94A3B8' : '#DC2626';
                     ctx.fill();
                     ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillText('💀', boss.x, boss.y + 1);
+                    ctx.fillText('💀', boss.x, boss.y + bobBoss + 1);
+                    if (boss.vida / VIDA_MAX < 0.3) dibujarHumo(boss.x, boss.y + bobBoss - boss.r, ahora);
                 } else {
                     ctx.beginPath();
                     ctx.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
@@ -7737,15 +7811,16 @@
                 const imgMobil = obtenerImagenMobilCargada(mobilFinal.id);
                 if (imgMobil) {
                     const tam = jugador.r * 2.3;
-                    ctx.drawImage(imgMobil, jugador.x - tam / 2, jugador.y - tam / 2, tam, tam);
+                    ctx.drawImage(imgMobil, jugador.x - tam / 2, jugador.y + bobJugador - tam / 2, tam, tam);
                 } else {
                     ctx.beginPath();
-                    ctx.arc(jugador.x, jugador.y, jugador.r, 0, Math.PI * 2);
+                    ctx.arc(jugador.x, jugador.y + bobJugador, jugador.r, 0, Math.PI * 2);
                     ctx.fillStyle = mobilFinal.color;
                     ctx.fill();
                     ctx.font = '15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillText(mobilFinal.icono, jugador.x, jugador.y + 1);
+                    ctx.fillText(mobilFinal.icono, jugador.x, jugador.y + bobJugador + 1);
                 }
+                if (jugador.vida / VIDA_MAX < 0.3) dibujarHumo(jugador.x, jugador.y + bobJugador - jugador.r, ahora);
 
                 letrasRafId = requestAnimationFrame(bucle);
             }
