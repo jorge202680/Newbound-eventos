@@ -1257,15 +1257,50 @@
         <!-- ===================== PÁGINA: INICIO ===================== -->
         <div class="pagina-vista pagina-inicio space-y-6">
         <!-- CARTEL INFORMATIVO: PRIX (evento especial, se juega fuera de la app) -->
-        <section id="cartel-prix" class="hidden p-4 rounded-3xl bg-gradient-to-br from-morado/20 to-oscuro border-2 border-morado shadow-xl space-y-2">
+        <section id="cartel-prix" class="hidden p-4 rounded-3xl bg-gradient-to-br from-morado/20 to-oscuro border-2 border-morado shadow-xl space-y-3">
             <div class="flex justify-between items-start gap-2">
-                <h3 id="prix-titulo" class="font-black text-sm text-white flex items-center gap-2"><i class="fa fa-trophy text-morado"></i> Prix</h3>
-                <span id="prix-fecha" class="text-[10px] font-bold text-morado bg-morado/10 border border-morado/40 rounded-full px-2.5 py-1 shrink-0"></span>
+                <div class="min-w-0">
+                    <h3 id="prix-titulo" class="font-black text-base text-white leading-tight flex items-center gap-2"><i class="fa fa-trophy text-morado"></i> Prix</h3>
+                    <p id="prix-subtitulo" class="hidden text-[10px] font-bold text-dorado mt-0.5"></p>
+                </div>
             </div>
-            <p id="prix-descripcion" class="text-[11px] text-slate-300 leading-relaxed"></p>
+            <div class="flex flex-wrap gap-2">
+                <span id="prix-fecha" class="hidden text-[10px] font-bold text-morado bg-morado/10 border border-morado/40 rounded-full px-2.5 py-1"><i class="fa fa-calendar"></i> <span></span></span>
+                <span id="prix-hora" class="hidden text-[10px] font-bold text-morado bg-morado/10 border border-morado/40 rounded-full px-2.5 py-1"><i class="fa fa-clock"></i> <span></span></span>
+            </div>
+            <p id="prix-descripcion" class="hidden text-[11px] text-slate-300 leading-relaxed"></p>
+
+            <div id="prix-condiciones" class="hidden grid grid-cols-2 gap-2">
+                <div id="prix-cond-modo" class="hidden p-2 rounded-xl bg-oscuro border border-morado/20 text-center">
+                    <p class="text-[8px] uppercase text-slate-500 font-bold">Modo</p>
+                    <p class="text-[11px] font-black text-white"></p>
+                </div>
+                <div id="prix-cond-avatar" class="hidden p-2 rounded-xl bg-oscuro border border-morado/20 text-center">
+                    <p class="text-[8px] uppercase text-slate-500 font-bold">Avatar</p>
+                    <p class="text-[11px] font-black text-white"></p>
+                </div>
+                <div id="prix-cond-wind" class="hidden p-2 rounded-xl bg-oscuro border border-morado/20 text-center">
+                    <p class="text-[8px] uppercase text-slate-500 font-bold">Wind</p>
+                    <p class="text-[11px] font-black text-white"></p>
+                </div>
+                <div id="prix-cond-teleport" class="hidden p-2 rounded-xl bg-oscuro border border-morado/20 text-center">
+                    <p class="text-[8px] uppercase text-slate-500 font-bold">Teleport</p>
+                    <p class="text-[11px] font-black text-white"></p>
+                </div>
+            </div>
+
+            <div id="prix-bloque-mapas" class="hidden pt-1 border-t border-morado/20">
+                <p class="text-[9px] uppercase tracking-wide text-morado font-bold mb-1">Mapas</p>
+                <div id="prix-mapas-lista" class="flex flex-wrap gap-1.5"></div>
+            </div>
+
+            <div id="prix-bloque-premios" class="hidden pt-1 border-t border-morado/20">
+                <p class="text-[9px] uppercase tracking-wide text-dorado font-bold mb-1">Premios</p>
+                <div id="prix-premios-lista" class="space-y-1"></div>
+            </div>
+
             <div class="pt-1 border-t border-morado/20">
-                <p class="text-[9px] uppercase tracking-wide text-morado font-bold mb-1">Reglas</p>
-                <p id="prix-reglas" class="text-[10px] text-slate-400 leading-relaxed whitespace-pre-line"></p>
+                <p id="prix-reglas" class="hidden text-[10px] text-slate-400 leading-relaxed whitespace-pre-line"></p>
             </div>
             <p class="text-[9px] text-slate-500 italic">🎮 Este evento se juega fuera de la app.</p>
         </section>
@@ -2733,22 +2768,67 @@
                         <i id="seccion-admin-prix-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
                     </button>
                     <div id="seccion-admin-prix" class="hidden px-4 pb-4 space-y-3">
-                        <p class="text-[10px] text-slate-400">Anuncio informativo visible para todos los jugadores en Inicio. El Prix se juega fuera de la app; aquí solo se muestra la info.</p>
+                        <p class="text-[10px] text-slate-400">Anuncio informativo visible para todos los jugadores en Inicio. El Prix se juega fuera de la app; aquí solo se muestra la info. Deja vacío cualquier campo que no aplique — no se muestra si está vacío.</p>
                         <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Título:</label>
-                            <input type="text" id="admin-prix-titulo" placeholder="Ej: Prix de Verano 2026" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                            <label class="text-slate-400 block text-[10px]">Título (ej: PRIX TRICO):</label>
+                            <input type="text" id="admin-prix-titulo" placeholder="Ej: Prix Trico" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
                         </div>
                         <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Fecha (texto libre):</label>
-                            <input type="text" id="admin-prix-fecha" placeholder="Ej: Sábado 15 de agosto, 7pm" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                            <label class="text-slate-400 block text-[10px]">Bono/subtítulo especial:</label>
+                            <input type="text" id="admin-prix-subtitulo" placeholder="Ej: +300% de GP y Gold en todo el server 12" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="space-y-1">
+                                <label class="text-slate-400 block text-[10px]">Fecha:</label>
+                                <input type="text" id="admin-prix-fecha" placeholder="Ej: 25 de marzo" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 block text-[10px]">Hora:</label>
+                                <input type="text" id="admin-prix-hora" placeholder="Ej: 7pm - 9pm (Perú)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                            </div>
+                        </div>
+                        <p class="text-[9px] uppercase tracking-wide text-morado font-bold pt-1">Condiciones del juego</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="space-y-1">
+                                <label class="text-slate-400 block text-[10px]">Modo:</label>
+                                <input type="text" id="admin-prix-modo" placeholder="Ej: 4 vs 4" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 block text-[10px]">Avatar:</label>
+                                <select id="admin-prix-avatar" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                                    <option value="">— No indicar —</option>
+                                    <option value="ON">ON</option>
+                                    <option value="OFF">OFF</option>
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 block text-[10px]">Wind:</label>
+                                <input type="text" id="admin-prix-wind" placeholder="Ej: 26" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                            </div>
+                            <div class="space-y-1">
+                                <label class="text-slate-400 block text-[10px]">Teleport:</label>
+                                <select id="admin-prix-teleport" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                                    <option value="">— No indicar —</option>
+                                    <option value="Habilitado">Habilitado</option>
+                                    <option value="Inhabilitado">Inhabilitado</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Descripción:</label>
-                            <textarea id="admin-prix-descripcion" rows="2" placeholder="De qué se trata el evento" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
+                            <label class="text-slate-400 block text-[10px]">Mapas (uno por línea):</label>
+                            <textarea id="admin-prix-mapas" rows="2" placeholder="Meta Mine&#10;Cave&#10;Sea of Hero B" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
                         </div>
                         <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Reglas:</label>
-                            <textarea id="admin-prix-reglas" rows="3" placeholder="Una regla por línea" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
+                            <label class="text-slate-400 block text-[10px]">Premios (uno por línea, ej "1° - Set completo"):</label>
+                            <textarea id="admin-prix-premios" rows="3" placeholder="1° - Set completo + Background&#10;2° - Set + Background de torneo&#10;5°-6° - Background de torneo" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 block text-[10px]">Descripción / nota importante:</label>
+                            <textarea id="admin-prix-descripcion" rows="2" placeholder="Ej: Si ya tienes un premio, recibirás el siguiente que aún no tengas" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-slate-400 block text-[10px]">Reglas adicionales:</label>
+                            <textarea id="admin-prix-reglas" rows="2" placeholder="Una regla por línea (opcional)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="guardarConfigPrixAdmin()" class="flex-1 py-2 bg-verde text-black font-black rounded-xl text-xs">✅ Publicar Cartel</button>
@@ -3456,7 +3536,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.7.0";
+        const VERSION_APP_ACTUAL = "15.8.0";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
@@ -11337,6 +11417,8 @@
         // ============================================================
         // ===== CARTEL INFORMATIVO: PRIX (evento fuera de la app) =====
         // ============================================================
+        const CAMPOS_TEXTO_PRIX = ['titulo', 'subtitulo', 'fecha', 'hora', 'modo', 'avatar', 'wind', 'teleport', 'descripcion', 'reglas'];
+
         async function cargarConfigPrixNube() {
             if (!firebaseListo) return;
             try {
@@ -11354,43 +11436,53 @@
                 renderizarCartelPrix();
             }, err => console.warn('Error escuchando el cartel de Prix:', err));
         }
+        // Convierte un textarea (una línea por ítem) en un array limpio, sin líneas vacías.
+        function lineasATexto(idTextarea) {
+            const val = document.getElementById(idTextarea)?.value || '';
+            return val.split('\n').map(l => l.trim()).filter(Boolean);
+        }
         function guardarConfigPrixAdmin() {
             const titulo = document.getElementById('admin-prix-titulo')?.value?.trim();
-            const fecha = document.getElementById('admin-prix-fecha')?.value?.trim() || '';
-            const descripcion = document.getElementById('admin-prix-descripcion')?.value?.trim() || '';
-            const reglas = document.getElementById('admin-prix-reglas')?.value?.trim() || '';
             if (!titulo) { alert('Ponle un título al Prix.'); return; }
-            const datos = { activo: true, titulo, fecha, descripcion, reglas };
+            const datos = { activo: true };
+            CAMPOS_TEXTO_PRIX.forEach(campo => {
+                if (campo === 'titulo') { datos.titulo = titulo; return; }
+                datos[campo] = document.getElementById(`admin-prix-${campo}`)?.value?.trim() || '';
+            });
+            datos.mapas = lineasATexto('admin-prix-mapas');
+            datos.premios = lineasATexto('admin-prix-premios');
+
             localStorage.setItem('config_prix', JSON.stringify(datos));
             if (firebaseListo) {
-                dbFirebase.collection('config').doc('prix').set(datos, { merge: true })
+                dbFirebase.collection('config').doc('prix').set(datos)
                     .catch(e => console.warn('No se pudo publicar el cartel de Prix:', e));
             }
             renderizarCartelPrix();
-            actualizarEstadoPrixAdmin();
         }
         function quitarConfigPrixAdmin() {
-            const datos = { activo: false, titulo: '', fecha: '', descripcion: '', reglas: '' };
+            const datos = { activo: false };
             localStorage.setItem('config_prix', JSON.stringify(datos));
-            ['admin-prix-titulo', 'admin-prix-fecha', 'admin-prix-descripcion', 'admin-prix-reglas'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
+            CAMPOS_TEXTO_PRIX.forEach(campo => { const el = document.getElementById(`admin-prix-${campo}`); if (el) el.value = ''; });
+            ['admin-prix-mapas', 'admin-prix-premios'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
             if (firebaseListo) {
-                dbFirebase.collection('config').doc('prix').set(datos, { merge: true })
+                dbFirebase.collection('config').doc('prix').set(datos)
                     .catch(e => console.warn('No se pudo quitar el cartel de Prix:', e));
             }
             renderizarCartelPrix();
-            actualizarEstadoPrixAdmin();
         }
-        function actualizarEstadoPrixAdmin() {
+        function actualizarEstadoPrixAdmin(cfg) {
             const el = document.getElementById('admin-prix-estado');
             if (!el) return;
-            let cfg = null;
-            try { cfg = JSON.parse(localStorage.getItem('config_prix')); } catch (e) {}
             el.textContent = (cfg && cfg.activo && cfg.titulo)
                 ? '🟢 Cartel publicado y visible para todos en Inicio.'
                 : '⚪ No hay cartel de Prix activo ahora mismo.';
+        }
+        // Rellena una etiqueta con badge tipo "Modo: 4vs4"; se oculta sola si viene vacío.
+        function pintarCondicionPrix(idBloque, valor) {
+            const bloque = document.getElementById(idBloque);
+            if (!bloque) return;
+            bloque.classList.toggle('hidden', !valor);
+            if (valor) bloque.querySelector('p:last-child').textContent = valor;
         }
         function renderizarCartelPrix() {
             let cfg = null;
@@ -11398,23 +11490,55 @@
 
             const campoTitulo = document.getElementById('admin-prix-titulo');
             if (campoTitulo && cfg) {
-                campoTitulo.value = cfg.titulo || '';
-                document.getElementById('admin-prix-fecha').value = cfg.fecha || '';
-                document.getElementById('admin-prix-descripcion').value = cfg.descripcion || '';
-                document.getElementById('admin-prix-reglas').value = cfg.reglas || '';
+                CAMPOS_TEXTO_PRIX.forEach(campo => { const el = document.getElementById(`admin-prix-${campo}`); if (el) el.value = cfg[campo] || ''; });
+                document.getElementById('admin-prix-mapas').value = (cfg.mapas || []).join('\n');
+                document.getElementById('admin-prix-premios').value = (cfg.premios || []).join('\n');
             }
-            actualizarEstadoPrixAdmin();
+            actualizarEstadoPrixAdmin(cfg);
 
             const seccion = document.getElementById('cartel-prix');
             if (!seccion) return;
             if (!cfg || !cfg.activo || !cfg.titulo) { seccion.classList.add('hidden'); return; }
+
             document.getElementById('prix-titulo').innerHTML = `<i class="fa fa-trophy text-morado"></i> ${cfg.titulo}`;
-            document.getElementById('prix-fecha').textContent = cfg.fecha || '';
-            document.getElementById('prix-fecha').classList.toggle('hidden', !cfg.fecha);
-            document.getElementById('prix-descripcion').textContent = cfg.descripcion || '';
-            document.getElementById('prix-descripcion').classList.toggle('hidden', !cfg.descripcion);
-            document.getElementById('prix-reglas').textContent = cfg.reglas || '';
-            seccion.querySelector('.border-t')?.classList.toggle('hidden', !cfg.reglas);
+            const elSub = document.getElementById('prix-subtitulo');
+            elSub.textContent = cfg.subtitulo || '';
+            elSub.classList.toggle('hidden', !cfg.subtitulo);
+
+            const elFecha = document.getElementById('prix-fecha');
+            elFecha.classList.toggle('hidden', !cfg.fecha);
+            if (cfg.fecha) elFecha.querySelector('span').textContent = cfg.fecha;
+            const elHora = document.getElementById('prix-hora');
+            elHora.classList.toggle('hidden', !cfg.hora);
+            if (cfg.hora) elHora.querySelector('span').textContent = cfg.hora;
+
+            const elDesc = document.getElementById('prix-descripcion');
+            elDesc.textContent = cfg.descripcion || '';
+            elDesc.classList.toggle('hidden', !cfg.descripcion);
+
+            pintarCondicionPrix('prix-cond-modo', cfg.modo);
+            pintarCondicionPrix('prix-cond-avatar', cfg.avatar);
+            pintarCondicionPrix('prix-cond-wind', cfg.wind);
+            pintarCondicionPrix('prix-cond-teleport', cfg.teleport);
+            document.getElementById('prix-condiciones').classList.toggle('hidden', !(cfg.modo || cfg.avatar || cfg.wind || cfg.teleport));
+
+            const mapas = cfg.mapas || [];
+            document.getElementById('prix-bloque-mapas').classList.toggle('hidden', mapas.length === 0);
+            document.getElementById('prix-mapas-lista').innerHTML = mapas.map(m =>
+                `<span class="text-[10px] font-bold text-white bg-oscuro border border-morado/30 rounded-lg px-2 py-1">🗺️ ${m}</span>`
+            ).join('');
+
+            const premios = cfg.premios || [];
+            document.getElementById('prix-bloque-premios').classList.toggle('hidden', premios.length === 0);
+            document.getElementById('prix-premios-lista').innerHTML = premios.map(p =>
+                `<p class="text-[10px] text-slate-300 bg-oscuro border border-dorado/20 rounded-lg px-2 py-1.5">🏆 ${p}</p>`
+            ).join('');
+
+            const elReglas = document.getElementById('prix-reglas');
+            elReglas.textContent = cfg.reglas || '';
+            elReglas.classList.toggle('hidden', !cfg.reglas);
+            elReglas.closest('.border-t')?.classList.toggle('hidden', !cfg.reglas);
+
             seccion.classList.remove('hidden');
         }
 
