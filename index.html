@@ -7299,9 +7299,23 @@
                 octx.drawImage(img, 0, 0, off.width, off.height);
                 const datos = octx.getImageData(0, 0, off.width, off.height);
                 const px = datos.data;
+                const UMBRAL_NUCLEO = 38; // "verdor" a partir del cual el píxel es 100% fondo verde
+                const UMBRAL_BORDE = 8;   // por debajo de esto, el píxel se considera parte del sprite
                 for (let i = 0; i < px.length; i += 4) {
                     const r = px[i], g = px[i + 1], b = px[i + 2];
-                    if (g > 55 && g > r * 1.15 && g > b * 1.15) px[i + 3] = 0;
+                    const maxRB = Math.max(r, b);
+                    const verdor = g - maxRB; // qué tan más verde es este píxel que sus otros canales
+                    if (verdor >= UMBRAL_NUCLEO) {
+                        // núcleo del fondo verde: totalmente transparente
+                        px[i + 3] = 0;
+                    } else if (verdor > UMBRAL_BORDE) {
+                        // halo/borde verdoso típico del antialiasing contra el fondo (lo que quedaba
+                        // como "residuo" verde alrededor del sprite): se atenúa gradualmente la
+                        // transparencia y se le quita el derrame de verde al color en vez de dejarlo tal cual
+                        const factor = (verdor - UMBRAL_BORDE) / (UMBRAL_NUCLEO - UMBRAL_BORDE); // 0..1
+                        px[i + 3] = Math.round(px[i + 3] * (1 - factor));
+                        px[i + 1] = Math.round(g - verdor * factor);
+                    }
                 }
                 octx.putImageData(datos, 0, 0);
                 return off;
@@ -7513,10 +7527,10 @@
             function posicionLibre(radio, ocupados, xMin, xMax) {
                 for (let intento = 0; intento < 40; intento++) {
                     const x = xMin + Math.random() * (xMax - xMin);
-                    const y = 40 + Math.random() * (ALTO - 80);
-                    if (ocupados.every(o => Math.hypot(o.x - x, o.y - y) > radio + o.r + 12)) return { x, y };
+                    const y = ALTO * 0.32 + Math.random() * (ALTO * 0.58 - ALTO * 0.32); // debajo del sol, arriba del piso del cañón
+                    if (ocupados.every(o => Math.hypot(o.x - x, o.y - y) > radio + o.r + 10)) return { x, y };
                 }
-                return { x: (xMin + xMax) / 2, y: ALTO / 2 + (Math.random() - 0.5) * 40 };
+                return { x: xMin + Math.random() * (xMax - xMin), y: ALTO * 0.45 + (Math.random() - 0.5) * 40 };
             }
 
             // ===== JUGADOR vs BOSS, por turnos: se sortea quién empieza. En su turno, cada
@@ -7530,7 +7544,7 @@
             const VIDA_MAX = Math.max(100, configLetras.vida || 3000);
             const DANO_IMPACTO = Math.max(1, configLetras.dano || 100);
             const DURACION_TURNO = letrasDuracionTurnoSeleccionada || 10;
-            const X_HUECO_MIN = ANCHO * 0.42, X_HUECO_MAX = ANCHO * 0.58; // cañón central entre las dos mesetas
+            const X_HUECO_MIN = ANCHO * 0.33, X_HUECO_MAX = ANCHO * 0.67; // cañón central entre las dos mesetas (ancho, para que las letras no se amontonen)
 
             // ===== VIENTO: valor decorativo que también empuja levemente los proyectiles del
             // jugador (como en los juegos de artillería por turnos), se sortea de nuevo al
@@ -7549,8 +7563,8 @@
             }
             sortearViento();
 
-            const jugador = { x: ANCHO * 0.16, y: ALTO * 0.58, r: 15, vel: 100, vida: VIDA_MAX };
-            const boss = { x: ANCHO * 0.84, y: ALTO * 0.58, r: 17, vel: 55, vida: VIDA_MAX, derrotado: false, aturdidoHasta: 0 };
+            const jugador = { x: ANCHO * 0.16, y: ALTO * 0.58, r: 24, vel: 100, vida: VIDA_MAX };
+            const boss = { x: ANCHO * 0.84, y: ALTO * 0.58, r: 26, vel: 55, vida: VIDA_MAX, derrotado: false, aturdidoHasta: 0 };
             const ocupadosIniciales = [{ x: jugador.x, y: jugador.y, r: jugador.r }, { x: boss.x, y: boss.y, r: boss.r }];
             const letrasActivadas = faltantes.length > 0 && (Math.random() * 100 < (configLetras.probLetras !== undefined ? configLetras.probLetras : 35));
             const letrasTiles = letrasActivadas ? faltantes.map(letra => {
@@ -7885,11 +7899,36 @@
                 dibujarMeseta(0, X_HUECO_MIN, true);
                 dibujarMeseta(X_HUECO_MAX, ANCHO, false);
 
-                const gradFoso = ctx.createLinearGradient(0, ALTO * 0.62, 0, ALTO);
-                gradFoso.addColorStop(0, 'rgba(30,15,12,0.92)');
-                gradFoso.addColorStop(1, 'rgba(8,4,4,0.98)');
-                ctx.fillStyle = gradFoso;
-                ctx.fillRect(X_HUECO_MIN, ALTO * 0.62, X_HUECO_MAX - X_HUECO_MIN, ALTO * 0.4);
+                // Piso del cañón: en vez de un rectángulo negro sólido, sigue el mismo borde
+                // irregular de las mesetas (como una grieta real entre las dos rocas) y tiene
+                // textura de piedra en vez de ser un color plano.
+                (function dibujarPozoCanion() {
+                    const topeIzq = x => ALTO * 0.62 + Math.sin(x * 0.05 + 2) * 6;
+                    const topeDer = x => ALTO * 0.62 + Math.sin(x * 0.05 + 7) * 6;
+                    ctx.beginPath();
+                    ctx.moveTo(X_HUECO_MIN, topeIzq(X_HUECO_MIN));
+                    ctx.lineTo(X_HUECO_MAX, topeDer(X_HUECO_MAX));
+                    ctx.lineTo(X_HUECO_MAX, ALTO);
+                    ctx.lineTo(X_HUECO_MIN, ALTO);
+                    ctx.closePath();
+                    const gradFoso = ctx.createLinearGradient(0, ALTO * 0.6, 0, ALTO);
+                    gradFoso.addColorStop(0, '#7A4530');
+                    gradFoso.addColorStop(0.35, '#4A2A1E');
+                    gradFoso.addColorStop(0.7, '#2A1610');
+                    gradFoso.addColorStop(1, '#140A08');
+                    ctx.save();
+                    ctx.fillStyle = gradFoso;
+                    ctx.fill();
+                    ctx.clip();
+                    // motitas de piedra para que no se vea como un color plano
+                    ctx.fillStyle = 'rgba(0,0,0,0.25)';
+                    for (let i = 0; i < 10; i++) {
+                        const px = X_HUECO_MIN + ((i * 37) % (X_HUECO_MAX - X_HUECO_MIN));
+                        const py = ALTO * 0.68 + ((i * 53) % (ALTO * 0.3));
+                        ctx.beginPath(); ctx.ellipse(px, py, 6, 3, 0, 0, Math.PI * 2); ctx.fill();
+                    }
+                    ctx.restore();
+                })();
 
                 // Línea de trayectoria predicha (con la misma gravedad y viento reales del disparo),
                 // visible solo mientras el jugador está apuntando en su propio turno.
@@ -8004,7 +8043,7 @@
                     ctx.fillStyle = bossAturdido ? '#94A3B8' : '#B91C1C';
                     ctx.fill();
                     ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 2; ctx.stroke();
-                    ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.font = '26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText('💀', boss.x, boss.y + bobBoss + 1);
                     if (boss.vida / VIDA_MAX < 0.3) dibujarHumo(boss.x, boss.y + bobBoss - boss.r, ahora);
                 } else {
@@ -8012,7 +8051,7 @@
                     ctx.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
                     ctx.fillStyle = 'rgba(148,163,184,0.35)';
                     ctx.fill();
-                    ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.font = '26px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText('☠️', boss.x, boss.y + 1);
                 }
 
@@ -8020,7 +8059,7 @@
                 const imgMobil = obtenerImagenMobilCargada(mobilFinal.id);
                 if (imgMobil) {
                     // el sprite ya viene con el fondo verde recortado (transparente), se dibuja aislado
-                    const tam = jugador.r * 2.5;
+                    const tam = jugador.r * 2.7;
                     ctx.drawImage(imgMobil, jugador.x - tam / 2, jugador.y + bobJugador - tam / 2, tam, tam);
                 } else {
                     ctx.beginPath();
@@ -8028,7 +8067,7 @@
                     ctx.fillStyle = mobilFinal.color;
                     ctx.fill();
                     ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
-                    ctx.font = '15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText(mobilFinal.icono, jugador.x, jugador.y + bobJugador + 1);
                 }
                 if (jugador.vida / VIDA_MAX < 0.3) dibujarHumo(jugador.x, jugador.y + bobJugador - jugador.r, ahora);
