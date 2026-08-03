@@ -1667,8 +1667,13 @@
                             <button type="button" data-dur="20" onclick="elegirDuracionTurnoLetras(20)" class="letras-btn-duracion py-2 rounded-xl bg-oscuro border border-borde text-white text-xs font-black">20s</button>
                         </div>
                     </div>
-                    <p class="text-[11px] text-slate-400 font-bold">Elige tu Mobil para enfrentar al BOSS:</p>
+                    <div class="flex items-center justify-between">
+                        <p class="text-[11px] text-slate-400 font-bold">Elige tu Mobil para enfrentar al BOSS:</p>
+                        <button type="button" onclick="abrirTiendaLetras()" class="shrink-0 px-2.5 py-1 rounded-lg bg-gradient-to-r from-morado to-indigo-600 text-white text-[10px] font-black shadow flex items-center gap-1"><i class="fa fa-cart-shopping"></i> Tienda</button>
+                    </div>
                     <div id="letras-mobiles-grid" class="grid grid-cols-4 gap-2"></div>
+                    <p class="text-[11px] text-slate-400 font-bold">Elige tu Personaje (se sienta en tu Mobil):</p>
+                    <div id="letras-personajes-grid" class="grid grid-cols-4 gap-2"></div>
                 </div>
 
                 <!-- ÁREA DE JUEGO: canvas + D-pad + zona de arrastre para disparar -->
@@ -1757,6 +1762,22 @@
 
                 <button id="btn-reclamar-letras" onclick="reclamarPremioLetras()" class="hidden w-full py-3 bg-gradient-to-r from-dorado to-naranja text-black font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">🎁 RECLAMAR PREMIO</button>
                 <div id="resultado-letras" class="hidden text-xs font-black"></div>
+            </div>
+        </div>
+
+        <!-- MODAL TIENDA DE LETRAS: exclusiva para desbloquear Mobiles y Personajes del minijuego de Letras -->
+        <div id="modal-tienda-letras" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+            <div class="bg-medio border border-morado/40 w-full max-w-md rounded-3xl p-5 space-y-3 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center border-b border-borde pb-3">
+                    <h3 class="font-black text-sm text-morado flex items-center gap-2"><i class="fa fa-cart-shopping"></i> Tienda de Letras</h3>
+                    <button onclick="cerrarVentana('modal-tienda-letras')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+                </div>
+                <p class="text-[10px] text-slate-400">Desbloqueá Mobiles y Personajes exclusivos del minijuego de Letras. Se pagan con tus monedas 🪙.</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="tab-btn-tienda-letras-mobiles" onclick="cambiarTabTiendaLetras('mobiles')" class="py-2 rounded-xl bg-morado text-black font-black text-[11px]">🚀 Mobiles</button>
+                    <button type="button" id="tab-btn-tienda-letras-personajes" onclick="cambiarTabTiendaLetras('personajes')" class="py-2 rounded-xl bg-oscuro border border-borde text-white font-black text-[11px]">🧑 Personajes</button>
+                </div>
+                <div id="contenedor-tienda-letras" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
             </div>
         </div>
 
@@ -3507,9 +3528,13 @@
                         </label>
                     </div>
                 </div>
-                <h4 class="font-black text-xs text-azul uppercase tracking-wider">Imágenes de los Mobiles</h4>
-                <p class="text-[10px] text-slate-400">Subí una imagen para cada Mobil (se usa en el mapa y en la selección en vez del ícono). Si no subís ninguna, se sigue mostrando el ícono por defecto. Se guarda solo al subir, no hace falta tocar "Guardar".</p>
+                <h4 class="font-black text-xs text-azul uppercase tracking-wider">Mobiles: Imagen y Precio en la Tienda de Letras</h4>
+                <p class="text-[10px] text-slate-400">Subí una imagen para cada Mobil (se usa en el mapa y en la selección en vez del ícono). El precio en monedas 🪙 es lo que cuesta desbloquearlo en la Tienda de Letras; dejalo en 0 para que sea gratis desde el inicio. Todo se guarda solo, no hace falta tocar "Guardar".</p>
                 <div id="admin-letras-mobiles-imgs" class="space-y-1.5"></div>
+
+                <h4 class="font-black text-xs text-morado uppercase tracking-wider">Personajes: Imagen y Precio en la Tienda de Letras</h4>
+                <p class="text-[10px] text-slate-400">Los Personajes se sientan arriba del Mobil elegido durante la ronda. Subí una imagen para cada uno y ponele un precio en monedas 🪙 (0 = gratis desde el inicio). "Ninguno" siempre es gratis.</p>
+                <div id="admin-letras-personajes-imgs" class="space-y-1.5"></div>
             </div>
 
             <div class="flex gap-2 pt-3 border-t border-borde">
@@ -3592,7 +3617,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.11.0";
+        const VERSION_APP_ACTUAL = "15.12.0";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
@@ -3886,6 +3911,12 @@
             if(id === 'modal-torneo-equipo') { renderizarCuadroTorneoEquipo(); centrarBracketTorneoEquipo(); }
             if(id === 'modal-top') { renderizarTopSemanal(); }
             if(id === 'modal-telegram-vincular') { renderizarEstadoModalTelegram(); }
+            if(id === 'modal-tienda-letras') { cambiarTabTiendaLetras('mobiles'); }
+        }
+
+        // Abre la Tienda de Letras por encima del modal del minijuego (sin cerrarlo, para volver directo).
+        function abrirTiendaLetras() {
+            abrirVentana('modal-tienda-letras');
         }
 
         function cerrarVentana(id) {
@@ -4030,6 +4061,8 @@
             if (Array.isArray(d.reclamosGM)) d.reclamosGM.forEach(idx => localStorage.setItem(`reclamado_gm_${d.usuario}_${idx}`, 'true'));
             if (typeof d.gastoSemanal === 'number' && d.semanaGastoId) localStorage.setItem(`gasto_semanal_${d.semanaGastoId}_${d.usuario}`, d.gastoSemanal);
             if (typeof d.tarjetasVip === 'number') localStorage.setItem(`tarjetas_vip_${d.usuario}`, d.tarjetasVip);
+            if (Array.isArray(d.mobilesCompradosLetras)) localStorage.setItem(`mobiles_comprados_letras_${d.usuario}`, JSON.stringify(d.mobilesCompradosLetras));
+            if (Array.isArray(d.personajesCompradosLetras)) localStorage.setItem(`personajes_comprados_letras_${d.usuario}`, JSON.stringify(d.personajesCompradosLetras));
             // El multiplicador del usuario ACTIVO solo se descuenta en este dispositivo (localStorage);
             // la nube guarda un valor "congelado" desde la última compra o expiración. Si lo fusionáramos
             // aquí, cada sincronización (cada 15s o al entrar) reiniciaría el reloj al valor viejo.
@@ -5388,7 +5421,12 @@
 
         let premiosGarra = JSON.parse(localStorage.getItem('premios_garra_app')) || Array(8).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 25 }));
         let premiosFutbolMini = JSON.parse(localStorage.getItem('premios_futbol_mini_app')) || Array(5).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 20 }));
-        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, vida: 3000, dano: 100, probLetras: 35, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 }, premioBoss: { monedas: 0, gemas: 0 }, imagenesMobiles: {} };
+        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, vida: 3000, dano: 100, probLetras: 35, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 }, premioBoss: { monedas: 0, gemas: 0 }, imagenesMobiles: {}, imagenesPersonajes: {}, preciosMobiles: {}, preciosPersonajes: {} };
+        configLetras.imagenesPersonajes = configLetras.imagenesPersonajes || {};
+        configLetras.preciosMobiles = configLetras.preciosMobiles || {};
+        configLetras.preciosPersonajes = configLetras.preciosPersonajes || {};
+        // Personaje elegido para sentarse en el Mobil durante la ronda actual ('ninguno' = sin jinete).
+        let letrasPersonajeSeleccionado = 'ninguno';
         let configGarra = JSON.parse(localStorage.getItem('config_garra_app')) || { costo: 15 };
         let jugandoGarra = false;
 
@@ -7179,6 +7217,19 @@
             { id: 'random',    nombre: 'Random',    icono: '🎲', color: '#94A3B8', bala: '#E2E8F0' }
         ];
 
+        // Roster de Personajes que se pueden sentar arriba del Mobil durante la ronda de Letras.
+        // "Ninguno" es el jinete por defecto: siempre desbloqueado y gratis (el Mobil se ve solo, como hoy).
+        const PERSONAJES_LETRAS = [
+            { id: 'ninguno',   nombre: 'Ninguno',   icono: '🚫' },
+            { id: 'guerrero',  nombre: 'Guerrero',  icono: '🧑‍🚀' },
+            { id: 'maga',      nombre: 'Maga',      icono: '🧙‍♀️' },
+            { id: 'ninja',     nombre: 'Ninja',     icono: '🥷' },
+            { id: 'caballero', nombre: 'Caballero', icono: '🛡️' },
+            { id: 'piloto',    nombre: 'Piloto',    icono: '👨‍✈️' },
+            { id: 'robot',     nombre: 'Robot',     icono: '🤖' },
+            { id: 'vaquero',   nombre: 'Vaquero',   icono: '🤠' }
+        ];
+
         // Registra el autoguardado de la imagen de cada Mobil: al subir el archivo se
         // guarda al instante en configLetras.imagenesMobiles (sin necesitar tocar "Guardar").
         MOBILES_LETRAS.filter(m => m.id !== 'random').forEach(m => {
@@ -7191,6 +7242,94 @@
                 if (typeof generarFormularioMobilesLetrasAdmin === 'function') generarFormularioMobilesLetrasAdmin();
             };
         });
+
+        // Registra el autoguardado de la imagen de cada Personaje (mismo patrón que los Mobiles).
+        PERSONAJES_LETRAS.filter(p => p.id !== 'ninguno').forEach(p => {
+            AUTOGUARDADO_IMAGENES_SIMPLES[`admin-letras-personajeimg-${p.id}`] = () => {
+                configLetras.imagenesPersonajes = configLetras.imagenesPersonajes || {};
+                configLetras.imagenesPersonajes[p.id] = document.getElementById(`admin-letras-personajeimg-${p.id}`)?.value || '';
+                localStorage.setItem('config_letras_app', JSON.stringify(configLetras));
+                letrasImagenesPersonajesCache = {};
+                if (typeof renderizarSeleccionPersonajesLetras === 'function') renderizarSeleccionPersonajesLetras();
+                if (typeof generarFormularioPersonajesLetrasAdmin === 'function') generarFormularioPersonajesLetrasAdmin();
+            };
+        });
+
+        // ===== TIENDA DE LETRAS: desbloqueo de Mobiles y Personajes exclusivos del minijuego =====
+        function obtenerMobilesCompradosLetras(usuario) {
+            try { return JSON.parse(localStorage.getItem(`mobiles_comprados_letras_${usuario}`) || '[]'); } catch(e) { return []; }
+        }
+        function obtenerPersonajesCompradosLetras(usuario) {
+            try { return JSON.parse(localStorage.getItem(`personajes_comprados_letras_${usuario}`) || '[]'); } catch(e) { return []; }
+        }
+        function mobilLetrasDesbloqueado(id) {
+            const precio = (configLetras.preciosMobiles && configLetras.preciosMobiles[id]) || 0;
+            if (id === 'random' || precio <= 0) return true;
+            return obtenerMobilesCompradosLetras(usuarioActual).includes(id);
+        }
+        function personajeLetrasDesbloqueado(id) {
+            const precio = (configLetras.preciosPersonajes && configLetras.preciosPersonajes[id]) || 0;
+            if (id === 'ninguno' || precio <= 0) return true;
+            return obtenerPersonajesCompradosLetras(usuarioActual).includes(id);
+        }
+
+        let letrasTabTiendaActiva = 'mobiles';
+        function cambiarTabTiendaLetras(tab) {
+            letrasTabTiendaActiva = tab;
+            const btnM = document.getElementById('tab-btn-tienda-letras-mobiles');
+            const btnP = document.getElementById('tab-btn-tienda-letras-personajes');
+            if (btnM) btnM.className = `py-2 rounded-xl font-black text-[11px] ${tab === 'mobiles' ? 'bg-morado text-black' : 'bg-oscuro border border-borde text-white'}`;
+            if (btnP) btnP.className = `py-2 rounded-xl font-black text-[11px] ${tab === 'personajes' ? 'bg-morado text-black' : 'bg-oscuro border border-borde text-white'}`;
+            renderizarTiendaLetras();
+        }
+
+        function renderizarTiendaLetras() {
+            const cont = document.getElementById('contenedor-tienda-letras');
+            if (!cont) return;
+            const esMobiles = letrasTabTiendaActiva === 'mobiles';
+            const lista = esMobiles ? MOBILES_LETRAS.filter(m => m.id !== 'random') : PERSONAJES_LETRAS.filter(p => p.id !== 'ninguno');
+            const precios = esMobiles ? (configLetras.preciosMobiles || {}) : (configLetras.preciosPersonajes || {});
+            const imagenes = esMobiles ? (configLetras.imagenesMobiles || {}) : (configLetras.imagenesPersonajes || {});
+            cont.innerHTML = lista.map(item => {
+                const precio = precios[item.id] || 0;
+                const desbloqueado = esMobiles ? mobilLetrasDesbloqueado(item.id) : personajeLetrasDesbloqueado(item.id);
+                const url = imagenes[item.id];
+                const visual = url ? `<img src="${url}" class="w-12 h-12 object-contain mx-auto">` : `<span class="text-3xl block text-center">${item.icono}</span>`;
+                const boton = desbloqueado
+                    ? `<span class="w-full block text-center py-1.5 bg-verde/15 text-verde font-black text-[10px] rounded-xl"><i class="fa fa-check"></i> Adquirido</span>`
+                    : `<button onclick="comprarItemTiendaLetras('${esMobiles ? 'mobiles' : 'personajes'}','${item.id}')" class="w-full py-1.5 bg-gradient-to-r from-morado to-indigo-600 text-white font-black text-[10px] rounded-xl shadow hover:opacity-90 transition">🪙 ${precio}</button>`;
+                return `<div class="p-3 bg-oscuro rounded-2xl border border-borde space-y-2">${visual}<h4 class="font-black text-[11px] text-white text-center truncate">${item.nombre}</h4>${boton}</div>`;
+            }).join('');
+        }
+
+        function comprarItemTiendaLetras(tipo, id) {
+            if (!usuarioActual) return;
+            const precios = tipo === 'mobiles' ? (configLetras.preciosMobiles || {}) : (configLetras.preciosPersonajes || {});
+            const precio = precios[id] || 0;
+            if (precio <= 0) return;
+            if (saldo < precio) { alert('⚠️ Saldo insuficiente para esta compra.'); return; }
+
+            saldo -= precio;
+            localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube();
+            sumarGastoSemanal(usuarioActual, precio);
+            actualizarInterfazUsuario();
+
+            const clave = tipo === 'mobiles' ? `mobiles_comprados_letras_${usuarioActual}` : `personajes_comprados_letras_${usuarioActual}`;
+            const lista = (tipo === 'mobiles' ? obtenerMobilesCompradosLetras(usuarioActual) : obtenerPersonajesCompradosLetras(usuarioActual));
+            if (!lista.includes(id)) lista.push(id);
+            localStorage.setItem(clave, JSON.stringify(lista));
+            guardarCampoUsuarioNube(usuarioActual, tipo === 'mobiles' ? { saldo, mobilesCompradosLetras: lista } : { saldo, personajesCompradosLetras: lista });
+
+            const nombre = (tipo === 'mobiles' ? MOBILES_LETRAS : PERSONAJES_LETRAS).find(x => x.id === id)?.nombre || id;
+            if (typeof reproducirSFX === 'function') { try { reproducirSFX('comprar'); } catch(e) {} }
+            alert(`🎉 ¡Desbloqueaste "${nombre}" en la Tienda de Letras!`);
+            enviarNotificacionTelegram(`${usuarioActual} desbloqueó "${nombre}" en la Tienda de Letras 🔤`);
+            agregarNotificacionApp(`🔤 Desbloqueaste "${nombre}" en la Tienda de Letras`, 'fa-spell-check');
+
+            renderizarTiendaLetras();
+            renderizarSeleccionMobilesLetras();
+            renderizarSeleccionPersonajesLetras();
+        }
 
         function renderizarPillsLetras(data) {
             const grid = document.getElementById('letras-palabra-grid');
@@ -7209,13 +7348,43 @@
             if (!cont) return;
             cont.innerHTML = MOBILES_LETRAS.map(m => {
                 const url = configLetras.imagenesMobiles && configLetras.imagenesMobiles[m.id];
-                const visual = url ? `<img src="${url}" class="w-7 h-7 object-contain">` : `<span class="text-lg">${m.icono}</span>`;
+                const desbloqueado = mobilLetrasDesbloqueado(m.id);
+                const visual = url ? `<img src="${url}" class="w-7 h-7 object-contain${desbloqueado ? '' : ' opacity-40'}">` : `<span class="text-lg${desbloqueado ? '' : ' opacity-40'}">${m.icono}</span>`;
+                const candado = desbloqueado ? '' : `<i class="fa fa-lock absolute top-1 right-1 text-[8px] text-dorado"></i>`;
+                const accion = desbloqueado ? `iniciarRondaLetras('${m.id}')` : `abrirTiendaLetras()`;
                 return `
-                <button type="button" onclick="iniciarRondaLetras('${m.id}')" class="p-2 rounded-xl bg-oscuro border border-borde hover:border-azul transition flex flex-col items-center gap-0.5">
+                <button type="button" onclick="${accion}" class="relative p-2 rounded-xl bg-oscuro border border-borde hover:border-azul transition flex flex-col items-center gap-0.5">
+                    ${candado}
                     ${visual}
-                    <span class="text-[8px] font-bold text-white truncate w-full">${m.nombre}</span>
+                    <span class="text-[8px] font-bold text-white truncate w-full${desbloqueado ? '' : ' opacity-40'}">${m.nombre}</span>
                 </button>`;
             }).join('');
+        }
+
+        function renderizarSeleccionPersonajesLetras() {
+            const cont = document.getElementById('letras-personajes-grid');
+            if (!cont) return;
+            if (!PERSONAJES_LETRAS.some(p => p.id === letrasPersonajeSeleccionado && personajeLetrasDesbloqueado(p.id))) letrasPersonajeSeleccionado = 'ninguno';
+            cont.innerHTML = PERSONAJES_LETRAS.map(p => {
+                const url = configLetras.imagenesPersonajes && configLetras.imagenesPersonajes[p.id];
+                const desbloqueado = personajeLetrasDesbloqueado(p.id);
+                const activo = letrasPersonajeSeleccionado === p.id;
+                const visual = url ? `<img src="${url}" class="w-7 h-7 object-contain${desbloqueado ? '' : ' opacity-40'}">` : `<span class="text-lg${desbloqueado ? '' : ' opacity-40'}">${p.icono}</span>`;
+                const candado = desbloqueado ? '' : `<i class="fa fa-lock absolute top-1 right-1 text-[8px] text-dorado"></i>`;
+                const accion = desbloqueado ? `elegirPersonajeLetras('${p.id}')` : `abrirTiendaLetras()`;
+                return `
+                <button type="button" onclick="${accion}" class="relative p-2 rounded-xl bg-oscuro border ${activo ? 'border-azul' : 'border-borde'} hover:border-azul transition flex flex-col items-center gap-0.5">
+                    ${candado}
+                    ${visual}
+                    <span class="text-[8px] font-bold text-white truncate w-full${desbloqueado ? '' : ' opacity-40'}">${p.nombre}</span>
+                </button>`;
+            }).join('');
+        }
+
+        function elegirPersonajeLetras(id) {
+            if (!personajeLetrasDesbloqueado(id)) { abrirTiendaLetras(); return; }
+            letrasPersonajeSeleccionado = id;
+            renderizarSeleccionPersonajesLetras();
         }
 
         function renderizarLetrasVista() {
@@ -7245,6 +7414,7 @@
             const data = obtenerProgresoLetras();
             renderizarPillsLetras(data);
             renderizarSeleccionMobilesLetras();
+            renderizarSeleccionPersonajesLetras();
 
             const premio = configLetras.premio || {};
             const imgEl = document.getElementById('letras-premio-img');
@@ -7349,6 +7519,61 @@
             img.src = url;
             letrasImagenesCache[id] = nuevaEntrada;
             return null;
+        }
+
+        let letrasImagenesPersonajesCache = {}; // cache de imágenes de Personajes, igual que letrasImagenesCache para Mobiles
+
+        // Mismo patrón que obtenerImagenMobilCargada pero para el Personaje que va sentado arriba del Mobil.
+        function obtenerImagenPersonajeCargada(id) {
+            if (!id || id === 'ninguno') return null;
+            const url = configLetras.imagenesPersonajes && configLetras.imagenesPersonajes[id];
+            if (!url) return null;
+            const entrada = letrasImagenesPersonajesCache[id];
+            if (entrada && entrada.src === url) return entrada.completo ? entrada.img : null;
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            const nuevaEntrada = { img: null, src: url, completo: false };
+            img.onload = () => { nuevaEntrada.img = quitarFondoVerdeSprite(img); nuevaEntrada.completo = true; };
+            img.src = url;
+            letrasImagenesPersonajesCache[id] = nuevaEntrada;
+            return null;
+        }
+
+        // Dibuja al Personaje "sentado" arriba del Mobil, en el asiento (centro-arriba), con un balanceo
+        // de cabeza sutil y continuo, más un "vistazo" (giro más marcado) cada pocos segundos.
+        function dibujarPersonajeSobreMobil(ctx, id, xMobil, yMobilConBob, tamMobil, ahora) {
+            if (!id || id === 'ninguno') return;
+            const personaje = PERSONAJES_LETRAS.find(p => p.id === id);
+            if (!personaje) return;
+
+            // Balanceo continuo, suave (respiración/postura).
+            const balanceo = Math.sin(ahora / 600) * 0.035;
+            // Cada ~4.5s hace un "vistazo" de cabeza más marcado durante ~0.9s (ida y vuelta), como si
+            // mirara a los costados; el resto del tiempo queda casi quieto.
+            const cicloMs = 4500, duracionMs = 900;
+            const faseCiclo = ahora % cicloMs;
+            let vistazo = 0;
+            if (faseCiclo < duracionMs) {
+                vistazo = Math.sin((faseCiclo / duracionMs) * Math.PI) * 0.22;
+            }
+            const rotacion = balanceo + vistazo;
+
+            const tamPersonaje = tamMobil * 0.62; // el jinete se ve un poco más chico que el Mobil
+            const asientoX = xMobil;
+            const asientoY = yMobilConBob - tamMobil * 0.46; // "asiento" arriba-centro del Mobil
+
+            ctx.save();
+            ctx.translate(asientoX, asientoY);
+            ctx.rotate(rotacion);
+            const imgPersonaje = obtenerImagenPersonajeCargada(id);
+            if (imgPersonaje) {
+                ctx.drawImage(imgPersonaje, -tamPersonaje / 2, -tamPersonaje / 2, tamPersonaje, tamPersonaje);
+            } else {
+                ctx.font = `${Math.round(tamPersonaje * 0.85)}px sans-serif`;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText(personaje.icono, 0, 1);
+            }
+            ctx.restore();
         }
 
         function elegirDuracionTurnoLetras(segundos) {
@@ -7484,8 +7709,12 @@
             letrasApuntando = { activo: false, dx: 0, dy: 0, potencia: 0 };
         }
 
+        let letrasRondaPersonajeId = 'ninguno'; // personaje que se sienta en el Mobil durante la ronda en curso
+
         function iniciarRondaLetras(mobilId) {
             if (letrasJuego || !configLetras.palabra) return;
+            if (!mobilLetrasDesbloqueado(mobilId)) { abrirTiendaLetras(); return; }
+            letrasRondaPersonajeId = personajeLetrasDesbloqueado(letrasPersonajeSeleccionado) ? letrasPersonajeSeleccionado : 'ninguno';
             const data = obtenerProgresoLetras();
             const restantes = Math.max(0, (configLetras.limiteDiario || 1) - data.usosHoy);
             if (restantes <= 0) {
@@ -7577,8 +7806,18 @@
             }
             sortearViento();
 
-            const jugador = { x: ANCHO * 0.16, y: ALTO * 0.58, r: 24, vel: 100, vida: VIDA_MAX };
-            const boss = { x: ANCHO * 0.84, y: ALTO * 0.58, r: 26, vel: 55, vida: VIDA_MAX, derrotado: false, aturdidoHasta: 0 };
+            // Superficie real del terreno (la misma curva ondulada con la que se dibujan las
+            // mesetas más abajo): el Mobil y el BOSS deben quedar siempre parados sobre ella en
+            // vez de flotar en cualquier "y" libre.
+            const TOPE_BASE_TERRENO = ALTO * 0.62;
+            function terrenoY(x, esIzquierda) {
+                return TOPE_BASE_TERRENO + Math.sin(x * 0.05 + (esIzquierda ? 2 : 7)) * 6;
+            }
+
+            const jugador = { x: ANCHO * 0.16, y: 0, r: 24, vel: 100, vida: VIDA_MAX };
+            jugador.y = terrenoY(jugador.x, true) - jugador.r * 0.92;
+            const boss = { x: ANCHO * 0.84, y: 0, r: 26, vel: 55, vida: VIDA_MAX, derrotado: false, aturdidoHasta: 0 };
+            boss.y = terrenoY(boss.x, false) - boss.r * 0.92;
             const ocupadosIniciales = [{ x: jugador.x, y: jugador.y, r: jugador.r }, { x: boss.x, y: boss.y, r: boss.r }];
             const letrasActivadas = faltantes.length > 0 && (Math.random() * 100 < (configLetras.probLetras !== undefined ? configLetras.probLetras : 35));
             const letrasTiles = letrasActivadas ? faltantes.map(letra => {
@@ -7592,9 +7831,9 @@
             function agregarNumeroFlotante(x, y, valor, color) {
                 numerosFlotantes.push({ x, y, valor, color, t: 0 });
             }
-            const impactosLetra = []; // pequeño estallido/hueco visual cuando un disparo toca una letra
-            function agregarImpactoLetra(x, y) {
-                impactosLetra.push({ x, y, t: 0 });
+            const impactosLetra = []; // pequeño estallido/hueco visual al tocar una letra o el terreno con un disparo
+            function agregarImpactoLetra(x, y, color) {
+                impactosLetra.push({ x, y, t: 0, color: color || '#FDE047' });
             }
             const estrellasFondo = Array.from({ length: 34 }, () => ({
                 x: Math.random() * ANCHO, y: Math.random() * ALTO, r: Math.random() * 1.2 + 0.3, a: Math.random() * 0.6 + 0.2
@@ -7713,15 +7952,14 @@
                 actualizarTimerUI();
 
                 if (turno === 'jugador') {
-                    // --- Turno del jugador: se mueve libremente por el mapa y puede disparar ---
-                    const mag = Math.hypot(letrasMoveDir.x, letrasMoveDir.y);
-                    if (mag > 0.05) {
+                    // --- Turno del jugador: se mueve por su meseta (izquierda/derecha) y puede disparar ---
+                    if (Math.abs(letrasMoveDir.x) > 0.05) {
                         jugador.x += letrasMoveDir.x * jugador.vel * dt;
-                        jugador.y += letrasMoveDir.y * jugador.vel * dt;
                         // se mueve libre por su meseta y puede asomarse al borde del cañón, pero no cruzarlo
                         jugador.x = Math.max(jugador.r + 6, Math.min(X_HUECO_MIN - jugador.r - 2, jugador.x));
-                        jugador.y = Math.max(30, Math.min(ALTO - 22, jugador.y));
                     }
+                    // el Mobil siempre queda parado sobre el terreno (nunca flotando en una "y" libre)
+                    jugador.y = terrenoY(jugador.x, true) - jugador.r * 0.92;
 
                     letrasTiles.forEach(t => {
                         if (t.recolectada) return;
@@ -7784,6 +8022,16 @@
                                 terminarRonda(true, premioGanado);
                                 return;
                             }
+                            continue;
+                        }
+
+                        // Si el disparo no le pegó a nada y llega al terreno (mesetas o piso del
+                        // cañón), deja un cráter/hueco visible ahí en vez de desaparecer sin más.
+                        const alturaSuelo = p.x <= X_HUECO_MIN ? terrenoY(p.x, true)
+                            : (p.x >= X_HUECO_MAX ? terrenoY(p.x, false) : ALTO);
+                        if (p.y >= alturaSuelo) {
+                            agregarImpactoLetra(p.x, Math.min(p.y, alturaSuelo), 'rgba(226,232,240,0.9)');
+                            proyectiles.splice(i, 1);
                         }
                     }
 
@@ -7803,13 +8051,12 @@
                         sortearViento();
                         actualizarTimerUI();
                     } else {
-                        const dx = jugador.x - boss.x, dy = jugador.y - boss.y;
-                        const d = Math.hypot(dx, dy) || 1;
-                        boss.x += (dx / d) * boss.vel * dt;
-                        boss.y += (dy / d) * boss.vel * dt;
+                        const dx = jugador.x - boss.x;
+                        boss.x += Math.sign(dx) * boss.vel * dt;
                         // el BOSS ronda su propia meseta y no cruza el cañón hacia el jugador
                         boss.x = Math.max(X_HUECO_MAX + boss.r + 2, Math.min(ANCHO - boss.r - 6, boss.x));
-                        boss.y = Math.max(30, Math.min(ALTO - 22, boss.y));
+                        // el BOSS también queda siempre parado sobre el terreno, nunca flotando
+                        boss.y = terrenoY(boss.x, false) - boss.r * 0.92;
 
                         // Dispara su tiro certero cuando queda ~35% del turno (una sola vez por turno)
                         if (!bossYaDisparoEsteTurno && tiempoTurnoRestante <= DURACION_TURNO * 0.35) {
@@ -8069,7 +8316,8 @@
                     ctx.globalAlpha = 1;
                 }
 
-                // Pequeño "hueco"/estallido (anillo + chispas que se abren) al tocar una letra con un disparo.
+                // Pequeño "hueco"/estallido (anillo + chispas que se abren) al tocar una letra o el
+                // terreno con un disparo.
                 for (let i = impactosLetra.length - 1; i >= 0; i--) {
                     const imp = impactosLetra[i];
                     imp.t += dt * 2.2;
@@ -8078,7 +8326,7 @@
                     ctx.globalAlpha = 1 - imp.t;
                     ctx.beginPath();
                     ctx.arc(imp.x, imp.y, 4 + imp.t * 14, 0, Math.PI * 2);
-                    ctx.strokeStyle = '#FDE047';
+                    ctx.strokeStyle = imp.color;
                     ctx.lineWidth = 2.5;
                     ctx.stroke();
                     for (let k = 0; k < 6; k++) {
@@ -8086,7 +8334,7 @@
                         const dist = 6 + imp.t * 16;
                         ctx.beginPath();
                         ctx.arc(imp.x + Math.cos(ang) * dist, imp.y + Math.sin(ang) * dist, 1.8, 0, Math.PI * 2);
-                        ctx.fillStyle = '#FDE047';
+                        ctx.fillStyle = imp.color;
                         ctx.fill();
                     }
                     ctx.restore();
@@ -8158,6 +8406,7 @@
                     ctx.font = '24px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText(mobilFinal.icono, jugador.x, jugador.y + bobJugador + 1);
                 }
+                dibujarPersonajeSobreMobil(ctx, letrasRondaPersonajeId, jugador.x, jugador.y + bobJugador, jugador.r * 2.7, ahora);
                 if (jugador.vida / VIDA_MAX < 0.3) dibujarHumo(jugador.x, jugador.y + bobJugador - jugador.r, ahora);
 
                 letrasRafId = requestAnimationFrame(bucle);
@@ -8211,15 +8460,18 @@
             if (inpGemas) inpGemas.value = (configLetras.premio && configLetras.premio.gemas) || 0;
             if (inpImg) inpImg.value = (configLetras.premio && configLetras.premio.imagen) || '';
             generarFormularioMobilesLetrasAdmin();
+            generarFormularioPersonajesLetrasAdmin();
         }
 
-        // Genera la grilla admin para subir una imagen por cada Mobil (se guarda solo, sin botón aparte).
+        // Genera la grilla admin para subir una imagen y fijar el precio de cada Mobil (se guarda solo, sin botón aparte).
         function generarFormularioMobilesLetrasAdmin() {
             const cont = document.getElementById('admin-letras-mobiles-imgs');
             if (!cont || typeof MOBILES_LETRAS === 'undefined') return;
             configLetras.imagenesMobiles = configLetras.imagenesMobiles || {};
+            configLetras.preciosMobiles = configLetras.preciosMobiles || {};
             cont.innerHTML = MOBILES_LETRAS.filter(m => m.id !== 'random').map(m => {
                 const url = configLetras.imagenesMobiles[m.id] || '';
+                const precio = configLetras.preciosMobiles[m.id] || 0;
                 const previewId = `admin-letras-mobilimg-${m.id}-preview`;
                 const inputId = `admin-letras-mobilimg-${m.id}`;
                 return `
@@ -8229,12 +8481,54 @@
                     </div>
                     <span class="text-[10px] font-bold text-white flex-1 truncate">${m.nombre}</span>
                     <input type="hidden" id="${inputId}" value="${url}">
+                    <input type="number" min="0" value="${precio}" placeholder="🪙 0" oninput="actualizarPrecioMobilLetras('${m.id}', this.value)" class="w-16 px-1.5 py-1 rounded bg-medio border border-borde text-white text-[10px] shrink-0">
                     <label class="px-2 py-1 bg-claro text-white rounded cursor-pointer text-[10px] font-bold flex items-center shrink-0">
                         <i class="fa fa-camera"></i>
                         <input type="file" accept="image/*" class="hidden" onchange="subirImagenTelefono(this, '${inputId}')">
                     </label>
                 </div>`;
             }).join('');
+        }
+
+        // Genera la grilla admin para subir una imagen y fijar el precio de cada Personaje.
+        function generarFormularioPersonajesLetrasAdmin() {
+            const cont = document.getElementById('admin-letras-personajes-imgs');
+            if (!cont || typeof PERSONAJES_LETRAS === 'undefined') return;
+            configLetras.imagenesPersonajes = configLetras.imagenesPersonajes || {};
+            configLetras.preciosPersonajes = configLetras.preciosPersonajes || {};
+            cont.innerHTML = PERSONAJES_LETRAS.filter(p => p.id !== 'ninguno').map(p => {
+                const url = configLetras.imagenesPersonajes[p.id] || '';
+                const precio = configLetras.preciosPersonajes[p.id] || 0;
+                const previewId = `admin-letras-personajeimg-${p.id}-preview`;
+                const inputId = `admin-letras-personajeimg-${p.id}`;
+                return `
+                <div class="flex items-center gap-2 p-2 bg-oscuro rounded-xl border border-borde">
+                    <div id="${previewId}" class="w-9 h-9 rounded-lg bg-medio border border-borde flex items-center justify-center overflow-hidden shrink-0 text-base">
+                        ${url ? `<img src="${url}" class="w-full h-full object-contain">` : p.icono}
+                    </div>
+                    <span class="text-[10px] font-bold text-white flex-1 truncate">${p.nombre}</span>
+                    <input type="hidden" id="${inputId}" value="${url}">
+                    <input type="number" min="0" value="${precio}" placeholder="🪙 0" oninput="actualizarPrecioPersonajeLetras('${p.id}', this.value)" class="w-16 px-1.5 py-1 rounded bg-medio border border-borde text-white text-[10px] shrink-0">
+                    <label class="px-2 py-1 bg-claro text-white rounded cursor-pointer text-[10px] font-bold flex items-center shrink-0">
+                        <i class="fa fa-camera"></i>
+                        <input type="file" accept="image/*" class="hidden" onchange="subirImagenTelefono(this, '${inputId}')">
+                    </label>
+                </div>`;
+            }).join('');
+        }
+
+        // Autoguardado del precio (en monedas) de un Mobil/Personaje en la Tienda de Letras, sin botón "Guardar".
+        function actualizarPrecioMobilLetras(id, valor) {
+            configLetras.preciosMobiles = configLetras.preciosMobiles || {};
+            configLetras.preciosMobiles[id] = Math.max(0, parseInt(valor) || 0);
+            localStorage.setItem('config_letras_app', JSON.stringify(configLetras));
+            if (typeof renderizarSeleccionMobilesLetras === 'function') renderizarSeleccionMobilesLetras();
+        }
+        function actualizarPrecioPersonajeLetras(id, valor) {
+            configLetras.preciosPersonajes = configLetras.preciosPersonajes || {};
+            configLetras.preciosPersonajes[id] = Math.max(0, parseInt(valor) || 0);
+            localStorage.setItem('config_letras_app', JSON.stringify(configLetras));
+            if (typeof renderizarSeleccionPersonajesLetras === 'function') renderizarSeleccionPersonajesLetras();
         }
 
         // ===== GARRA DE PREMIOS =====
