@@ -1725,7 +1725,7 @@
                         </div>
 
                         <!-- zona de arrastre estilo joystick: arrastra y suelta para disparar en esa dirección (esquina inferior izquierda, no tapa el centro) -->
-                        <div id="letras-disparo-zona" class="absolute left-1.5 bottom-1.5 w-16 h-16 rounded-full bg-gradient-to-b from-naranja/35 to-naranja/10 border-[3px] border-naranja/80 flex items-center justify-center text-center touch-none select-none shadow-lg">
+                        <div id="letras-disparo-zona" class="absolute left-6 bottom-6 w-16 h-16 rounded-full bg-gradient-to-b from-naranja/35 to-naranja/10 border-[3px] border-naranja/80 flex items-center justify-center text-center touch-none select-none shadow-lg">
                             <svg id="letras-radar-svg" class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
                                 <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6"></circle>
                                 <circle id="letras-radar-arco" cx="50" cy="50" r="42" fill="none" stroke="#4ADE80" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 264" transform="rotate(-90 50 50)"></circle>
@@ -3592,7 +3592,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.10.0";
+        const VERSION_APP_ACTUAL = "15.11.0";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
@@ -5661,16 +5661,30 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, w, h);
 
+                    // Detecta si la imagen tiene transparencia real (canal alfa). Si la tiene, se debe
+                    // exportar como PNG: JPEG no soporta transparencia y la rellenaría de negro sólido.
+                    let tieneTransparencia = false;
+                    try {
+                        const datosPx = ctx.getImageData(0, 0, w, h).data;
+                        for (let i = 3; i < datosPx.length; i += 4 * 7) { // muestreo cada ~7 píxeles por velocidad
+                            if (datosPx[i] < 250) { tieneTransparencia = true; break; }
+                        }
+                    } catch (e) { tieneTransparencia = false; }
+
+                    const formato = tieneTransparencia ? 'image/png' : 'image/jpeg';
+                    const extension = tieneTransparencia ? 'png' : 'jpg';
                     let calidad = 0.75;
-                    let dataUrl = canvas.toDataURL('image/jpeg', calidad);
-                    while (dataUrl.length > 500000 && calidad > 0.25) {
-                        calidad -= 0.1;
-                        dataUrl = canvas.toDataURL('image/jpeg', calidad);
+                    let dataUrl = tieneTransparencia ? canvas.toDataURL('image/png') : canvas.toDataURL('image/jpeg', calidad);
+                    if (!tieneTransparencia) {
+                        while (dataUrl.length > 500000 && calidad > 0.25) {
+                            calidad -= 0.1;
+                            dataUrl = canvas.toDataURL('image/jpeg', calidad);
+                        }
                     }
 
                     canvas.toBlob(function(blob) {
                         if (blob && cloudinaryListo) {
-                            subirBlobACloudinary(blob, dataUrl, targetInput);
+                            subirBlobACloudinary(blob, dataUrl, targetInput, extension);
                         } else if (blob && !cloudinaryListo) {
                             aplicarValorImagen(dataUrl, targetInput);
                             alert('⚠️ Cloudinary no está configurado todavía (falta CLOUDINARY_CLOUD_NAME / CLOUDINARY_UPLOAD_PRESET en el código). La imagen se guardó solo en este dispositivo.');
@@ -5678,7 +5692,7 @@
                             aplicarValorImagen(dataUrl, targetInput);
                             alert(`📱 Imagen cargada localmente (${Math.round(dataUrl.length / 1024)}KB). No se pudo conectar con la nube, así que puede no verse en otros dispositivos.`);
                         }
-                    }, 'image/jpeg', calidad);
+                    }, formato, calidad);
                 };
                 img.onerror = function() {
                     aplicarValorImagen(e.target.result, targetInput);
@@ -5689,8 +5703,8 @@
             reader.readAsDataURL(file);
         }
 
-        function subirBlobACloudinary(blob, dataUrlFallback, targetInput) {
-            const nombreArchivo = `imagen_${Date.now()}.jpg`;
+        function subirBlobACloudinary(blob, dataUrlFallback, targetInput, extension) {
+            const nombreArchivo = `imagen_${Date.now()}.${extension || 'jpg'}`;
             subirArchivoACloudinary(blob, nombreArchivo).then(url => {
                 aplicarValorImagen(url, targetInput);
                 const seGuardaSolo = targetInput && AUTOGUARDADO_IMAGENES_SIMPLES[targetInput.id];
@@ -7415,7 +7429,11 @@
                     const ang = Math.atan2(dy, dx);
                     const potencia = dist / MAX_ARRASTRE;
                     if (flecha) {
-                        flecha.style.width = `${Math.max(10, dist)}px`;
+                        // el ancho visual se limita aparte de "dist" (que sí se usa entera para la potencia
+                        // real del disparo) para que la flecha nunca se salga del área visible del joystick
+                        // y quede cortada, sin importar hacia qué lado se arrastre.
+                        const anchoVisual = Math.min(dist, 40);
+                        flecha.style.width = `${Math.max(10, anchoVisual)}px`;
                         flecha.style.transform = `translateY(-50%) rotate(${ang}rad)`;
                     }
                     if (potenciaBarra) potenciaBarra.style.height = `${Math.round(potencia * 100)}%`;
@@ -7574,6 +7592,10 @@
             function agregarNumeroFlotante(x, y, valor, color) {
                 numerosFlotantes.push({ x, y, valor, color, t: 0 });
             }
+            const impactosLetra = []; // pequeño estallido/hueco visual cuando un disparo toca una letra
+            function agregarImpactoLetra(x, y) {
+                impactosLetra.push({ x, y, t: 0 });
+            }
             const estrellasFondo = Array.from({ length: 34 }, () => ({
                 x: Math.random() * ANCHO, y: Math.random() * ALTO, r: Math.random() * 1.2 + 0.3, a: Math.random() * 0.6 + 0.2
             }));
@@ -7723,6 +7745,33 @@
                         p.trail.push({ x: p.x, y: p.y });
                         if (p.trail.length > 10) p.trail.shift();
                         if (p.x < -10 || p.x > ANCHO + 10 || p.y < -10 || p.y > ALTO + 10) { proyectiles.splice(i, 1); continue; }
+
+                        // El disparo también puede tocar/recoger una letra flotante (antes solo se
+                        // recogían caminando encima); al tocarla se ve un pequeño impacto/hueco.
+                        if (letrasActivadas) {
+                            let tocoLetra = false;
+                            for (let j = 0; j < letrasTiles.length; j++) {
+                                const t = letrasTiles[j];
+                                if (t.recolectada) continue;
+                                if (Math.hypot(p.x - t.x, p.y - t.y) < t.r + 4) {
+                                    t.recolectada = true;
+                                    data.letras[t.letra] = (data.letras[t.letra] || 0) + 1;
+                                    guardarProgresoLetras(data);
+                                    renderizarPillsLetras(data);
+                                    recolectadas++;
+                                    agregarImpactoLetra(t.x, t.y);
+                                    if (typeof reproducirSFX === 'function') { try { reproducirSFX('subirNivel'); } catch (e) {} }
+                                    tocoLetra = true;
+                                    break;
+                                }
+                            }
+                            if (tocoLetra) {
+                                proyectiles.splice(i, 1);
+                                if (recolectadas >= letrasTiles.length) { terminarRonda(true, null); return; }
+                                continue;
+                            }
+                        }
+
                         if (!boss.derrotado && Math.hypot(p.x - boss.x, p.y - boss.y) < boss.r + 4) {
                             boss.vida -= DANO_IMPACTO;
                             agregarNumeroFlotante(boss.x, boss.y - boss.r, DANO_IMPACTO, '#FDE047');
@@ -7922,28 +7971,53 @@
                 })();
 
                 // Línea de trayectoria predicha (con la misma gravedad y viento reales del disparo),
-                // visible solo mientras el jugador está apuntando en su propio turno.
+                // visible solo mientras el jugador está apuntando en su propio turno. Es la MIRA real:
+                // se dibuja directo sobre el canvas (nunca queda tapada ni cortada por los bordes del
+                // área de juego, a diferencia del pequeño joystick de arrastre).
                 if (turno === 'jugador' && letrasApuntando.activo && !terminado) {
                     ctx.save();
-                    ctx.strokeStyle = 'rgba(253,224,71,0.85)';
-                    ctx.lineWidth = 2;
-                    ctx.setLineDash([4, 6]);
+                    ctx.strokeStyle = 'rgba(253,224,71,0.95)';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([5, 7]);
+                    ctx.shadowColor = 'rgba(253,224,71,0.9)';
+                    ctx.shadowBlur = 6;
                     ctx.beginPath();
                     let sx = jugador.x, sy = jugador.y;
                     const velSim = 220 + Math.max(0.15, letrasApuntando.potencia) * 160;
                     let svx = letrasApuntando.dx * velSim, svy = letrasApuntando.dy * velSim;
                     const pasoSim = 0.045;
                     ctx.moveTo(sx, sy);
+                    let dentroDelCanvas = true;
                     for (let i = 0; i < 40; i++) {
                         svx += viento * VIENTO_ACCEL * pasoSim;
                         svy += GRAVEDAD_PROYECTIL * pasoSim;
                         sx += svx * pasoSim;
                         sy += svy * pasoSim;
+                        if (sx < 0 || sx > ANCHO || sy > ALTO) { dentroDelCanvas = false; break; }
                         ctx.lineTo(sx, sy);
-                        if (sx < 0 || sx > ANCHO || sy > ALTO) break;
                     }
                     ctx.stroke();
                     ctx.restore();
+                    // Mira: círculo pulsante justo en la punta de la trayectoria, para ubicarla de un
+                    // vistazo (dónde caería el disparo ahora mismo con el viento actual).
+                    if (dentroDelCanvas) {
+                        ctx.save();
+                        const pulso = 3 + Math.sin(ahora / 110) * 1.6;
+                        ctx.beginPath();
+                        ctx.arc(sx, sy, 7 + pulso, 0, Math.PI * 2);
+                        ctx.strokeStyle = 'rgba(253,224,71,0.9)';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(sx - 10, sy); ctx.lineTo(sx - 4, sy);
+                        ctx.moveTo(sx + 4, sy); ctx.lineTo(sx + 10, sy);
+                        ctx.moveTo(sx, sy - 10); ctx.lineTo(sx, sy - 4);
+                        ctx.moveTo(sx, sy + 4); ctx.lineTo(sx, sy + 10);
+                        ctx.strokeStyle = '#FDE047';
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        ctx.restore();
+                    }
                 }
 
                 letrasTiles.forEach(t => {
@@ -7993,6 +8067,29 @@
                     ctx.fillStyle = n.color;
                     ctx.fillText(`-${n.valor}`, n.x, n.y - n.t * 26);
                     ctx.globalAlpha = 1;
+                }
+
+                // Pequeño "hueco"/estallido (anillo + chispas que se abren) al tocar una letra con un disparo.
+                for (let i = impactosLetra.length - 1; i >= 0; i--) {
+                    const imp = impactosLetra[i];
+                    imp.t += dt * 2.2;
+                    if (imp.t >= 1) { impactosLetra.splice(i, 1); continue; }
+                    ctx.save();
+                    ctx.globalAlpha = 1 - imp.t;
+                    ctx.beginPath();
+                    ctx.arc(imp.x, imp.y, 4 + imp.t * 14, 0, Math.PI * 2);
+                    ctx.strokeStyle = '#FDE047';
+                    ctx.lineWidth = 2.5;
+                    ctx.stroke();
+                    for (let k = 0; k < 6; k++) {
+                        const ang = (k / 6) * Math.PI * 2;
+                        const dist = 6 + imp.t * 16;
+                        ctx.beginPath();
+                        ctx.arc(imp.x + Math.cos(ang) * dist, imp.y + Math.sin(ang) * dist, 1.8, 0, Math.PI * 2);
+                        ctx.fillStyle = '#FDE047';
+                        ctx.fill();
+                    }
+                    ctx.restore();
                 }
 
                 // Pequeño bamboleo para que los Mobiles y el BOSS se vean con movimiento
