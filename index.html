@@ -1689,6 +1689,7 @@
                             <div class="w-full h-2 rounded-full bg-oscuro border border-borde overflow-hidden"><div id="letras-vida-boss-barra" class="h-full bg-rojo transition-all" style="width:100%"></div></div>
                         </div>
                     </div>
+                    <p id="letras-hueco-txt" class="text-[9px] text-center text-slate-400"></p>
                     <div id="letras-canvas-wrap" class="relative w-full rounded-2xl overflow-hidden border border-borde bg-oscuro touch-none select-none" style="aspect-ratio:300/420;">
                         <canvas id="letras-canvas" class="w-full h-full block"></canvas>
                         <!-- zona de arrastre: arrastrar y soltar para disparar en esa dirección -->
@@ -3445,6 +3446,17 @@
                             <input type="number" id="admin-letras-dano" min="1" placeholder="Ej: 100" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
                         </div>
                     </div>
+                    <div>
+                        <label class="text-slate-400 block mb-1 text-xs">% de rondas en las que aparecen letras flotando en el hueco (el resto son solo pelea contra el BOSS):</label>
+                        <input type="number" id="admin-letras-prob" min="0" max="100" placeholder="Ej: 35" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                    </div>
+                </div>
+                <h4 class="font-black text-xs text-azul uppercase tracking-wider">Premio Instantáneo por Derrotar al BOSS (cada vez, con o sin letras)</h4>
+                <div class="p-3 bg-oscuro rounded-2xl border border-borde">
+                    <div class="flex gap-2">
+                        <input type="number" id="admin-letras-boss-premio-monedas" placeholder="Monedas" class="w-full px-2 py-1 rounded bg-medio border border-borde text-white text-[10px]">
+                        <input type="number" id="admin-letras-boss-premio-gemas" placeholder="Gemas" class="w-full px-2 py-1 rounded bg-medio border border-borde text-white text-[10px]">
+                    </div>
                 </div>
                 <h4 class="font-black text-xs text-azul uppercase tracking-wider">Premio al Completar (Imagen + Monedas + Gemas)</h4>
                 <div class="p-3 bg-oscuro rounded-2xl border border-borde space-y-1.5 text-xs">
@@ -3461,6 +3473,9 @@
                         </label>
                     </div>
                 </div>
+                <h4 class="font-black text-xs text-azul uppercase tracking-wider">Imágenes de los Mobiles</h4>
+                <p class="text-[10px] text-slate-400">Subí una imagen para cada Mobil (se usa en el mapa y en la selección en vez del ícono). Si no subís ninguna, se sigue mostrando el ícono por defecto. Se guarda solo al subir, no hace falta tocar "Guardar".</p>
+                <div id="admin-letras-mobiles-imgs" class="space-y-1.5"></div>
             </div>
 
             <div class="flex gap-2 pt-3 border-t border-borde">
@@ -5339,7 +5354,7 @@
 
         let premiosGarra = JSON.parse(localStorage.getItem('premios_garra_app')) || Array(8).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 25 }));
         let premiosFutbolMini = JSON.parse(localStorage.getItem('premios_futbol_mini_app')) || Array(5).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 20 }));
-        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, tiempoLimite: 120, vida: 3000, dano: 100, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 } };
+        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, tiempoLimite: 120, vida: 3000, dano: 100, probLetras: 35, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 }, premioBoss: { monedas: 0, gemas: 0 }, imagenesMobiles: {} };
         let configGarra = JSON.parse(localStorage.getItem('config_garra_app')) || { costo: 15 };
         let jugandoGarra = false;
 
@@ -7096,24 +7111,38 @@
         }
 
         // Roster de Mobiles seleccionables para enfrentar al BOSS en el minijuego de Letras.
-        // "Random" elige uno cualquiera de los demás al iniciar la ronda.
+        // "Random" elige uno cualquiera de los demás al iniciar la ronda. Cada uno dispara
+        // una bala de un color distinto ("bala").
         const MOBILES_LETRAS = [
-            { id: 'armor',     nombre: 'Armor',     icono: '🛡️', color: '#EA580C' },
-            { id: 'ice',       nombre: 'Ice',       icono: '❄️', color: '#38BDF8' },
-            { id: 'aduka',     nombre: 'Aduka',     icono: '🐉', color: '#933EEA' },
-            { id: 'lightning', nombre: 'Lightning', icono: '⚡', color: '#F59E0B' },
-            { id: 'bigfoot',   nombre: 'Bigfoot',   icono: '🦶', color: '#92400E' },
-            { id: 'jd',        nombre: 'J.D',       icono: '🎩', color: '#64748B' },
-            { id: 'asate',     nombre: 'A.Sate',    icono: '🍢', color: '#16A34A' },
-            { id: 'nak',       nombre: 'Nak',       icono: '🐾', color: '#0D9488' },
-            { id: 'trico',     nombre: 'Trico',     icono: '🦕', color: '#65A30D' },
-            { id: 'mage',      nombre: 'Mage',      icono: '🧙', color: '#7C3AED' },
-            { id: 'turtle',    nombre: 'Turtle',    icono: '🐢', color: '#15803D' },
-            { id: 'boomer',    nombre: 'Boomer',    icono: '🪃', color: '#EA580C' },
-            { id: 'grub',      nombre: 'Grub',      icono: '🐛', color: '#84CC16' },
-            { id: 'frog',      nombre: 'Frog',      icono: '🐸', color: '#22C55E' },
-            { id: 'random',    nombre: 'Random',    icono: '🎲', color: '#94A3B8' }
+            { id: 'armor',     nombre: 'Armor',     icono: '🛡️', color: '#EA580C', bala: '#FBBF24' },
+            { id: 'ice',       nombre: 'Ice',       icono: '❄️', color: '#38BDF8', bala: '#BAE6FD' },
+            { id: 'aduka',     nombre: 'Aduka',     icono: '🐉', color: '#933EEA', bala: '#D8B4FE' },
+            { id: 'lightning', nombre: 'Lightning', icono: '⚡', color: '#F59E0B', bala: '#FDE047' },
+            { id: 'bigfoot',   nombre: 'Bigfoot',   icono: '🦶', color: '#92400E', bala: '#D97706' },
+            { id: 'jd',        nombre: 'J.D',       icono: '🎩', color: '#64748B', bala: '#E2E8F0' },
+            { id: 'asate',     nombre: 'A.Sate',    icono: '🍢', color: '#16A34A', bala: '#BEF264' },
+            { id: 'nak',       nombre: 'Nak',       icono: '🐾', color: '#0D9488', bala: '#5EEAD4' },
+            { id: 'trico',     nombre: 'Trico',     icono: '🦕', color: '#65A30D', bala: '#A3E635' },
+            { id: 'mage',      nombre: 'Mage',      icono: '🧙', color: '#7C3AED', bala: '#C4B5FD' },
+            { id: 'turtle',    nombre: 'Turtle',    icono: '🐢', color: '#15803D', bala: '#4ADE80' },
+            { id: 'boomer',    nombre: 'Boomer',    icono: '🪃', color: '#EA580C', bala: '#FB923C' },
+            { id: 'grub',      nombre: 'Grub',      icono: '🐛', color: '#84CC16', bala: '#D9F99D' },
+            { id: 'frog',      nombre: 'Frog',      icono: '🐸', color: '#22C55E', bala: '#86EFAC' },
+            { id: 'random',    nombre: 'Random',    icono: '🎲', color: '#94A3B8', bala: '#E2E8F0' }
         ];
+
+        // Registra el autoguardado de la imagen de cada Mobil: al subir el archivo se
+        // guarda al instante en configLetras.imagenesMobiles (sin necesitar tocar "Guardar").
+        MOBILES_LETRAS.filter(m => m.id !== 'random').forEach(m => {
+            AUTOGUARDADO_IMAGENES_SIMPLES[`admin-letras-mobilimg-${m.id}`] = () => {
+                configLetras.imagenesMobiles = configLetras.imagenesMobiles || {};
+                configLetras.imagenesMobiles[m.id] = document.getElementById(`admin-letras-mobilimg-${m.id}`)?.value || '';
+                localStorage.setItem('config_letras_app', JSON.stringify(configLetras));
+                letrasImagenesCache = {};
+                if (typeof renderizarSeleccionMobilesLetras === 'function') renderizarSeleccionMobilesLetras();
+                if (typeof generarFormularioMobilesLetrasAdmin === 'function') generarFormularioMobilesLetrasAdmin();
+            };
+        });
 
         function renderizarPillsLetras(data) {
             const grid = document.getElementById('letras-palabra-grid');
@@ -7130,12 +7159,15 @@
         function renderizarSeleccionMobilesLetras() {
             const cont = document.getElementById('letras-mobiles-grid');
             if (!cont) return;
-            cont.innerHTML = MOBILES_LETRAS.map(m => `
+            cont.innerHTML = MOBILES_LETRAS.map(m => {
+                const url = configLetras.imagenesMobiles && configLetras.imagenesMobiles[m.id];
+                const visual = url ? `<img src="${url}" class="w-7 h-7 object-contain">` : `<span class="text-lg">${m.icono}</span>`;
+                return `
                 <button type="button" onclick="iniciarRondaLetras('${m.id}')" class="p-2 rounded-xl bg-oscuro border border-borde hover:border-azul transition flex flex-col items-center gap-0.5">
-                    <span class="text-lg">${m.icono}</span>
+                    ${visual}
                     <span class="text-[8px] font-bold text-white truncate w-full">${m.nombre}</span>
-                </button>
-            `).join('');
+                </button>`;
+            }).join('');
         }
 
         function renderizarLetrasVista() {
@@ -7186,11 +7218,13 @@
                 if (btnReclamar) btnReclamar.classList.add('hidden');
                 if (resultado) {
                     resultado.classList.remove('hidden');
-                    resultado.innerHTML = '<span class="text-azul">✅ Ya reclamaste el premio de esta palabra. ¡Espera el próximo evento!</span>';
+                    resultado.innerHTML = '<span class="text-azul">✅ Ya reclamaste el premio de esta palabra. ¡Espera el próximo evento! Podés seguir enfrentando al BOSS por su premio instantáneo.</span>';
                 }
+                if (restantes > 0) { seleccion?.classList.remove('hidden'); elegirDuracionTurnoLetras(letrasDuracionTurnoSeleccionada); }
             } else if (completo) {
-                seleccion?.classList.add('hidden');
                 if (btnReclamar) btnReclamar.classList.remove('hidden');
+                if (restantes > 0) { seleccion?.classList.remove('hidden'); elegirDuracionTurnoLetras(letrasDuracionTurnoSeleccionada); }
+                else seleccion?.classList.add('hidden');
             } else if (restantes <= 0) {
                 seleccion?.classList.add('hidden');
                 if (btnReclamar) btnReclamar.classList.add('hidden');
@@ -7213,6 +7247,22 @@
         let letrasLimpiarRonda = null;        // función de limpieza de la ronda activa (listeners, loop, etc.)
         let letrasControlesListos = false;
         let letrasDuracionTurnoSeleccionada = 10; // segundos por turno, elegido por el jugador (5/10/15/20)
+        let letrasImagenesCache = {}; // cache de <img> ya cargadas por id de Mobil, para dibujarlas en el canvas
+
+        // Devuelve el <img> ya cargado de un Mobil (o null si no tiene imagen propia o
+        // todavía está cargando) para dibujarlo en el canvas en vez del ícono/color plano.
+        function obtenerImagenMobilCargada(id) {
+            const url = configLetras.imagenesMobiles && configLetras.imagenesMobiles[id];
+            if (!url) return null;
+            const entrada = letrasImagenesCache[id];
+            if (entrada && entrada.src === url) return entrada.completo ? entrada.img : null;
+            const img = new Image();
+            const nuevaEntrada = { img, src: url, completo: false };
+            img.onload = () => { nuevaEntrada.completo = true; };
+            img.src = url;
+            letrasImagenesCache[id] = nuevaEntrada;
+            return null;
+        }
 
         function elegirDuracionTurnoLetras(segundos) {
             letrasDuracionTurnoSeleccionada = segundos;
@@ -7312,7 +7362,6 @@
         function iniciarRondaLetras(mobilId) {
             if (letrasJuego || !configLetras.palabra) return;
             const data = obtenerProgresoLetras();
-            if (letrasCompletadas(data)) return;
             const restantes = Math.max(0, (configLetras.limiteDiario || 1) - data.usosHoy);
             if (restantes <= 0) {
                 alert('⚠️ Ya usaste tus intentos de hoy. ¡Vuelve mañana!');
@@ -7325,7 +7374,6 @@
                 const tiene = data.letras[letra] || 0;
                 for (let i = tiene; i < necesarias[letra]; i++) faltantes.push(letra);
             });
-            if (!faltantes.length) return;
 
             data.usosHoy++;
             guardarProgresoLetras(data);
@@ -7357,34 +7405,42 @@
             canvas.width = ANCHO; canvas.height = ALTO;
             const ctx = canvas.getContext('2d');
 
-            function posicionLibre(radio, ocupados) {
+            function posicionLibre(radio, ocupados, yMin, yMax) {
                 for (let intento = 0; intento < 40; intento++) {
                     const x = radio + Math.random() * (ANCHO - radio * 2);
-                    const y = 45 + radio + Math.random() * (ALTO - radio * 2 - 90);
+                    const y = yMin + Math.random() * (yMax - yMin);
                     if (ocupados.every(o => Math.hypot(o.x - x, o.y - y) > radio + o.r + 12)) return { x, y };
                 }
-                return { x: ANCHO / 2 + (Math.random() - 0.5) * 40, y: ALTO / 2 + (Math.random() - 0.5) * 40 };
+                return { x: ANCHO / 2 + (Math.random() - 0.5) * 40, y: (yMin + yMax) / 2 };
             }
 
             // ===== JUGADOR vs BOSS, por turnos: se sortea quién empieza. En su turno, cada
             // uno tiene "duracionTurno" segundos. El jugador se mueve, dispara al BOSS y
             // recoge letras. El BOSS se acerca y, al final de su turno, dispara un impacto
             // que SIEMPRE acierta (nunca falla). Cada uno tiene vida; el daño es configurable
-            // por el admin (configLetras.vida / configLetras.dano). =====
+            // por el admin (configLetras.vida / configLetras.dano). No siempre hay letras: hay
+            // un % de chance (configLetras.probLetras) de que floten en el hueco central del
+            // mapa; si no salen, es una pelea directa contra el BOSS y al derrotarlo se gana
+            // un premio instantáneo (configLetras.premioBoss). =====
             const VIDA_MAX = Math.max(100, configLetras.vida || 3000);
             const DANO_IMPACTO = Math.max(1, configLetras.dano || 100);
             const DURACION_TURNO = letrasDuracionTurnoSeleccionada || 10;
+            const Y_HUECO_MIN = 155, Y_HUECO_MAX = 285; // franja de "aire" entre las dos plataformas
 
             const jugador = { x: ANCHO / 2, y: ALTO - 45, r: 14, vel: 110, vida: VIDA_MAX };
             const boss = { x: ANCHO / 2, y: 65, r: 16, vel: 55, vida: VIDA_MAX, derrotado: false, aturdidoHasta: 0 };
             const ocupadosIniciales = [{ x: jugador.x, y: jugador.y, r: jugador.r }, { x: boss.x, y: boss.y, r: boss.r }];
-            const letrasTiles = faltantes.map(letra => {
-                const pos = posicionLibre(13, ocupadosIniciales);
+            const letrasActivadas = faltantes.length > 0 && (Math.random() * 100 < (configLetras.probLetras !== undefined ? configLetras.probLetras : 35));
+            const letrasTiles = letrasActivadas ? faltantes.map(letra => {
+                const pos = posicionLibre(13, ocupadosIniciales, Y_HUECO_MIN, Y_HUECO_MAX);
                 ocupadosIniciales.push({ x: pos.x, y: pos.y, r: 13 });
                 return { letra, x: pos.x, y: pos.y, r: 13, recolectada: false };
-            });
+            }) : [];
             const proyectiles = [];       // disparos del jugador (visuales + dañan al BOSS)
             const disparosBoss = [];      // disparo(s) certero(s) del BOSS hacia el jugador
+            const estrellasFondo = Array.from({ length: 34 }, () => ({
+                x: Math.random() * ANCHO, y: Math.random() * ALTO, r: Math.random() * 1.2 + 0.3, a: Math.random() * 0.6 + 0.2
+            }));
 
             let turno = Math.random() < 0.5 ? 'jugador' : 'boss'; // se sortea quién empieza
             let tiempoTurnoRestante = DURACION_TURNO;
@@ -7397,6 +7453,13 @@
             let recolectadas = 0;
 
             letrasJuego = { activo: true };
+
+            const elHuecoTxt = document.getElementById('letras-hueco-txt');
+            if (elHuecoTxt) {
+                elHuecoTxt.textContent = letrasActivadas
+                    ? '✨ ¡Hoy aparecieron letras flotando en el hueco! Recógelas o derrota al BOSS.'
+                    : `⚔️ Ronda sin letras: derrota a ${nombreBoss} para ganar tu premio.`;
+            }
 
             function actualizarBarrasVidaUI() {
                 const txtJ = document.getElementById('letras-vida-jugador-txt');
@@ -7430,7 +7493,7 @@
                 if (ahora - ultimoDisparo < 260) return;
                 ultimoDisparo = ahora;
                 const vel = 220 + (potencia || 0.7) * 160;
-                proyectiles.push({ x: jugador.x, y: jugador.y, dx, dy, vel });
+                proyectiles.push({ x: jugador.x, y: jugador.y, dx, dy, vel, color: mobilFinal.bala || '#38BDF8' });
                 if (typeof reproducirSFX === 'function') { try { reproducirSFX('click'); } catch (e) {} }
             }
             letrasDispararCallback = dispara;
@@ -7439,7 +7502,7 @@
                 letrasDispararCallback = null;
             }
 
-            function terminarRonda(gano) {
+            function terminarRonda(gano, premioBossGanado) {
                 if (terminado) return;
                 terminado = true;
                 limpiar();
@@ -7454,16 +7517,36 @@
                 if (resultado) {
                     resultado.classList.remove('hidden');
                     if (gano) {
+                        const partesPremio = [];
+                        if (premioBossGanado && premioBossGanado.monedas) partesPremio.push(`${premioBossGanado.monedas} monedas`);
+                        if (premioBossGanado && premioBossGanado.gemas) partesPremio.push(`${premioBossGanado.gemas} gemas`);
+                        const txtPremio = partesPremio.length ? ` Ganaste ${partesPremio.join(' y ')}.` : '';
                         resultado.innerHTML = boss.vida <= 0
-                            ? `<span class="text-verde">🏆 ¡${mobilFinal.nombre} derrotó a ${nombreBoss}! Reclama tu premio si completaste la palabra.</span>`
+                            ? `<span class="text-verde">🏆 ¡${mobilFinal.nombre} derrotó a ${nombreBoss}!${txtPremio} Si completaste toda la palabra, reclama también ese premio.</span>`
                             : `<span class="text-verde">🛡️ ¡${mobilFinal.nombre} juntó todas las letras esquivando a ${nombreBoss}! Reclama tu premio si completaste la palabra.</span>`;
                     } else {
-                        resultado.innerHTML = `<span class="text-rojo">💀 ${nombreBoss} derrotó a ${mobilFinal.nombre} antes de que juntara todas las letras. ¡Inténtalo de nuevo!</span>`;
+                        resultado.innerHTML = `<span class="text-rojo">💀 ${nombreBoss} derrotó a ${mobilFinal.nombre}. ¡Inténtalo de nuevo!</span>`;
                     }
                 }
                 renderizarLetrasVista();
             }
             letrasLimpiarRonda = () => { limpiar(); terminarRonda(false); };
+
+            function otorgarPremioBossLetras() {
+                if (!usuarioActual) return null;
+                const premio = configLetras.premioBoss || {};
+                let hubo = false;
+                if (premio.monedas) { saldo += premio.monedas; localStorage.setItem(`saldo_${usuarioActual}`, saldo); hubo = true; }
+                if (premio.gemas) { gemas += premio.gemas; localStorage.setItem(`gemas_${usuarioActual}`, gemas); hubo = true; }
+                if (hubo) {
+                    if (typeof sincronizarSaldoNube === 'function') sincronizarSaldoNube();
+                    guardarCampoUsuarioNube(usuarioActual, { saldo, gemas });
+                    if (typeof actualizarInterfazUsuario === 'function') actualizarInterfazUsuario();
+                    enviarNotificacionTelegram(`${usuarioActual} derrotó a ${nombreBoss} en el minijuego de Letras 💀🎁`);
+                    agregarNotificacionApp(`💀 ¡Derrotaste a ${nombreBoss}! Ganaste tu premio.`, 'fa-skull');
+                }
+                return premio;
+            }
 
             function bucle(ahora) {
                 const dt = Math.min(0.05, (ahora - ultimoFrame) / 1000);
@@ -7496,7 +7579,7 @@
                             if (typeof reproducirSFX === 'function') { try { reproducirSFX('subirNivel'); } catch (e) {} }
                         }
                     });
-                    if (recolectadas >= faltantes.length) { terminarRonda(true); return; }
+                    if (letrasActivadas && recolectadas >= letrasTiles.length) { terminarRonda(true, null); return; }
 
                     for (let i = proyectiles.length - 1; i >= 0; i--) {
                         const p = proyectiles[i];
@@ -7508,7 +7591,12 @@
                             boss.aturdidoHasta = ahora + 500;
                             proyectiles.splice(i, 1);
                             actualizarBarrasVidaUI();
-                            if (boss.vida <= 0) { boss.vida = 0; boss.derrotado = true; terminarRonda(true); return; }
+                            if (boss.vida <= 0) {
+                                boss.vida = 0; boss.derrotado = true;
+                                const premioGanado = otorgarPremioBossLetras();
+                                terminarRonda(true, premioGanado);
+                                return;
+                            }
                         }
                     }
 
@@ -7561,11 +7649,47 @@
                 }
 
                 ctx.clearRect(0, 0, ANCHO, ALTO);
-                ctx.fillStyle = '#0B0F19';
+                const gradFondo = ctx.createLinearGradient(0, 0, 0, ALTO);
+                gradFondo.addColorStop(0, '#0B0F19');
+                gradFondo.addColorStop(0.5, '#151233');
+                gradFondo.addColorStop(1, '#0B0F19');
+                ctx.fillStyle = gradFondo;
                 ctx.fillRect(0, 0, ANCHO, ALTO);
-                ctx.strokeStyle = 'rgba(148,163,184,0.08)';
-                for (let gx = 0; gx < ANCHO; gx += 30) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ALTO); ctx.stroke(); }
-                for (let gy = 0; gy < ALTO; gy += 30) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(ANCHO, gy); ctx.stroke(); }
+                estrellasFondo.forEach(s => {
+                    ctx.globalAlpha = s.a;
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+                });
+                ctx.globalAlpha = 1;
+
+                // Dos plataformas de tierra flotante (arriba: BOSS, abajo: jugador) con un
+                // hueco de vacío en el medio donde a veces flotan las letras.
+                function dibujarPlataforma(yBase, semilla, esTecho) {
+                    const paso = 20;
+                    ctx.beginPath();
+                    if (esTecho) {
+                        ctx.moveTo(0, 0);
+                        for (let x = 0; x <= ANCHO; x += paso) ctx.lineTo(x, yBase + Math.sin(x * 0.14 + semilla) * 7);
+                        ctx.lineTo(ANCHO, 0);
+                    } else {
+                        ctx.moveTo(0, ALTO);
+                        for (let x = 0; x <= ANCHO; x += paso) ctx.lineTo(x, yBase + Math.sin(x * 0.16 + semilla) * 7);
+                        ctx.lineTo(ANCHO, ALTO);
+                    }
+                    ctx.closePath();
+                    ctx.fillStyle = '#6B4423';
+                    ctx.fill();
+                    ctx.strokeStyle = '#4ADE80';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    for (let x = 0; x <= ANCHO; x += paso) {
+                        const y = yBase + Math.sin(x * (esTecho ? 0.14 : 0.16) + semilla) * 7;
+                        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                }
+                dibujarPlataforma(150, 3, true);
+                dibujarPlataforma(292, 1, false);
 
                 letrasTiles.forEach(t => {
                     if (t.recolectada) return;
@@ -7582,7 +7706,7 @@
                 proyectiles.forEach(p => {
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-                    ctx.fillStyle = '#38BDF8';
+                    ctx.fillStyle = p.color || '#38BDF8';
                     ctx.fill();
                 });
 
@@ -7610,12 +7734,18 @@
                     ctx.fillText('☠️', boss.x, boss.y + 1);
                 }
 
-                ctx.beginPath();
-                ctx.arc(jugador.x, jugador.y, jugador.r, 0, Math.PI * 2);
-                ctx.fillStyle = mobilFinal.color;
-                ctx.fill();
-                ctx.font = '15px sans-serif';
-                ctx.fillText(mobilFinal.icono, jugador.x, jugador.y + 1);
+                const imgMobil = obtenerImagenMobilCargada(mobilFinal.id);
+                if (imgMobil) {
+                    const tam = jugador.r * 2.3;
+                    ctx.drawImage(imgMobil, jugador.x - tam / 2, jugador.y - tam / 2, tam, tam);
+                } else {
+                    ctx.beginPath();
+                    ctx.arc(jugador.x, jugador.y, jugador.r, 0, Math.PI * 2);
+                    ctx.fillStyle = mobilFinal.color;
+                    ctx.fill();
+                    ctx.font = '15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText(mobilFinal.icono, jugador.x, jugador.y + 1);
+                }
 
                 letrasRafId = requestAnimationFrame(bucle);
             }
@@ -7654,15 +7784,46 @@
             const inpImg = document.getElementById('admin-letras-premio-img');
             const inpVida = document.getElementById('admin-letras-vida');
             const inpDano = document.getElementById('admin-letras-dano');
+            const inpProb = document.getElementById('admin-letras-prob');
+            const inpBossMonedas = document.getElementById('admin-letras-boss-premio-monedas');
+            const inpBossGemas = document.getElementById('admin-letras-boss-premio-gemas');
             if (inpPalabra) inpPalabra.value = configLetras.palabra || '';
             if (inpLimite) inpLimite.value = configLetras.limiteDiario || 1;
             if (inpTiempo) inpTiempo.value = configLetras.tiempoLimite || 120;
             if (inpVida) inpVida.value = configLetras.vida || 3000;
             if (inpDano) inpDano.value = configLetras.dano || 100;
+            if (inpProb) inpProb.value = (configLetras.probLetras !== undefined ? configLetras.probLetras : 35);
+            if (inpBossMonedas) inpBossMonedas.value = (configLetras.premioBoss && configLetras.premioBoss.monedas) || 0;
+            if (inpBossGemas) inpBossGemas.value = (configLetras.premioBoss && configLetras.premioBoss.gemas) || 0;
             if (inpNombre) inpNombre.value = (configLetras.premio && configLetras.premio.nombre) || '';
             if (inpMonedas) inpMonedas.value = (configLetras.premio && configLetras.premio.monedas) || 0;
             if (inpGemas) inpGemas.value = (configLetras.premio && configLetras.premio.gemas) || 0;
             if (inpImg) inpImg.value = (configLetras.premio && configLetras.premio.imagen) || '';
+            generarFormularioMobilesLetrasAdmin();
+        }
+
+        // Genera la grilla admin para subir una imagen por cada Mobil (se guarda solo, sin botón aparte).
+        function generarFormularioMobilesLetrasAdmin() {
+            const cont = document.getElementById('admin-letras-mobiles-imgs');
+            if (!cont || typeof MOBILES_LETRAS === 'undefined') return;
+            configLetras.imagenesMobiles = configLetras.imagenesMobiles || {};
+            cont.innerHTML = MOBILES_LETRAS.filter(m => m.id !== 'random').map(m => {
+                const url = configLetras.imagenesMobiles[m.id] || '';
+                const previewId = `admin-letras-mobilimg-${m.id}-preview`;
+                const inputId = `admin-letras-mobilimg-${m.id}`;
+                return `
+                <div class="flex items-center gap-2 p-2 bg-oscuro rounded-xl border border-borde">
+                    <div id="${previewId}" class="w-9 h-9 rounded-lg bg-medio border border-borde flex items-center justify-center overflow-hidden shrink-0 text-base">
+                        ${url ? `<img src="${url}" class="w-full h-full object-contain">` : m.icono}
+                    </div>
+                    <span class="text-[10px] font-bold text-white flex-1 truncate">${m.nombre}</span>
+                    <input type="hidden" id="${inputId}" value="${url}">
+                    <label class="px-2 py-1 bg-claro text-white rounded cursor-pointer text-[10px] font-bold flex items-center shrink-0">
+                        <i class="fa fa-camera"></i>
+                        <input type="file" accept="image/*" class="hidden" onchange="subirImagenTelefono(this, '${inputId}')">
+                    </label>
+                </div>`;
+            }).join('');
         }
 
         // ===== GARRA DE PREMIOS =====
@@ -11328,11 +11489,18 @@
                 const img = document.getElementById('admin-letras-premio-img')?.value;
                 const vidaConfig = parseInt(document.getElementById('admin-letras-vida')?.value);
                 const danoConfig = parseInt(document.getElementById('admin-letras-dano')?.value);
+                const probConfig = parseInt(document.getElementById('admin-letras-prob')?.value);
+                const bossMonedas = parseInt(document.getElementById('admin-letras-boss-premio-monedas')?.value);
+                const bossGemas = parseInt(document.getElementById('admin-letras-boss-premio-gemas')?.value);
                 if (palabra !== undefined) configLetras.palabra = palabra.trim().toUpperCase();
                 if (!isNaN(limite)) configLetras.limiteDiario = limite;
                 if (!isNaN(tiempoLimite)) configLetras.tiempoLimite = tiempoLimite;
                 if (!isNaN(vidaConfig)) configLetras.vida = vidaConfig;
                 if (!isNaN(danoConfig)) configLetras.dano = danoConfig;
+                if (!isNaN(probConfig)) configLetras.probLetras = Math.max(0, Math.min(100, probConfig));
+                configLetras.premioBoss = configLetras.premioBoss || {};
+                if (!isNaN(bossMonedas)) configLetras.premioBoss.monedas = bossMonedas;
+                if (!isNaN(bossGemas)) configLetras.premioBoss.gemas = bossGemas;
                 if (nombre !== undefined) configLetras.premio.nombre = nombre;
                 if (!isNaN(monedas)) configLetras.premio.monedas = monedas;
                 if (!isNaN(gemasPremio)) configLetras.premio.gemas = gemasPremio;
