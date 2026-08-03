@@ -1700,47 +1700,47 @@
                         </div>
                     </div>
                     <p id="letras-hueco-txt" class="text-[9px] text-center text-slate-400"></p>
-                    <div id="letras-canvas-wrap" class="relative w-full rounded-2xl overflow-hidden border border-borde bg-oscuro touch-none select-none" style="aspect-ratio:300/420;">
+                    <div id="letras-canvas-wrap" class="relative w-full rounded-2xl overflow-hidden border border-borde bg-oscuro touch-none select-none" style="aspect-ratio:16/9;">
                         <canvas id="letras-canvas" class="w-full h-full block"></canvas>
 
                         <!-- PANEL DE ARMA (arriba-izquierda) -->
-                        <div class="absolute left-2 top-2 z-10 bg-oscuro/85 border border-borde rounded-xl px-1.5 py-1.5 flex flex-col items-center gap-1 shadow-lg">
-                            <span class="text-[6.5px] font-black text-slate-400 tracking-wider">ARMA</span>
-                            <div class="w-8 h-8 rounded-lg bg-gradient-to-b from-claro to-oscuro border border-dorado/60 flex items-center justify-center text-sm shadow-inner" id="letras-arma-icono">🚀</div>
+                        <div class="absolute left-1.5 top-1.5 z-10 bg-oscuro/80 border border-borde rounded-lg px-1.5 py-1 flex flex-col items-center gap-0.5 shadow-lg">
+                            <span class="text-[5.5px] font-black text-slate-400 tracking-wider">ARMA</span>
+                            <div class="w-6 h-6 rounded-md bg-gradient-to-b from-claro to-oscuro border border-dorado/60 flex items-center justify-center text-xs shadow-inner" id="letras-arma-icono">🚀</div>
                         </div>
 
                         <!-- INDICADOR DE VIENTO (arriba-derecha) -->
-                        <div class="absolute right-2 top-2 z-10 bg-oscuro/85 border border-borde rounded-xl px-2 py-1.5 flex flex-col items-center gap-0.5 shadow-lg min-w-[46px]">
-                            <span class="text-[6.5px] font-black text-slate-400 tracking-wider flex items-center gap-0.5"><i class="fa fa-wind"></i> VIENTO</span>
-                            <span id="letras-viento-flecha" class="text-xs leading-none transition-transform duration-300"><i class="fa fa-arrow-right"></i></span>
-                            <span class="text-[9px] font-black text-white" id="letras-viento-txt">0</span>
+                        <div class="absolute right-1.5 top-1.5 z-10 bg-oscuro/80 border border-borde rounded-lg px-1.5 py-1 flex flex-col items-center gap-0.5 shadow-lg min-w-[38px]">
+                            <span class="text-[5.5px] font-black text-slate-400 tracking-wider flex items-center gap-0.5"><i class="fa fa-wind"></i> VIENTO</span>
+                            <span id="letras-viento-flecha" class="text-[10px] leading-none transition-transform duration-300"><i class="fa fa-arrow-right"></i></span>
+                            <span class="text-[8px] font-black text-white" id="letras-viento-txt">0</span>
                         </div>
 
-                        <!-- zona de arrastre estilo joystick: arrastra y suelta para disparar en esa dirección -->
-                        <div id="letras-disparo-zona" class="absolute left-3 bottom-3 w-24 h-24 rounded-full bg-gradient-to-b from-naranja/35 to-naranja/10 border-4 border-naranja/80 flex items-center justify-center text-center touch-none select-none shadow-lg">
+                        <!-- dial de ángulo + barra de potencia, flotan cerca del Mobil solo mientras se arrastra para disparar -->
+                        <div id="letras-potencia-wrap" class="absolute left-1.5 bottom-16 hidden pointer-events-none flex items-end gap-1 z-10">
+                            <div class="w-3.5 h-14 rounded-full bg-oscuro/90 border border-borde overflow-hidden flex flex-col-reverse shadow-inner">
+                                <div id="letras-potencia-barra" class="w-full bg-gradient-to-t from-verde via-dorado to-rojo transition-[height]" style="height:0%"></div>
+                            </div>
+                            <div class="text-[8px] font-black text-dorado bg-oscuro/80 px-1 py-0.5 rounded-md border border-borde leading-tight" id="letras-angulo-txt">0°</div>
+                        </div>
+
+                        <!-- zona de arrastre estilo joystick: arrastra y suelta para disparar en esa dirección (esquina inferior izquierda, no tapa el centro) -->
+                        <div id="letras-disparo-zona" class="absolute left-1.5 bottom-1.5 w-16 h-16 rounded-full bg-gradient-to-b from-naranja/35 to-naranja/10 border-[3px] border-naranja/80 flex items-center justify-center text-center touch-none select-none shadow-lg">
                             <svg id="letras-radar-svg" class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100">
                                 <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="6"></circle>
                                 <circle id="letras-radar-arco" cx="50" cy="50" r="42" fill="none" stroke="#4ADE80" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 264" transform="rotate(-90 50 50)"></circle>
                             </svg>
-                            <div class="w-11 h-11 rounded-full bg-gradient-to-b from-naranja to-naranja/70 border-2 border-white/40 shadow-inner flex items-center justify-center">
-                                <span id="letras-disparo-txt" class="text-[7px] font-black text-white leading-tight">Arrastra<br>y suelta</span>
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-b from-naranja to-naranja/70 border-2 border-white/40 shadow-inner flex items-center justify-center">
+                                <span id="letras-disparo-txt" class="text-[6px] font-black text-white leading-tight">Arrastra<br>y suelta</span>
                             </div>
                             <div id="letras-disparo-flecha" class="absolute left-1/2 top-1/2 h-1 bg-dorado rounded-full pointer-events-none hidden" style="transform-origin:left center; width:10px;"></div>
                         </div>
-                        <!-- dial de ángulo + barra de potencia vertical, visible mientras se arrastra -->
-                        <div id="letras-potencia-wrap" class="absolute left-3 bottom-28 hidden pointer-events-none flex flex-col items-center gap-1 z-10">
-                            <div class="text-[8px] font-black text-verde tracking-wide bg-oscuro/80 px-1.5 py-0.5 rounded-md border border-borde">ÁNGULO</div>
-                            <div class="w-5 h-24 rounded-full bg-oscuro/90 border border-borde overflow-hidden flex flex-col-reverse shadow-inner">
-                                <div id="letras-potencia-barra" class="w-full bg-gradient-to-t from-verde via-dorado to-rojo transition-[height]" style="height:0%"></div>
-                            </div>
-                            <div class="text-[9px] font-black text-dorado bg-oscuro/80 px-1.5 py-0.5 rounded-md border border-borde" id="letras-angulo-txt">0°</div>
-                        </div>
-                        <!-- d-pad de movimiento -->
-                        <div id="letras-dpad" class="absolute right-3 bottom-3 w-24 h-24 touch-none select-none">
-                            <button type="button" data-dir="up" class="absolute left-1/2 top-0 -translate-x-1/2 w-9 h-9 rounded-lg bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-up"></i></button>
-                            <button type="button" data-dir="down" class="absolute left-1/2 bottom-0 -translate-x-1/2 w-9 h-9 rounded-lg bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-down"></i></button>
-                            <button type="button" data-dir="left" class="absolute left-0 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-left"></i></button>
-                            <button type="button" data-dir="right" class="absolute right-0 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-right"></i></button>
+                        <!-- d-pad de movimiento (esquina inferior derecha, no tapa el centro) -->
+                        <div id="letras-dpad" class="absolute right-1.5 bottom-1.5 w-16 h-16 touch-none select-none">
+                            <button type="button" data-dir="up" class="absolute left-1/2 top-0 -translate-x-1/2 w-6 h-6 rounded-md bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white text-[10px] shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-up"></i></button>
+                            <button type="button" data-dir="down" class="absolute left-1/2 bottom-0 -translate-x-1/2 w-6 h-6 rounded-md bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white text-[10px] shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-down"></i></button>
+                            <button type="button" data-dir="left" class="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white text-[10px] shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-left"></i></button>
+                            <button type="button" data-dir="right" class="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white text-[10px] shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-right"></i></button>
                         </div>
                     </div>
                     <p class="text-[9px] text-slate-500">En tu turno: usa las flechas para moverte y arrastra el círculo naranja hacia atrás y suelta para disparar; mientras arrastras ves la barra de potencia y el ángulo. En el turno del BOSS no puedes actuar — su disparo siempre acierta.</p>
@@ -7287,16 +7287,40 @@
         let letrasDuracionTurnoSeleccionada = 10; // segundos por turno, elegido por el jugador (5/10/15/20)
         let letrasImagenesCache = {}; // cache de <img> ya cargadas por id de Mobil, para dibujarlas en el canvas
 
-        // Devuelve el <img> ya cargado de un Mobil (o null si no tiene imagen propia o
-        // todavía está cargando) para dibujarlo en el canvas en vez del ícono/color plano.
+        // Recorta un fondo verde tipo croma (común en sprites recortados de otros juegos) volviendo
+        // transparentes esos píxeles, para que el Mobil se vea aislado y no "dentro de un cuadro verde".
+        function quitarFondoVerdeSprite(img) {
+            try {
+                const off = document.createElement('canvas');
+                off.width = img.naturalWidth || img.width || 1;
+                off.height = img.naturalHeight || img.height || 1;
+                const octx = off.getContext('2d');
+                octx.drawImage(img, 0, 0, off.width, off.height);
+                const datos = octx.getImageData(0, 0, off.width, off.height);
+                const px = datos.data;
+                for (let i = 0; i < px.length; i += 4) {
+                    const r = px[i], g = px[i + 1], b = px[i + 2];
+                    if (g > 55 && g > r * 1.15 && g > b * 1.15) px[i + 3] = 0;
+                }
+                octx.putImageData(datos, 0, 0);
+                return off;
+            } catch (e) {
+                return img; // imagen de otro origen (CORS): se dibuja sin procesar, sin romper el juego
+            }
+        }
+
+        // Devuelve el <img>/<canvas> ya cargado (y con el fondo verde recortado) de un Mobil, o
+        // null si no tiene imagen propia o todavía está cargando, para dibujarlo en el canvas en
+        // vez del ícono/color plano.
         function obtenerImagenMobilCargada(id) {
             const url = configLetras.imagenesMobiles && configLetras.imagenesMobiles[id];
             if (!url) return null;
             const entrada = letrasImagenesCache[id];
             if (entrada && entrada.src === url) return entrada.completo ? entrada.img : null;
             const img = new Image();
-            const nuevaEntrada = { img, src: url, completo: false };
-            img.onload = () => { nuevaEntrada.completo = true; };
+            img.crossOrigin = 'anonymous';
+            const nuevaEntrada = { img: null, src: url, completo: false };
+            img.onload = () => { nuevaEntrada.img = quitarFondoVerdeSprite(img); nuevaEntrada.completo = true; };
             img.src = url;
             letrasImagenesCache[id] = nuevaEntrada;
             return null;
@@ -7471,17 +7495,19 @@
             if (elArmaIcono) elArmaIcono.textContent = mobilFinal.icono;
 
             const canvas = document.getElementById('letras-canvas');
-            const ANCHO = 300, ALTO = 420;
+            const ANCHO = 520, ALTO = 292; // formato panorámico 16:9, como un campo de batalla de artillería real
             canvas.width = ANCHO; canvas.height = ALTO;
             const ctx = canvas.getContext('2d');
 
-            function posicionLibre(radio, ocupados, yMin, yMax) {
+            // Las letras flotan dentro del cañón/hueco central (franja vertical entre las dos mesetas),
+            // eligiendo X dentro de esa franja y cualquier Y dentro de la altura del campo.
+            function posicionLibre(radio, ocupados, xMin, xMax) {
                 for (let intento = 0; intento < 40; intento++) {
-                    const x = radio + Math.random() * (ANCHO - radio * 2);
-                    const y = yMin + Math.random() * (yMax - yMin);
+                    const x = xMin + Math.random() * (xMax - xMin);
+                    const y = 40 + Math.random() * (ALTO - 80);
                     if (ocupados.every(o => Math.hypot(o.x - x, o.y - y) > radio + o.r + 12)) return { x, y };
                 }
-                return { x: ANCHO / 2 + (Math.random() - 0.5) * 40, y: (yMin + yMax) / 2 };
+                return { x: (xMin + xMax) / 2, y: ALTO / 2 + (Math.random() - 0.5) * 40 };
             }
 
             // ===== JUGADOR vs BOSS, por turnos: se sortea quién empieza. En su turno, cada
@@ -7495,7 +7521,7 @@
             const VIDA_MAX = Math.max(100, configLetras.vida || 3000);
             const DANO_IMPACTO = Math.max(1, configLetras.dano || 100);
             const DURACION_TURNO = letrasDuracionTurnoSeleccionada || 10;
-            const Y_HUECO_MIN = 155, Y_HUECO_MAX = 285; // franja de "aire" entre las dos plataformas
+            const X_HUECO_MIN = ANCHO * 0.42, X_HUECO_MAX = ANCHO * 0.58; // cañón central entre las dos mesetas
 
             // ===== VIENTO: valor decorativo que también empuja levemente los proyectiles del
             // jugador (como en los juegos de artillería por turnos), se sortea de nuevo al
@@ -7514,12 +7540,12 @@
             }
             sortearViento();
 
-            const jugador = { x: ANCHO / 2, y: ALTO - 45, r: 14, vel: 110, vida: VIDA_MAX };
-            const boss = { x: ANCHO / 2, y: 65, r: 16, vel: 55, vida: VIDA_MAX, derrotado: false, aturdidoHasta: 0 };
+            const jugador = { x: ANCHO * 0.16, y: ALTO * 0.58, r: 15, vel: 100, vida: VIDA_MAX };
+            const boss = { x: ANCHO * 0.84, y: ALTO * 0.58, r: 17, vel: 55, vida: VIDA_MAX, derrotado: false, aturdidoHasta: 0 };
             const ocupadosIniciales = [{ x: jugador.x, y: jugador.y, r: jugador.r }, { x: boss.x, y: boss.y, r: boss.r }];
             const letrasActivadas = faltantes.length > 0 && (Math.random() * 100 < (configLetras.probLetras !== undefined ? configLetras.probLetras : 35));
             const letrasTiles = letrasActivadas ? faltantes.map(letra => {
-                const pos = posicionLibre(13, ocupadosIniciales, Y_HUECO_MIN, Y_HUECO_MAX);
+                const pos = posicionLibre(13, ocupadosIniciales, X_HUECO_MIN, X_HUECO_MAX);
                 ocupadosIniciales.push({ x: pos.x, y: pos.y, r: 13 });
                 return { letra, x: pos.x, y: pos.y, r: 13, recolectada: false };
             }) : [];
@@ -7655,8 +7681,9 @@
                     if (mag > 0.05) {
                         jugador.x += letrasMoveDir.x * jugador.vel * dt;
                         jugador.y += letrasMoveDir.y * jugador.vel * dt;
-                        jugador.x = Math.max(jugador.r, Math.min(ANCHO - jugador.r, jugador.x));
-                        jugador.y = Math.max(jugador.r, Math.min(ALTO - jugador.r, jugador.y));
+                        // se mueve libre por su meseta y puede asomarse al borde del cañón, pero no cruzarlo
+                        jugador.x = Math.max(jugador.r + 6, Math.min(X_HUECO_MIN - jugador.r - 2, jugador.x));
+                        jugador.y = Math.max(30, Math.min(ALTO - 22, jugador.y));
                     }
 
                     letrasTiles.forEach(t => {
@@ -7712,6 +7739,9 @@
                         const d = Math.hypot(dx, dy) || 1;
                         boss.x += (dx / d) * boss.vel * dt;
                         boss.y += (dy / d) * boss.vel * dt;
+                        // el BOSS ronda su propia meseta y no cruza el cañón hacia el jugador
+                        boss.x = Math.max(X_HUECO_MAX + boss.r + 2, Math.min(ANCHO - boss.r - 6, boss.x));
+                        boss.y = Math.max(30, Math.min(ALTO - 22, boss.y));
 
                         // Dispara su tiro certero cuando queda ~35% del turno (una sola vez por turno)
                         if (!bossYaDisparoEsteTurno && tiempoTurnoRestante <= DURACION_TURNO * 0.35) {
@@ -7744,47 +7774,108 @@
                 }
 
                 ctx.clearRect(0, 0, ANCHO, ALTO);
-                const gradFondo = ctx.createLinearGradient(0, 0, 0, ALTO);
-                gradFondo.addColorStop(0, '#0B0F19');
-                gradFondo.addColorStop(0.5, '#151233');
-                gradFondo.addColorStop(1, '#0B0F19');
-                ctx.fillStyle = gradFondo;
+
+                // Cielo de atardecer en el cañón, con sol y resplandor (como una escena real de batalla).
+                const gradCielo = ctx.createLinearGradient(0, 0, 0, ALTO * 0.7);
+                gradCielo.addColorStop(0, '#4C2A6B');
+                gradCielo.addColorStop(0.35, '#B4552F');
+                gradCielo.addColorStop(0.68, '#E8935B');
+                gradCielo.addColorStop(1, '#F4C177');
+                ctx.fillStyle = gradCielo;
                 ctx.fillRect(0, 0, ANCHO, ALTO);
+
+                const solX = ANCHO * 0.5, solY = ALTO * 0.26;
+                const gradSol = ctx.createRadialGradient(solX, solY, 2, solX, solY, 58);
+                gradSol.addColorStop(0, 'rgba(255,241,199,0.95)');
+                gradSol.addColorStop(1, 'rgba(255,241,199,0)');
+                ctx.fillStyle = gradSol;
+                ctx.beginPath(); ctx.arc(solX, solY, 58, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#FFF3D6';
+                ctx.beginPath(); ctx.arc(solX, solY, 15, 0, Math.PI * 2); ctx.fill();
+
+                // Mesetas/montañas lejanas en parallax, para dar profundidad al mapa.
+                function dibujarSilueta(baseY, amplitud, color, semilla) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, ALTO);
+                    for (let x = 0; x <= ANCHO; x += 16) {
+                        ctx.lineTo(x, baseY - Math.abs(Math.sin(x * 0.022 + semilla)) * amplitud - Math.abs(Math.sin(x * 0.06 + semilla * 2)) * amplitud * 0.5);
+                    }
+                    ctx.lineTo(ANCHO, ALTO);
+                    ctx.closePath();
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                }
+                dibujarSilueta(ALTO * 0.68, 26, 'rgba(90,50,60,0.55)', 1.3);
+                dibujarSilueta(ALTO * 0.74, 18, 'rgba(120,64,58,0.65)', 4.1);
+
+                // Motas de polvo suaves flotando en el aire del cañón.
                 estrellasFondo.forEach(s => {
-                    ctx.globalAlpha = s.a;
-                    ctx.fillStyle = '#FFFFFF';
+                    ctx.globalAlpha = s.a * 0.7;
+                    ctx.fillStyle = '#FFE8C2';
                     ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
                 });
                 ctx.globalAlpha = 1;
 
-                // Dos plataformas de tierra flotante (arriba: BOSS, abajo: jugador) con un
-                // hueco de vacío en el medio donde a veces flotan las letras.
-                function dibujarPlataforma(yBase, semilla, esTecho) {
-                    const paso = 20;
-                    ctx.beginPath();
-                    if (esTecho) {
-                        ctx.moveTo(0, 0);
-                        for (let x = 0; x <= ANCHO; x += paso) ctx.lineTo(x, yBase + Math.sin(x * 0.14 + semilla) * 7);
-                        ctx.lineTo(ANCHO, 0);
-                    } else {
-                        ctx.moveTo(0, ALTO);
-                        for (let x = 0; x <= ANCHO; x += paso) ctx.lineTo(x, yBase + Math.sin(x * 0.16 + semilla) * 7);
-                        ctx.lineTo(ANCHO, ALTO);
+                // ===== CAÑÓN: dos mesetas de roca real (izquierda: jugador, derecha: BOSS)
+                // separadas por un vacío central donde a veces flotan las letras, con estratos
+                // de roca, musgo en el borde y grietas en vez de un bloque plano de un solo color. =====
+                function dibujarMeseta(xDesde, xHasta, esIzquierda) {
+                    const topeBase = ALTO * 0.62;
+                    function topeY(x) {
+                        return topeBase + Math.sin(x * 0.05 + (esIzquierda ? 2 : 7)) * 6;
                     }
+                    ctx.beginPath();
+                    ctx.moveTo(xDesde, ALTO);
+                    for (let x = xDesde; x <= xHasta; x += 8) ctx.lineTo(x, topeY(x));
+                    ctx.lineTo(xHasta, ALTO);
                     ctx.closePath();
-                    ctx.fillStyle = '#6B4423';
+                    const gradRoca = ctx.createLinearGradient(0, topeBase - 20, 0, ALTO);
+                    gradRoca.addColorStop(0, '#C97B4A');
+                    gradRoca.addColorStop(0.18, '#A85C36');
+                    gradRoca.addColorStop(0.45, '#8B4A30');
+                    gradRoca.addColorStop(0.75, '#6B3A28');
+                    gradRoca.addColorStop(1, '#3E2419');
+                    ctx.fillStyle = gradRoca;
                     ctx.fill();
-                    ctx.strokeStyle = '#4ADE80';
-                    ctx.lineWidth = 4;
-                    ctx.beginPath();
-                    for (let x = 0; x <= ANCHO; x += paso) {
-                        const y = yBase + Math.sin(x * (esTecho ? 0.14 : 0.16) + semilla) * 7;
-                        if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+
+                    ctx.save();
+                    ctx.clip();
+                    ctx.strokeStyle = 'rgba(0,0,0,0.16)';
+                    ctx.lineWidth = 2;
+                    for (let franjaY = topeBase + 14; franjaY < ALTO; franjaY += 15) {
+                        ctx.beginPath();
+                        for (let x = xDesde; x <= xHasta; x += 14) {
+                            const y = franjaY + Math.sin(x * 0.15 + franjaY) * 2.5;
+                            if (x === xDesde) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                        }
+                        ctx.stroke();
                     }
-                    ctx.stroke();
+                    ctx.restore();
+
+                    ctx.beginPath();
+                    for (let x = xDesde; x <= xHasta; x += 8) { const y = topeY(x); if (x === xDesde) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+                    ctx.lineWidth = 5; ctx.strokeStyle = '#5B8C3A'; ctx.stroke();
+                    ctx.lineWidth = 2; ctx.strokeStyle = '#7FB855'; ctx.stroke();
+
+                    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+                    ctx.lineWidth = 1.2;
+                    for (let i = 0; i < 4; i++) {
+                        const gx = esIzquierda ? xHasta - 6 - i * 9 : xDesde + 6 + i * 9;
+                        const gy = topeY(gx);
+                        ctx.beginPath();
+                        ctx.moveTo(gx, gy);
+                        ctx.lineTo(gx + (esIzquierda ? 5 : -5), gy + 10 + i * 2);
+                        ctx.stroke();
+                    }
                 }
-                dibujarPlataforma(150, 3, true);
-                dibujarPlataforma(292, 1, false);
+                dibujarMeseta(0, X_HUECO_MIN, true);
+                dibujarMeseta(X_HUECO_MAX, ANCHO, false);
+
+                const gradFoso = ctx.createLinearGradient(0, ALTO * 0.62, 0, ALTO);
+                gradFoso.addColorStop(0, 'rgba(30,15,12,0.92)');
+                gradFoso.addColorStop(1, 'rgba(8,4,4,0.98)');
+                ctx.fillStyle = gradFoso;
+                ctx.fillRect(X_HUECO_MIN, ALTO * 0.62, X_HUECO_MAX - X_HUECO_MIN, ALTO * 0.4);
 
                 letrasTiles.forEach(t => {
                     if (t.recolectada) return;
@@ -7837,15 +7928,32 @@
                         ctx.fill();
                     }
                 }
+                function dibujarSombra(x, y, r) {
+                    ctx.beginPath();
+                    ctx.ellipse(x, y, r * 1.15, r * 0.38, 0, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+                    ctx.fill();
+                }
                 const bobBoss = Math.sin(ahora / 220) * 2;
                 const bobJugador = Math.sin(ahora / 220 + 1.5) * 2;
 
                 if (!boss.derrotado) {
                     const bossAturdido = performance.now() < boss.aturdidoHasta;
+                    dibujarSombra(boss.x, boss.y + boss.r * 0.92, boss.r);
+                    // pequeños cuernos/picos para que no sea solo un círculo liso
+                    ctx.fillStyle = bossAturdido ? '#CBD5E1' : '#7F1D1D';
+                    [-1, 1].forEach(s => {
+                        ctx.beginPath();
+                        ctx.moveTo(boss.x + s * boss.r * 0.5, boss.y + bobBoss - boss.r * 0.7);
+                        ctx.lineTo(boss.x + s * boss.r * 0.85, boss.y + bobBoss - boss.r * 1.3);
+                        ctx.lineTo(boss.x + s * boss.r * 0.1, boss.y + bobBoss - boss.r * 0.85);
+                        ctx.closePath(); ctx.fill();
+                    });
                     ctx.beginPath();
                     ctx.arc(boss.x, boss.y + bobBoss, boss.r, 0, Math.PI * 2);
-                    ctx.fillStyle = bossAturdido ? '#94A3B8' : '#DC2626';
+                    ctx.fillStyle = bossAturdido ? '#94A3B8' : '#B91C1C';
                     ctx.fill();
+                    ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 2; ctx.stroke();
                     ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText('💀', boss.x, boss.y + bobBoss + 1);
                     if (boss.vida / VIDA_MAX < 0.3) dibujarHumo(boss.x, boss.y + bobBoss - boss.r, ahora);
@@ -7858,15 +7966,18 @@
                     ctx.fillText('☠️', boss.x, boss.y + 1);
                 }
 
+                dibujarSombra(jugador.x, jugador.y + jugador.r * 0.92, jugador.r);
                 const imgMobil = obtenerImagenMobilCargada(mobilFinal.id);
                 if (imgMobil) {
-                    const tam = jugador.r * 2.3;
+                    // el sprite ya viene con el fondo verde recortado (transparente), se dibuja aislado
+                    const tam = jugador.r * 2.5;
                     ctx.drawImage(imgMobil, jugador.x - tam / 2, jugador.y + bobJugador - tam / 2, tam, tam);
                 } else {
                     ctx.beginPath();
                     ctx.arc(jugador.x, jugador.y + bobJugador, jugador.r, 0, Math.PI * 2);
                     ctx.fillStyle = mobilFinal.color;
                     ctx.fill();
+                    ctx.strokeStyle = 'rgba(0,0,0,0.3)'; ctx.lineWidth = 1.5; ctx.stroke();
                     ctx.font = '15px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText(mobilFinal.icono, jugador.x, jugador.y + bobJugador + 1);
                 }
