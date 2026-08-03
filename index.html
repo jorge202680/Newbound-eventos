@@ -3461,7 +3461,7 @@
             <div id="tab-contenido-letras" class="hidden space-y-4">
                 <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-2">
                     <h4 class="font-black text-xs text-azul uppercase tracking-wider">Minijuego Letras: Defiende y Gana (por turnos)</h4>
-                    <p class="text-[10px] text-slate-400">Jugador vs BOSS por turnos (se sortea quién empieza). El jugador elige la duración del turno (5/10/15/20s) y en su turno se mueve, dispara al BOSS y recoge letras. En su turno, el BOSS siempre acierta un impacto certero. Gana el jugador si junta todas las letras o si derrota al BOSS; pierde si su vida llega a 0. Cambiar la palabra reinicia el progreso de todos.</p>
+                    <p class="text-[10px] text-slate-400">Jugador vs BOSS por turnos (se sortea quién empieza). No hay límite de tiempo para la ronda completa: el tiempo solo corre durante el turno de cada quien (5/10/15/20s). En su turno, el jugador se mueve, dispara al BOSS y recoge letras; el BOSS siempre acierta un impacto certero en el suyo. Gana el jugador si junta todas las letras o si derrota al BOSS; pierde si su vida llega a 0. Cambiar la palabra reinicia el progreso de todos.</p>
                     <div>
                         <label class="text-slate-400 block mb-1 text-xs">Palabra a completar:</label>
                         <input type="text" id="admin-letras-palabra" placeholder="Ej: NEWBOUND" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs uppercase">
@@ -3469,10 +3469,6 @@
                     <div>
                         <label class="text-slate-400 block mb-1 text-xs">Intentos (rondas) por día, por jugador:</label>
                         <input type="number" id="admin-letras-limite" min="1" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                    </div>
-                    <div>
-                        <label class="text-slate-400 block mb-1 text-xs">Tiempo límite total de seguridad (segundos, por si la ronda se cuelga):</label>
-                        <input type="number" id="admin-letras-tiempo" min="30" placeholder="Ej: 120 (2 minutos)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
@@ -3596,7 +3592,7 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.9.0";
+        const VERSION_APP_ACTUAL = "15.10.0";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
@@ -5392,7 +5388,7 @@
 
         let premiosGarra = JSON.parse(localStorage.getItem('premios_garra_app')) || Array(8).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 25 }));
         let premiosFutbolMini = JSON.parse(localStorage.getItem('premios_futbol_mini_app')) || Array(5).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 20 }));
-        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, tiempoLimite: 120, vida: 3000, dano: 100, probLetras: 35, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 }, premioBoss: { monedas: 0, gemas: 0 }, imagenesMobiles: {} };
+        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, vida: 3000, dano: 100, probLetras: 35, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 }, premioBoss: { monedas: 0, gemas: 0 }, imagenesMobiles: {} };
         let configGarra = JSON.parse(localStorage.getItem('config_garra_app')) || { costo: 15 };
         let jugandoGarra = false;
 
@@ -7585,8 +7581,6 @@
             let turno = Math.random() < 0.5 ? 'jugador' : 'boss'; // se sortea quién empieza
             let tiempoTurnoRestante = DURACION_TURNO;
             let bossYaDisparoEsteTurno = false;
-            const TIEMPO_TOTAL_SEGURIDAD = Math.max(60, configLetras.tiempoLimite || 120); // límite de seguridad por si la ronda se alarga
-            let tiempoTotalRestante = TIEMPO_TOTAL_SEGURIDAD;
             let ultimoDisparo = 0;
             let ultimoFrame = performance.now();
             let terminado = false;
@@ -7692,9 +7686,6 @@
             function bucle(ahora) {
                 const dt = Math.min(0.05, (ahora - ultimoFrame) / 1000);
                 ultimoFrame = ahora;
-
-                tiempoTotalRestante -= dt;
-                if (tiempoTotalRestante <= 0) { terminarRonda(false); return; }
 
                 tiempoTurnoRestante -= dt;
                 actualizarTimerUI();
@@ -8102,7 +8093,6 @@
         function generarFormularioLetrasAdmin() {
             const inpPalabra = document.getElementById('admin-letras-palabra');
             const inpLimite = document.getElementById('admin-letras-limite');
-            const inpTiempo = document.getElementById('admin-letras-tiempo');
             const inpNombre = document.getElementById('admin-letras-premio-nombre');
             const inpMonedas = document.getElementById('admin-letras-premio-monedas');
             const inpGemas = document.getElementById('admin-letras-premio-gemas');
@@ -8114,7 +8104,6 @@
             const inpBossGemas = document.getElementById('admin-letras-boss-premio-gemas');
             if (inpPalabra) inpPalabra.value = configLetras.palabra || '';
             if (inpLimite) inpLimite.value = configLetras.limiteDiario || 1;
-            if (inpTiempo) inpTiempo.value = configLetras.tiempoLimite || 120;
             if (inpVida) inpVida.value = configLetras.vida || 3000;
             if (inpDano) inpDano.value = configLetras.dano || 100;
             if (inpProb) inpProb.value = (configLetras.probLetras !== undefined ? configLetras.probLetras : 35);
@@ -11807,7 +11796,6 @@
             {
                 const palabra = document.getElementById('admin-letras-palabra')?.value;
                 const limite = parseInt(document.getElementById('admin-letras-limite')?.value);
-                const tiempoLimite = parseInt(document.getElementById('admin-letras-tiempo')?.value);
                 const nombre = document.getElementById('admin-letras-premio-nombre')?.value;
                 const monedas = parseInt(document.getElementById('admin-letras-premio-monedas')?.value);
                 const gemasPremio = parseInt(document.getElementById('admin-letras-premio-gemas')?.value);
@@ -11819,7 +11807,6 @@
                 const bossGemas = parseInt(document.getElementById('admin-letras-boss-premio-gemas')?.value);
                 if (palabra !== undefined) configLetras.palabra = palabra.trim().toUpperCase();
                 if (!isNaN(limite)) configLetras.limiteDiario = limite;
-                if (!isNaN(tiempoLimite)) configLetras.tiempoLimite = tiempoLimite;
                 if (!isNaN(vidaConfig)) configLetras.vida = vidaConfig;
                 if (!isNaN(danoConfig)) configLetras.dano = danoConfig;
                 if (!isNaN(probConfig)) configLetras.probLetras = Math.max(0, Math.min(100, probConfig));
