@@ -1256,54 +1256,6 @@
 
         <!-- ===================== PÁGINA: INICIO ===================== -->
         <div class="pagina-vista pagina-inicio space-y-6">
-        <!-- CARTEL INFORMATIVO: PRIX (evento especial, se juega fuera de la app) -->
-        <section id="cartel-prix" class="hidden p-4 rounded-3xl bg-gradient-to-br from-morado/20 to-oscuro border-2 border-morado shadow-xl space-y-3">
-            <div class="flex justify-between items-start gap-2">
-                <div class="min-w-0">
-                    <h3 id="prix-titulo" class="font-black text-base text-white leading-tight flex items-center gap-2"><i class="fa fa-trophy text-morado"></i> Prix</h3>
-                    <p id="prix-subtitulo" class="hidden text-[10px] font-bold text-dorado mt-0.5"></p>
-                </div>
-            </div>
-            <div class="flex flex-wrap gap-2">
-                <span id="prix-fecha" class="hidden text-[10px] font-bold text-morado bg-morado/10 border border-morado/40 rounded-full px-2.5 py-1"><i class="fa fa-calendar"></i> <span></span></span>
-                <span id="prix-hora" class="hidden text-[10px] font-bold text-morado bg-morado/10 border border-morado/40 rounded-full px-2.5 py-1"><i class="fa fa-clock"></i> <span></span></span>
-            </div>
-            <p id="prix-descripcion" class="hidden text-[11px] text-slate-300 leading-relaxed"></p>
-
-            <div id="prix-condiciones" class="hidden grid grid-cols-2 gap-2">
-                <div id="prix-cond-modo" class="hidden p-2 rounded-xl bg-oscuro border border-morado/20 text-center">
-                    <p class="text-[8px] uppercase text-slate-500 font-bold">Modo</p>
-                    <p class="text-[11px] font-black text-white"></p>
-                </div>
-                <div id="prix-cond-avatar" class="hidden p-2 rounded-xl bg-oscuro border border-morado/20 text-center">
-                    <p class="text-[8px] uppercase text-slate-500 font-bold">Avatar</p>
-                    <p class="text-[11px] font-black text-white"></p>
-                </div>
-                <div id="prix-cond-wind" class="hidden p-2 rounded-xl bg-oscuro border border-morado/20 text-center">
-                    <p class="text-[8px] uppercase text-slate-500 font-bold">Wind</p>
-                    <p class="text-[11px] font-black text-white"></p>
-                </div>
-                <div id="prix-cond-teleport" class="hidden p-2 rounded-xl bg-oscuro border border-morado/20 text-center">
-                    <p class="text-[8px] uppercase text-slate-500 font-bold">Teleport</p>
-                    <p class="text-[11px] font-black text-white"></p>
-                </div>
-            </div>
-
-            <div id="prix-bloque-mapas" class="hidden pt-1 border-t border-morado/20">
-                <p class="text-[9px] uppercase tracking-wide text-morado font-bold mb-1">Mapas</p>
-                <div id="prix-mapas-lista" class="flex flex-wrap gap-1.5"></div>
-            </div>
-
-            <div id="prix-bloque-premios" class="hidden pt-1 border-t border-morado/20">
-                <p class="text-[9px] uppercase tracking-wide text-dorado font-bold mb-1">Premios</p>
-                <div id="prix-premios-lista" class="space-y-1"></div>
-            </div>
-
-            <div class="pt-1 border-t border-morado/20">
-                <p id="prix-reglas" class="hidden text-[10px] text-slate-400 leading-relaxed whitespace-pre-line"></p>
-            </div>
-            <p class="text-[9px] text-slate-500 italic">🎮 Este evento se juega fuera de la app.</p>
-        </section>
         <!-- META GLOBAL COMUNITARIA (PROGRESO COLECTIVO) -->
         <section class="p-4 rounded-3xl bg-medio border border-borde shadow-xl space-y-2.5">
             <div class="flex justify-between items-center">
@@ -1510,6 +1462,15 @@
                     <p class="text-[10px] text-slate-400">2 intentos por semana</p>
                 </div>
             </button>
+<button onclick="abrirVentana('modal-letras'); renderizarLetrasVista();" id="card-letras" class="tarjeta-led led-azul p-4 rounded-2xl bg-medio border border-azul/40 hover:border-azul transition text-left space-y-2 shadow group">
+                <div class="w-10 h-10 rounded-xl bg-azul/20 text-azul flex items-center justify-center text-lg group-hover:scale-110 transition">
+                    <i class="fa fa-spell-check"></i>
+                </div>
+                <div>
+                    <h3 class="font-black text-xs text-white" id="card-letras-titulo">Letras</h3>
+                    <p class="text-[10px] text-slate-400">Junta y Gana un Premio</p>
+                </div>
+            </button>
 <button onclick="abrirVentana('modal-garra'); renderizarGarraVista();" id="card-garra" class="tarjeta-led led-rosa p-4 rounded-2xl bg-medio border border-pink-500/40 hover:border-pink-500 transition text-left space-y-2 shadow group">
                 <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-lg group-hover:scale-110 transition">
                     <i class="fa fa-gamepad"></i>
@@ -1682,6 +1643,56 @@
                 <div id="futbol-mini-grid" class="grid grid-cols-5 gap-2"></div>
                 <button id="btn-patear-futbol-mini" onclick="patearFutbolMini()" class="w-full py-3 bg-gradient-to-r from-verde to-emerald-600 text-black font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">⚽ PATEAR</button>
                 <div id="resultado-futbol-mini" class="hidden text-xs font-black"></div>
+            </div>
+        </div>
+
+        <!-- MODAL MINIJUEGO LETRAS: DEFIENDE Y GANA (independiente, palabra y premio configurables por admin) -->
+        <div id="modal-letras" class="fixed inset-0 z-40 bg-black/80 backdrop-blur-md hidden items-center justify-center p-4">
+            <div class="bg-medio border border-azul/40 w-full max-w-md rounded-3xl p-5 space-y-3 shadow-2xl text-center max-h-[95vh] overflow-y-auto">
+                <div class="flex justify-between items-center border-b border-borde pb-3">
+                    <h3 class="font-black text-sm text-azul flex items-center gap-2"><i class="fa fa-spell-check"></i> <span id="letras-modal-titulo">Letras: Defiende y Gana</span></h3>
+                    <button onclick="cerrarVentana('modal-letras')" class="text-slate-400 hover:text-white"><i class="fa fa-xmark text-lg"></i></button>
+                </div>
+                <p class="text-[11px] text-slate-400" id="letras-intro-txt">Mueve y dispara con tu Mobil para que el BOSS no atrape las letras. Te quedan <strong id="letras-intentos-txt" class="text-azul">1</strong> intentos hoy.</p>
+                <div id="letras-palabra-grid" class="flex flex-wrap justify-center gap-1.5"></div>
+
+                <!-- SELECCIÓN DE MOBIL (antes de iniciar la ronda) -->
+                <div id="letras-seleccion-mobil" class="space-y-2">
+                    <p class="text-[11px] text-slate-400 font-bold">Elige tu Mobil para enfrentar al BOSS:</p>
+                    <div id="letras-mobiles-grid" class="grid grid-cols-4 gap-2"></div>
+                </div>
+
+                <!-- ÁREA DE JUEGO: canvas + joystick + botón disparar -->
+                <div id="letras-area-juego" class="hidden space-y-2">
+                    <div class="flex items-center justify-between px-1">
+                        <span class="text-[10px] font-black text-azul flex items-center gap-1 truncate"><span id="letras-mobil-actual">-</span></span>
+                        <span class="text-[10px] font-black text-rojo flex items-center gap-1 truncate"><i class="fa fa-skull"></i> <span id="letras-boss-nombre">BOSS</span></span>
+                        <span class="text-[11px] font-black text-dorado shrink-0" id="letras-timer-txt">02:00</span>
+                    </div>
+                    <div id="letras-canvas-wrap" class="relative w-full rounded-2xl overflow-hidden border border-borde bg-oscuro touch-none select-none" style="aspect-ratio:300/420;">
+                        <canvas id="letras-canvas" class="w-full h-full block"></canvas>
+                        <!-- joystick virtual -->
+                        <div id="letras-joy-wrap" class="absolute left-3 bottom-3 w-20 h-20 touch-none">
+                            <div id="letras-joy-base" class="absolute inset-0 rounded-full bg-white/10 border border-white/20"></div>
+                            <div id="letras-joy-knob" class="absolute w-9 h-9 rounded-full bg-white/40 border border-white/50" style="left:50%;top:50%;transform:translate(-50%,-50%);"></div>
+                        </div>
+                        <!-- botón disparar -->
+                        <button id="letras-btn-disparar" type="button" class="absolute right-3 bottom-3 w-16 h-16 rounded-full bg-rojo/80 border-2 border-rojo text-white font-black text-[9px] leading-tight active:scale-95 transition">🔫<br>DISPARAR</button>
+                    </div>
+                    <p class="text-[9px] text-slate-500">Arrastra el círculo izquierdo para moverte. Toca "DISPARAR" para aturdir al BOSS.</p>
+                </div>
+
+                <div id="letras-premio-preview" class="p-3 bg-oscuro rounded-2xl border border-borde flex items-center gap-3 text-left">
+                    <div id="letras-premio-img" class="w-14 h-14 rounded-xl bg-medio bg-contain bg-no-repeat bg-center shrink-0 flex items-center justify-center text-azul text-xl"><i class="fa fa-gift"></i></div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] text-slate-400">Premio al completar:</p>
+                        <p id="letras-premio-nombre" class="font-black text-xs text-white truncate">—</p>
+                        <p id="letras-premio-monedas-gemas" class="text-[10px] text-dorado font-bold"></p>
+                    </div>
+                </div>
+
+                <button id="btn-reclamar-letras" onclick="reclamarPremioLetras()" class="hidden w-full py-3 bg-gradient-to-r from-dorado to-naranja text-black font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">🎁 RECLAMAR PREMIO</button>
+                <div id="resultado-letras" class="hidden text-xs font-black"></div>
             </div>
         </div>
 
@@ -2630,6 +2641,7 @@
                 <button onclick="cambiarTabAdmin('musica')" id="tab-btn-musica" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Música</button>
                 <button onclick="cambiarTabAdmin('garra')" id="tab-btn-garra" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Garra</button>
                 <button onclick="cambiarTabAdmin('futbolmini')" id="tab-btn-futbolmini" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Fútbol Mini</button>
+                <button onclick="cambiarTabAdmin('letras')" id="tab-btn-letras" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition whitespace-nowrap">Letras</button>
                 <button onclick="abrirModalVIPAdmin()" class="py-2 px-3 bg-dorado/20 text-dorado border border-dorado/50 rounded-xl font-bold text-xs flex items-center justify-center gap-1 hover:bg-dorado/30 transition-all whitespace-nowrap">
                     <span>👑</span> Config VIP
                 </button>
@@ -2762,81 +2774,6 @@
                     </div>
                 </div>
 
-                <div class="bg-oscuro border border-morado/30 rounded-2xl overflow-hidden">
-                    <button type="button" onclick="alternarSeccionAdmin('seccion-admin-prix')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
-                        <h4 class="font-black text-xs text-morado uppercase tracking-wider"><i class="fa fa-trophy"></i> Cartel de Prix</h4>
-                        <i id="seccion-admin-prix-chevron" class="fa fa-chevron-down text-slate-500 text-xs transition-transform shrink-0"></i>
-                    </button>
-                    <div id="seccion-admin-prix" class="hidden px-4 pb-4 space-y-3">
-                        <p class="text-[10px] text-slate-400">Anuncio informativo visible para todos los jugadores en Inicio. El Prix se juega fuera de la app; aquí solo se muestra la info. Deja vacío cualquier campo que no aplique — no se muestra si está vacío.</p>
-                        <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Título (ej: PRIX TRICO):</label>
-                            <input type="text" id="admin-prix-titulo" placeholder="Ej: Prix Trico" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Bono/subtítulo especial:</label>
-                            <input type="text" id="admin-prix-subtitulo" placeholder="Ej: +300% de GP y Gold en todo el server 12" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="space-y-1">
-                                <label class="text-slate-400 block text-[10px]">Fecha:</label>
-                                <input type="text" id="admin-prix-fecha" placeholder="Ej: 25 de marzo" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-slate-400 block text-[10px]">Hora:</label>
-                                <input type="text" id="admin-prix-hora" placeholder="Ej: 7pm - 9pm (Perú)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                            </div>
-                        </div>
-                        <p class="text-[9px] uppercase tracking-wide text-morado font-bold pt-1">Condiciones del juego</p>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="space-y-1">
-                                <label class="text-slate-400 block text-[10px]">Modo:</label>
-                                <input type="text" id="admin-prix-modo" placeholder="Ej: 4 vs 4" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-slate-400 block text-[10px]">Avatar:</label>
-                                <select id="admin-prix-avatar" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                                    <option value="">— No indicar —</option>
-                                    <option value="ON">ON</option>
-                                    <option value="OFF">OFF</option>
-                                </select>
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-slate-400 block text-[10px]">Wind:</label>
-                                <input type="text" id="admin-prix-wind" placeholder="Ej: 26" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-slate-400 block text-[10px]">Teleport:</label>
-                                <select id="admin-prix-teleport" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
-                                    <option value="">— No indicar —</option>
-                                    <option value="Habilitado">Habilitado</option>
-                                    <option value="Inhabilitado">Inhabilitado</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Mapas (uno por línea):</label>
-                            <textarea id="admin-prix-mapas" rows="2" placeholder="Meta Mine&#10;Cave&#10;Sea of Hero B" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Premios (uno por línea, ej "1° - Set completo"):</label>
-                            <textarea id="admin-prix-premios" rows="3" placeholder="1° - Set completo + Background&#10;2° - Set + Background de torneo&#10;5°-6° - Background de torneo" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Descripción / nota importante:</label>
-                            <textarea id="admin-prix-descripcion" rows="2" placeholder="Ej: Si ya tienes un premio, recibirás el siguiente que aún no tengas" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
-                        </div>
-                        <div class="space-y-1">
-                            <label class="text-slate-400 block text-[10px]">Reglas adicionales:</label>
-                            <textarea id="admin-prix-reglas" rows="2" placeholder="Una regla por línea (opcional)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs"></textarea>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="guardarConfigPrixAdmin()" class="flex-1 py-2 bg-verde text-black font-black rounded-xl text-xs">✅ Publicar Cartel</button>
-                            <button onclick="quitarConfigPrixAdmin()" class="px-3 py-2 bg-rojo/20 text-rojo border border-rojo/40 font-bold rounded-xl text-xs">Quitar</button>
-                        </div>
-                        <p id="admin-prix-estado" class="text-[10px] text-slate-500"></p>
-                    </div>
-                </div>
 
                 <div class="bg-oscuro border border-morado/30 rounded-2xl overflow-hidden">
                     <button type="button" onclick="alternarSeccionAdmin('seccion-admin-gen-3')" class="w-full p-4 flex items-center justify-between gap-2 text-left">
@@ -3456,6 +3393,41 @@
                 <div id="contenedor-admin-futbolmini" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
             </div>
 
+            <!-- TAB LETRAS -->
+            <div id="tab-contenido-letras" class="hidden space-y-4">
+                <div class="p-4 bg-oscuro rounded-2xl border border-borde space-y-2">
+                    <h4 class="font-black text-xs text-azul uppercase tracking-wider">Minijuego Letras: Defiende y Gana</h4>
+                    <p class="text-[10px] text-slate-400">El jugador elige un Mobil, se mueve y dispara para evitar que el BOSS atrape las letras de la palabra antes de que se acabe el tiempo. Cambiar la palabra reinicia el progreso de todos.</p>
+                    <div>
+                        <label class="text-slate-400 block mb-1 text-xs">Palabra a completar:</label>
+                        <input type="text" id="admin-letras-palabra" placeholder="Ej: NEWBOUND" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs uppercase">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 block mb-1 text-xs">Intentos (rondas) por día, por jugador:</label>
+                        <input type="number" id="admin-letras-limite" min="1" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                    </div>
+                    <div>
+                        <label class="text-slate-400 block mb-1 text-xs">Tiempo límite por ronda (segundos, dificultad):</label>
+                        <input type="number" id="admin-letras-tiempo" min="30" placeholder="Ej: 120 (2 minutos)" class="w-full px-3 py-2 rounded-xl bg-medio border border-borde text-white text-xs">
+                    </div>
+                </div>
+                <h4 class="font-black text-xs text-azul uppercase tracking-wider">Premio al Completar (Imagen + Monedas + Gemas)</h4>
+                <div class="p-3 bg-oscuro rounded-2xl border border-borde space-y-1.5 text-xs">
+                    <input type="text" id="admin-letras-premio-nombre" placeholder="Nombre del premio" class="w-full px-2 py-1 rounded bg-medio border border-borde text-white text-[10px]">
+                    <div class="flex gap-2">
+                        <input type="number" id="admin-letras-premio-monedas" placeholder="Monedas" class="w-full px-2 py-1 rounded bg-medio border border-borde text-white text-[10px]">
+                        <input type="number" id="admin-letras-premio-gemas" placeholder="Gemas" class="w-full px-2 py-1 rounded bg-medio border border-borde text-white text-[10px]">
+                    </div>
+                    <div class="flex gap-1">
+                        <input type="text" id="admin-letras-premio-img" placeholder="URL Imagen" class="w-full px-2 py-1 rounded bg-medio border border-borde text-white text-[10px]">
+                        <label class="px-2 py-1 bg-claro text-white rounded cursor-pointer text-[10px] font-bold flex items-center shrink-0">
+                            <i class="fa fa-camera"></i>
+                            <input type="file" accept="image/*" class="hidden" onchange="subirImagenTelefono(this, 'admin-letras-premio-img')">
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="flex gap-2 pt-3 border-t border-borde">
                 <button onclick="cerrarPanel()" class="flex-1 py-3 bg-claro text-slate-300 font-bold text-xs rounded-xl hover:bg-slate-700 transition">Cerrar</button>
                 <button onclick="guardarCambios()" class="flex-1 py-3 bg-gradient-to-r from-dorado to-naranja text-black font-black text-xs rounded-xl shadow-lg hover:opacity-90 transition">GUARDAR CAMBIOS</button>
@@ -3536,12 +3508,12 @@
         // ===== CONTROL DE VERSIÓN DE LA APP =====
         // Sube este número cada vez que publiques cambios nuevos; el footer detecta
         // el cambio solo y guarda automáticamente la versión anterior y la hora exacta.
-        const VERSION_APP_ACTUAL = "15.8.0";
+        const VERSION_APP_ACTUAL = "15.9.0";
         // Describe aquí qué trae la versión actual. Al detectar que la versión cambió,
         // esto se publica SOLO en la ventana de Información — no hay que escribirlo a mano.
         const NOVEDAD_VERSION_ACTUAL = {
-            titulo: '🚀 Gran actualización: Logros, Prix, Mascota y más',
-            descripcion: '¡Se viene cargado! 🏆 Sistema de Logros con anuncio global cuando alguien desbloquea uno. 📢 Cartel de Prix con la info del próximo evento especial. 🐾 Espíritu Recolector: tu mascota junta monedas y EXP mientras no estás. ✨ Fusión de Avatares: sintetiza el marco Mítico una vez que llegues a VIP 40. Revisa "Mis Logros" en tu perfil para ver el detalle.'
+            titulo: '🚀 Actualización: Logros, Mascota y Fusión Mítica',
+            descripcion: '¡Se viene cargado! 🏆 Sistema de Logros con anuncio global cuando alguien desbloquea uno. 🐾 Espíritu Recolector: tu mascota junta monedas y EXP mientras no estás. ✨ Fusión de Avatares: sintetiza el marco Mítico una vez que llegues a VIP 40. Revisa "Mis Logros" en tu perfil para ver el detalle.'
         };
         function inicializarVersionApp() {
             const el = document.getElementById('texto-version-app');
@@ -3727,7 +3699,7 @@
         }
 
         function cambiarTabAdmin(tab) {
-            const tabs = ['general', 'misiones', 'usuarios', 'codigos', 'champions', 'torneoequipo', 'ruleta', 'tienda', 'top', 'calendario', 'musica', 'garra', 'futbolmini'];
+            const tabs = ['general', 'misiones', 'usuarios', 'codigos', 'champions', 'torneoequipo', 'ruleta', 'tienda', 'top', 'calendario', 'musica', 'garra', 'futbolmini', 'letras'];
             tabs.forEach(t => {
                 const btn = document.getElementById(`tab-btn-${t}`);
                 const contenido = document.getElementById(`tab-contenido-${t}`);
@@ -3784,6 +3756,7 @@
             if(tab === 'musica') cargarMusicaEnAdmin();
             if(tab === 'garra') generarFormularioGarraAdmin();
             if(tab === 'futbolmini') generarFormularioFutbolMiniAdmin();
+            if(tab === 'letras') generarFormularioLetrasAdmin();
         }
 
         function cambiarTabChampions(tab) {
@@ -3834,6 +3807,7 @@
         function cerrarVentana(id) {
             const modal = document.getElementById(id);
             if(modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+            if(id === 'modal-letras' && typeof detenerJuegoLetras === 'function') detenerJuegoLetras();
             const idsConMusica = ['modal-gp', 'modal-gm', 'modal-tienda', 'modal-champions', 'modal-ruleta'];
             if(idsConMusica.includes(id) && id !== 'panel-admin-modal') {
                 detenerMusicaFondo();
@@ -4370,7 +4344,7 @@
             'datos_calendario_app', 'datos_tienda_app', 'imagen_premio_champions_app',
             'imagen_fondo_champions_app',
             'info_torneo_champions_app', 'input_gif_companero_url', 'logo_carga_app',
-            'premios_garra_app', 'premios_ruleta_app', 'premios_futbol_mini_app',
+            'premios_garra_app', 'premios_ruleta_app', 'premios_futbol_mini_app', 'config_letras_app',
             'tercer_puesto_champions_app', 'tinka_costo_app', 'titulo_evento_app',
             'texto_footer_app', 'visibilidad_tarjetas_app', 'imagenes_tarjetas_app',
             'historial_campeones_champions_app', 'novedades_app',
@@ -4449,6 +4423,7 @@
             datosCalendario = JSON.parse(localStorage.getItem('datos_calendario_app')) || datosCalendario;
             premiosGarra = JSON.parse(localStorage.getItem('premios_garra_app')) || premiosGarra;
             premiosFutbolMini = JSON.parse(localStorage.getItem('premios_futbol_mini_app')) || premiosFutbolMini;
+            configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || configLetras;
             configGarra = JSON.parse(localStorage.getItem('config_garra_app')) || configGarra;
             configTragamonedas = JSON.parse(localStorage.getItem('config_trag_app')) || configTragamonedas;
             TINKA_COSTO = parseInt(localStorage.getItem('tinka_costo_app')) || TINKA_COSTO;
@@ -4467,7 +4442,7 @@
                 'renderizarRuletaVista', 'renderizarTiendaVista', 'renderizarTiendaAdmin',
                 'renderizarCuadroChampions', 'renderizarInfoChampions',
                 'renderizarCuadroTorneoEquipo', 'actualizarBadgeTorneoEquipo',
-                'renderizarGarraVista', 'renderizarFutbolMiniVista', 'renderizarCalendarioVista', 'renderizarCalendarioAdmin',
+                'renderizarGarraVista', 'renderizarFutbolMiniVista', 'renderizarLetrasVista', 'renderizarCalendarioVista', 'renderizarCalendarioAdmin',
                 'renderizarTopSemanal', 'renderizarTopAdmin', 'renderizarTinka',
                 'renderizarListaCodigosAdmin', 'aplicarConfiguracionApp', 'renderizarPremiosPendientesAdmin'
             ].forEach(fn => { if (typeof window[fn] === 'function') { try { window[fn](); } catch (e) {} } });
@@ -5329,6 +5304,7 @@
 
         let premiosGarra = JSON.parse(localStorage.getItem('premios_garra_app')) || Array(8).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 25 }));
         let premiosFutbolMini = JSON.parse(localStorage.getItem('premios_futbol_mini_app')) || Array(5).fill(null).map((_, i) => ({ nombre: `Premio ${i+1}`, imagen: '', monedas: 20 }));
+        let configLetras = JSON.parse(localStorage.getItem('config_letras_app')) || { palabra: '', limiteDiario: 1, tiempoLimite: 120, premio: { nombre: '', imagen: '', monedas: 0, gemas: 0 } };
         let configGarra = JSON.parse(localStorage.getItem('config_garra_app')) || { costo: 15 };
         let jugandoGarra = false;
 
@@ -7038,6 +7014,485 @@
                     pateandoFutbolMini = false;
                 }
             }, 110);
+        }
+
+        // ===== MINIJUEGO INDEPENDIENTE: LETRAS - JUNTA Y GANA =====
+        // Palabra, límite diario y premio se configuran desde el panel admin.
+        // El progreso de cada jugador es propio (no depende de otros minijuegos)
+        // y se reinicia automáticamente si el admin cambia la palabra.
+        function obtenerClaveDiaActual() {
+            return new Date().toISOString().slice(0, 10);
+        }
+
+        function obtenerProgresoLetras() {
+            if (!usuarioActual) return { palabra: '', letras: {}, dia: '', usosHoy: 0, reclamado: false };
+            let data;
+            try { data = JSON.parse(localStorage.getItem(`letras_progreso_${usuarioActual}`)) || {}; }
+            catch (e) { data = {}; }
+            // Si la palabra configurada cambió desde la última vez que jugó, se reinicia su progreso.
+            if (data.palabra !== configLetras.palabra) {
+                data = { palabra: configLetras.palabra, letras: {}, dia: '', usosHoy: 0, reclamado: false };
+            }
+            const hoy = obtenerClaveDiaActual();
+            if (data.dia !== hoy) { data.dia = hoy; data.usosHoy = 0; }
+            if (!data.letras) data.letras = {};
+            return data;
+        }
+
+        function guardarProgresoLetras(data) {
+            if (!usuarioActual) return;
+            localStorage.setItem(`letras_progreso_${usuarioActual}`, JSON.stringify(data));
+        }
+
+        // Cuenta cuántas veces se necesita cada letra según la palabra objetivo
+        // (soporta palabras con letras repetidas, ej. "ARARARA").
+        function conteoNecesarioLetras(palabra) {
+            const conteo = {};
+            for (const letra of (palabra || '').split('')) {
+                if (letra === ' ') continue;
+                conteo[letra] = (conteo[letra] || 0) + 1;
+            }
+            return conteo;
+        }
+
+        function letrasCompletadas(data) {
+            const necesarias = conteoNecesarioLetras(configLetras.palabra);
+            return Object.keys(necesarias).every(letra => (data.letras[letra] || 0) >= necesarias[letra]);
+        }
+
+        // Roster de Mobiles seleccionables para enfrentar al BOSS en el minijuego de Letras.
+        // "Random" elige uno cualquiera de los demás al iniciar la ronda.
+        const MOBILES_LETRAS = [
+            { id: 'armor',     nombre: 'Armor',     icono: '🛡️', color: '#EA580C' },
+            { id: 'ice',       nombre: 'Ice',       icono: '❄️', color: '#38BDF8' },
+            { id: 'aduka',     nombre: 'Aduka',     icono: '🐉', color: '#933EEA' },
+            { id: 'lightning', nombre: 'Lightning', icono: '⚡', color: '#F59E0B' },
+            { id: 'bigfoot',   nombre: 'Bigfoot',   icono: '🦶', color: '#92400E' },
+            { id: 'jd',        nombre: 'J.D',       icono: '🎩', color: '#64748B' },
+            { id: 'asate',     nombre: 'A.Sate',    icono: '🍢', color: '#16A34A' },
+            { id: 'nak',       nombre: 'Nak',       icono: '🐾', color: '#0D9488' },
+            { id: 'trico',     nombre: 'Trico',     icono: '🦕', color: '#65A30D' },
+            { id: 'mage',      nombre: 'Mage',      icono: '🧙', color: '#7C3AED' },
+            { id: 'turtle',    nombre: 'Turtle',    icono: '🐢', color: '#15803D' },
+            { id: 'boomer',    nombre: 'Boomer',    icono: '🪃', color: '#EA580C' },
+            { id: 'grub',      nombre: 'Grub',      icono: '🐛', color: '#84CC16' },
+            { id: 'frog',      nombre: 'Frog',      icono: '🐸', color: '#22C55E' },
+            { id: 'random',    nombre: 'Random',    icono: '🎲', color: '#94A3B8' }
+        ];
+
+        function renderizarPillsLetras(data) {
+            const grid = document.getElementById('letras-palabra-grid');
+            if (!grid || !configLetras.palabra) return;
+            const necesarias = conteoNecesarioLetras(configLetras.palabra);
+            grid.innerHTML = configLetras.palabra.split('').map(letra => {
+                if (letra === ' ') return '<span class="w-3"></span>';
+                const nec = necesarias[letra] || 1;
+                const tiene = (data.letras[letra] || 0) >= nec;
+                return `<span class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm ${tiene ? 'bg-azul text-white' : 'bg-oscuro border border-borde text-slate-600'}">${letra}</span>`;
+            }).join('');
+        }
+
+        function renderizarSeleccionMobilesLetras() {
+            const cont = document.getElementById('letras-mobiles-grid');
+            if (!cont) return;
+            cont.innerHTML = MOBILES_LETRAS.map(m => `
+                <button type="button" onclick="iniciarRondaLetras('${m.id}')" class="p-2 rounded-xl bg-oscuro border border-borde hover:border-azul transition flex flex-col items-center gap-0.5">
+                    <span class="text-lg">${m.icono}</span>
+                    <span class="text-[8px] font-bold text-white truncate w-full">${m.nombre}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderizarLetrasVista() {
+            const tituloCard = document.getElementById('card-letras-titulo');
+            if (tituloCard) tituloCard.textContent = configLetras.palabra ? `Letras: ${configLetras.palabra}` : 'Letras';
+            const tituloModal = document.getElementById('letras-modal-titulo');
+            if (tituloModal) tituloModal.textContent = configLetras.palabra ? `Letras: Defiende "${configLetras.palabra}"` : 'Letras: Defiende y Gana';
+
+            const seleccion = document.getElementById('letras-seleccion-mobil');
+            const areaJuego = document.getElementById('letras-area-juego');
+            const btnReclamar = document.getElementById('btn-reclamar-letras');
+            const premioPreview = document.getElementById('letras-premio-preview');
+            const resultado = document.getElementById('resultado-letras');
+            const introTxt = document.getElementById('letras-intro-txt');
+            if (resultado) resultado.classList.add('hidden');
+            areaJuego?.classList.add('hidden');
+            premioPreview?.classList.remove('hidden');
+
+            if (!configLetras.palabra) {
+                const grid = document.getElementById('letras-palabra-grid');
+                if (grid) grid.innerHTML = '<p class="text-[11px] text-slate-500">El GM todavía no configuró la palabra de este evento.</p>';
+                seleccion?.classList.add('hidden');
+                if (btnReclamar) btnReclamar.classList.add('hidden');
+                return;
+            }
+
+            const data = obtenerProgresoLetras();
+            renderizarPillsLetras(data);
+            renderizarSeleccionMobilesLetras();
+
+            const premio = configLetras.premio || {};
+            const imgEl = document.getElementById('letras-premio-img');
+            if (imgEl) imgEl.innerHTML = premio.imagen ? '' : '<i class="fa fa-gift"></i>';
+            if (imgEl) imgEl.style.backgroundImage = premio.imagen ? `url('${premio.imagen}')` : '';
+            const nombreEl = document.getElementById('letras-premio-nombre');
+            if (nombreEl) nombreEl.textContent = premio.nombre || 'Premio sorpresa';
+            const monGemEl = document.getElementById('letras-premio-monedas-gemas');
+            if (monGemEl) monGemEl.textContent = [premio.monedas ? `🪙 +${premio.monedas}` : '', premio.gemas ? `💎 +${premio.gemas}` : ''].filter(Boolean).join('   ');
+
+            const completo = letrasCompletadas(data);
+            const restantes = Math.max(0, (configLetras.limiteDiario || 1) - data.usosHoy);
+            const txtIntentos = document.getElementById('letras-intentos-txt');
+            if (txtIntentos) txtIntentos.textContent = restantes;
+            if (introTxt) introTxt.classList.remove('hidden');
+
+            if (data.reclamado) {
+                seleccion?.classList.add('hidden');
+                if (btnReclamar) btnReclamar.classList.add('hidden');
+                if (resultado) {
+                    resultado.classList.remove('hidden');
+                    resultado.innerHTML = '<span class="text-azul">✅ Ya reclamaste el premio de esta palabra. ¡Espera el próximo evento!</span>';
+                }
+            } else if (completo) {
+                seleccion?.classList.add('hidden');
+                if (btnReclamar) btnReclamar.classList.remove('hidden');
+            } else if (restantes <= 0) {
+                seleccion?.classList.add('hidden');
+                if (btnReclamar) btnReclamar.classList.add('hidden');
+                if (resultado) {
+                    resultado.classList.remove('hidden');
+                    resultado.innerHTML = '<span class="text-slate-400">⚠️ Ya usaste tus intentos de hoy. ¡Vuelve mañana!</span>';
+                }
+            } else {
+                seleccion?.classList.remove('hidden');
+                if (btnReclamar) btnReclamar.classList.add('hidden');
+            }
+        }
+
+        // ===== RONDA DE ACCIÓN: mover y disparar con el Mobil elegido para defender las letras del BOSS =====
+        let letrasJuego = null;              // estado de la ronda activa (o null si no se está jugando)
+        let letrasJoyVector = { x: 0, y: 0 }; // vector normalizado del joystick virtual (-1..1)
+        let letrasRafId = null;               // id del requestAnimationFrame activo
+        let letrasLimpiarRonda = null;        // función de limpieza de la ronda activa (listeners, loop, etc.)
+        let letrasJoystickListo = false;
+
+        function inicializarJoystickLetras() {
+            if (letrasJoystickListo) return;
+            const wrap = document.getElementById('letras-joy-wrap');
+            const knob = document.getElementById('letras-joy-knob');
+            if (!wrap || !knob) return;
+            letrasJoystickListo = true;
+            const RADIO = 22;
+            let activo = false;
+
+            function moverKnob(dx, dy) {
+                knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+            }
+            function manejarMover(clientX, clientY) {
+                const r = wrap.getBoundingClientRect();
+                const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+                let dx = clientX - cx, dy = clientY - cy;
+                const dist = Math.hypot(dx, dy);
+                if (dist > RADIO) { dx = dx / dist * RADIO; dy = dy / dist * RADIO; }
+                moverKnob(dx, dy);
+                letrasJoyVector.x = dx / RADIO;
+                letrasJoyVector.y = dy / RADIO;
+            }
+            function soltar() {
+                activo = false;
+                moverKnob(0, 0);
+                letrasJoyVector.x = 0; letrasJoyVector.y = 0;
+            }
+            wrap.addEventListener('touchstart', e => { activo = true; manejarMover(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+            wrap.addEventListener('touchmove', e => { if (activo) { manejarMover(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); } }, { passive: false });
+            wrap.addEventListener('touchend', soltar);
+            wrap.addEventListener('touchcancel', soltar);
+            wrap.addEventListener('mousedown', e => { activo = true; manejarMover(e.clientX, e.clientY); });
+            window.addEventListener('mousemove', e => { if (activo) manejarMover(e.clientX, e.clientY); });
+            window.addEventListener('mouseup', () => { if (activo) soltar(); });
+        }
+
+        // Detiene y limpia una ronda en curso (se llama al ganar, perder, o cerrar el modal a medias).
+        function detenerJuegoLetras() {
+            if (letrasLimpiarRonda) { try { letrasLimpiarRonda(); } catch (e) {} letrasLimpiarRonda = null; }
+            if (letrasRafId) { cancelAnimationFrame(letrasRafId); letrasRafId = null; }
+            letrasJuego = null;
+            letrasJoyVector = { x: 0, y: 0 };
+        }
+
+        function iniciarRondaLetras(mobilId) {
+            if (letrasJuego || !configLetras.palabra) return;
+            const data = obtenerProgresoLetras();
+            if (letrasCompletadas(data)) return;
+            const restantes = Math.max(0, (configLetras.limiteDiario || 1) - data.usosHoy);
+            if (restantes <= 0) {
+                alert('⚠️ Ya usaste tus intentos de hoy. ¡Vuelve mañana!');
+                return;
+            }
+
+            const necesarias = conteoNecesarioLetras(configLetras.palabra);
+            const faltantes = [];
+            Object.keys(necesarias).forEach(letra => {
+                const tiene = data.letras[letra] || 0;
+                for (let i = tiene; i < necesarias[letra]; i++) faltantes.push(letra);
+            });
+            if (!faltantes.length) return;
+
+            data.usosHoy++;
+            guardarProgresoLetras(data);
+            const txtIntentos = document.getElementById('letras-intentos-txt');
+            if (txtIntentos) txtIntentos.textContent = Math.max(0, (configLetras.limiteDiario || 1) - data.usosHoy);
+
+            const elegido = MOBILES_LETRAS.find(m => m.id === mobilId) || MOBILES_LETRAS[0];
+            const disponibles = MOBILES_LETRAS.filter(m => m.id !== 'random');
+            const mobilFinal = elegido.id === 'random' ? disponibles[Math.floor(Math.random() * disponibles.length)] : elegido;
+            const nombreBoss = (typeof obtenerNombreBossAleatorio === 'function') ? obtenerNombreBossAleatorio() : 'BOSS';
+
+            inicializarJoystickLetras();
+            document.getElementById('letras-seleccion-mobil')?.classList.add('hidden');
+            document.getElementById('letras-premio-preview')?.classList.add('hidden');
+            document.getElementById('btn-reclamar-letras')?.classList.add('hidden');
+            const resultadoEl = document.getElementById('resultado-letras');
+            if (resultadoEl) resultadoEl.classList.add('hidden');
+            const areaJuego = document.getElementById('letras-area-juego');
+            areaJuego?.classList.remove('hidden');
+            const elMobilTxt = document.getElementById('letras-mobil-actual');
+            if (elMobilTxt) elMobilTxt.textContent = `${mobilFinal.icono} ${mobilFinal.nombre}`;
+            const elBossTxt = document.getElementById('letras-boss-nombre');
+            if (elBossTxt) elBossTxt.textContent = nombreBoss;
+
+            const canvas = document.getElementById('letras-canvas');
+            const ANCHO = 300, ALTO = 420;
+            canvas.width = ANCHO; canvas.height = ALTO;
+            const ctx = canvas.getContext('2d');
+
+            function posicionLibre(radio, ocupados) {
+                for (let intento = 0; intento < 40; intento++) {
+                    const x = radio + Math.random() * (ANCHO - radio * 2);
+                    const y = 45 + radio + Math.random() * (ALTO - radio * 2 - 90);
+                    if (ocupados.every(o => Math.hypot(o.x - x, o.y - y) > radio + o.r + 12)) return { x, y };
+                }
+                return { x: ANCHO / 2 + (Math.random() - 0.5) * 40, y: ALTO / 2 + (Math.random() - 0.5) * 40 };
+            }
+
+            const jugador = { x: ANCHO / 2, y: ALTO - 45, r: 14, vel: 100, faceX: 0, faceY: -1 };
+            const boss = { x: ANCHO / 2, y: 65, r: 16, vel: 42, aturdidoHasta: 0 };
+            const ocupadosIniciales = [{ x: jugador.x, y: jugador.y, r: jugador.r }, { x: boss.x, y: boss.y, r: boss.r }];
+            const letrasTiles = faltantes.map(letra => {
+                const pos = posicionLibre(13, ocupadosIniciales);
+                ocupadosIniciales.push({ x: pos.x, y: pos.y, r: 13 });
+                return { letra, x: pos.x, y: pos.y, r: 13, robada: false, recolectada: false, respawnEn: 0 };
+            });
+            const proyectiles = [];
+
+            const TIEMPO_TOTAL = Math.max(30, configLetras.tiempoLimite || 120);
+            let tiempoRestante = TIEMPO_TOTAL;
+            let ultimoDisparo = 0;
+            let ultimoFrame = performance.now();
+            let terminado = false;
+            let recolectadas = 0;
+
+            letrasJuego = { activo: true };
+
+            function actualizarTimerUI() {
+                const t = Math.max(0, tiempoRestante);
+                const m = Math.floor(t / 60), s = Math.floor(t % 60);
+                const txt = document.getElementById('letras-timer-txt');
+                if (txt) txt.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+            }
+            actualizarTimerUI();
+
+            function dispara() {
+                const ahora = performance.now();
+                if (ahora - ultimoDisparo < 320) return;
+                ultimoDisparo = ahora;
+                proyectiles.push({ x: jugador.x, y: jugador.y, dx: jugador.faceX, dy: jugador.faceY });
+                if (typeof reproducirSFX === 'function') { try { reproducirSFX('click'); } catch (e) {} }
+            }
+            const btnDisparar = document.getElementById('letras-btn-disparar');
+            const manejarDisparo = (e) => { e.preventDefault(); dispara(); };
+            btnDisparar?.addEventListener('touchstart', manejarDisparo, { passive: false });
+            btnDisparar?.addEventListener('mousedown', manejarDisparo);
+
+            function limpiar() {
+                btnDisparar?.removeEventListener('touchstart', manejarDisparo);
+                btnDisparar?.removeEventListener('mousedown', manejarDisparo);
+            }
+
+            function terminarRonda(gano) {
+                if (terminado) return;
+                terminado = true;
+                limpiar();
+                letrasLimpiarRonda = null;
+                if (letrasRafId) { cancelAnimationFrame(letrasRafId); letrasRafId = null; }
+                letrasJuego = null;
+                letrasJoyVector = { x: 0, y: 0 };
+                if (typeof reproducirSFX === 'function') { try { reproducirSFX(gano ? 'ganar' : 'perder'); } catch (e) {} }
+                areaJuego?.classList.add('hidden');
+                const resultado = document.getElementById('resultado-letras');
+                if (resultado) {
+                    resultado.classList.remove('hidden');
+                    resultado.innerHTML = gano
+                        ? `<span class="text-verde">🛡️ ¡${mobilFinal.nombre} defendió todas las letras de ${nombreBoss}! Reclama tu premio si completaste la palabra.</span>`
+                        : `<span class="text-rojo">⏱️ Se acabó el tiempo. ${nombreBoss} evitó que ${mobilFinal.nombre} recuperara todas las letras esta vez.</span>`;
+                }
+                renderizarLetrasVista();
+            }
+            letrasLimpiarRonda = () => { limpiar(); terminarRonda(false); };
+
+            function bucle(ahora) {
+                const dt = Math.min(0.05, (ahora - ultimoFrame) / 1000);
+                ultimoFrame = ahora;
+                tiempoRestante -= dt;
+                actualizarTimerUI();
+                if (tiempoRestante <= 0) { terminarRonda(false); return; }
+
+                const mag = Math.hypot(letrasJoyVector.x, letrasJoyVector.y);
+                if (mag > 0.12) {
+                    jugador.faceX = letrasJoyVector.x / mag;
+                    jugador.faceY = letrasJoyVector.y / mag;
+                    jugador.x += letrasJoyVector.x * jugador.vel * dt;
+                    jugador.y += letrasJoyVector.y * jugador.vel * dt;
+                    jugador.x = Math.max(jugador.r, Math.min(ANCHO - jugador.r, jugador.x));
+                    jugador.y = Math.max(jugador.r, Math.min(ALTO - jugador.r, jugador.y));
+                }
+
+                const vivas = letrasTiles.filter(t => !t.robada);
+                if (vivas.length && ahora > boss.aturdidoHasta) {
+                    let objetivo = vivas[0], mejorDist = Infinity;
+                    vivas.forEach(t => { const d = Math.hypot(t.x - boss.x, t.y - boss.y); if (d < mejorDist) { mejorDist = d; objetivo = t; } });
+                    const dx = objetivo.x - boss.x, dy = objetivo.y - boss.y;
+                    const d = Math.hypot(dx, dy) || 1;
+                    boss.x += (dx / d) * boss.vel * dt;
+                    boss.y += (dy / d) * boss.vel * dt;
+                }
+
+                letrasTiles.forEach(t => {
+                    if (t.robada || t.recolectada) return;
+                    if (Math.hypot(t.x - jugador.x, t.y - jugador.y) < t.r + jugador.r) {
+                        t.recolectada = true; t.robada = true;
+                        letrasJuego.data = letrasJuego.data || data;
+                        data.letras[t.letra] = (data.letras[t.letra] || 0) + 1;
+                        guardarProgresoLetras(data);
+                        renderizarPillsLetras(data);
+                        recolectadas++;
+                        if (typeof reproducirSFX === 'function') { try { reproducirSFX('subirNivel'); } catch (e) {} }
+                    }
+                });
+
+                letrasTiles.forEach(t => {
+                    if (t.robada || t.recolectada) return;
+                    if (Math.hypot(t.x - boss.x, t.y - boss.y) < t.r + boss.r) {
+                        t.robada = true;
+                        t.respawnEn = ahora + 5500;
+                    }
+                });
+
+                letrasTiles.forEach(t => {
+                    if (t.robada && !t.recolectada && ahora >= t.respawnEn) {
+                        const ocupados = [{ x: jugador.x, y: jugador.y, r: jugador.r }, { x: boss.x, y: boss.y, r: boss.r }]
+                            .concat(letrasTiles.filter(o => !o.robada).map(o => ({ x: o.x, y: o.y, r: o.r })));
+                        const pos = posicionLibre(t.r, ocupados);
+                        t.x = pos.x; t.y = pos.y; t.robada = false;
+                    }
+                });
+
+                for (let i = proyectiles.length - 1; i >= 0; i--) {
+                    const p = proyectiles[i];
+                    p.x += p.dx * 300 * dt;
+                    p.y += p.dy * 300 * dt;
+                    if (p.x < -10 || p.x > ANCHO + 10 || p.y < -10 || p.y > ALTO + 10) { proyectiles.splice(i, 1); continue; }
+                    if (Math.hypot(p.x - boss.x, p.y - boss.y) < boss.r + 4) {
+                        boss.aturdidoHasta = ahora + 1300;
+                        proyectiles.splice(i, 1);
+                    }
+                }
+
+                if (recolectadas >= faltantes.length) { terminarRonda(true); return; }
+
+                ctx.clearRect(0, 0, ANCHO, ALTO);
+                ctx.fillStyle = '#0B0F19';
+                ctx.fillRect(0, 0, ANCHO, ALTO);
+                ctx.strokeStyle = 'rgba(148,163,184,0.08)';
+                for (let gx = 0; gx < ANCHO; gx += 30) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, ALTO); ctx.stroke(); }
+                for (let gy = 0; gy < ALTO; gy += 30) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(ANCHO, gy); ctx.stroke(); }
+
+                letrasTiles.forEach(t => {
+                    if (t.robada) return;
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+                    ctx.fillStyle = '#F59E0B';
+                    ctx.fill();
+                    ctx.fillStyle = '#0B0F19';
+                    ctx.font = 'bold 13px sans-serif';
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText(t.letra, t.x, t.y + 1);
+                });
+
+                proyectiles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+                    ctx.fillStyle = '#38BDF8';
+                    ctx.fill();
+                });
+
+                const bossAturdido = ahora < boss.aturdidoHasta;
+                ctx.beginPath();
+                ctx.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
+                ctx.fillStyle = bossAturdido ? '#94A3B8' : '#DC2626';
+                ctx.fill();
+                ctx.font = '16px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('💀', boss.x, boss.y + 1);
+
+                ctx.beginPath();
+                ctx.arc(jugador.x, jugador.y, jugador.r, 0, Math.PI * 2);
+                ctx.fillStyle = mobilFinal.color;
+                ctx.fill();
+                ctx.font = '15px sans-serif';
+                ctx.fillText(mobilFinal.icono, jugador.x, jugador.y + 1);
+
+                letrasRafId = requestAnimationFrame(bucle);
+            }
+            letrasRafId = requestAnimationFrame(bucle);
+        }
+
+        function reclamarPremioLetras() {
+            if (!usuarioActual) return;
+            const data = obtenerProgresoLetras();
+            if (!letrasCompletadas(data) || data.reclamado) return;
+
+            const premio = configLetras.premio || {};
+            if (premio.monedas) { saldo += premio.monedas; localStorage.setItem(`saldo_${usuarioActual}`, saldo); sincronizarSaldoNube(); }
+            if (premio.gemas) { gemas += premio.gemas; localStorage.setItem(`gemas_${usuarioActual}`, gemas); }
+            if (premio.monedas || premio.gemas) guardarCampoUsuarioNube(usuarioActual, { saldo, gemas });
+
+            data.reclamado = true;
+            guardarProgresoLetras(data);
+
+            if (typeof actualizarInterfazUsuario === 'function') actualizarInterfazUsuario();
+            if (typeof reproducirSFX === 'function') { try { reproducirSFX('ganar'); } catch(e) {} }
+
+            enviarNotificacionTelegram(`${usuarioActual} completó la palabra "${configLetras.palabra}" y ganó "${premio.nombre || 'un premio'}" en el minijuego de Letras 🔤`);
+            agregarNotificacionApp(`🔤 ¡Completaste "${configLetras.palabra}"! Ganaste "${premio.nombre || 'un premio'}"`, 'fa-spell-check');
+
+            renderizarLetrasVista();
+        }
+
+        function generarFormularioLetrasAdmin() {
+            const inpPalabra = document.getElementById('admin-letras-palabra');
+            const inpLimite = document.getElementById('admin-letras-limite');
+            const inpTiempo = document.getElementById('admin-letras-tiempo');
+            const inpNombre = document.getElementById('admin-letras-premio-nombre');
+            const inpMonedas = document.getElementById('admin-letras-premio-monedas');
+            const inpGemas = document.getElementById('admin-letras-premio-gemas');
+            const inpImg = document.getElementById('admin-letras-premio-img');
+            if (inpPalabra) inpPalabra.value = configLetras.palabra || '';
+            if (inpLimite) inpLimite.value = configLetras.limiteDiario || 1;
+            if (inpTiempo) inpTiempo.value = configLetras.tiempoLimite || 120;
+            if (inpNombre) inpNombre.value = (configLetras.premio && configLetras.premio.nombre) || '';
+            if (inpMonedas) inpMonedas.value = (configLetras.premio && configLetras.premio.monedas) || 0;
+            if (inpGemas) inpGemas.value = (configLetras.premio && configLetras.premio.gemas) || 0;
+            if (inpImg) inpImg.value = (configLetras.premio && configLetras.premio.imagen) || '';
         }
 
         // ===== GARRA DE PREMIOS =====
@@ -10693,6 +11148,24 @@
             });
             localStorage.setItem('premios_futbol_mini_app', JSON.stringify(premiosFutbolMini));
 
+            {
+                const palabra = document.getElementById('admin-letras-palabra')?.value;
+                const limite = parseInt(document.getElementById('admin-letras-limite')?.value);
+                const tiempoLimite = parseInt(document.getElementById('admin-letras-tiempo')?.value);
+                const nombre = document.getElementById('admin-letras-premio-nombre')?.value;
+                const monedas = parseInt(document.getElementById('admin-letras-premio-monedas')?.value);
+                const gemasPremio = parseInt(document.getElementById('admin-letras-premio-gemas')?.value);
+                const img = document.getElementById('admin-letras-premio-img')?.value;
+                if (palabra !== undefined) configLetras.palabra = palabra.trim().toUpperCase();
+                if (!isNaN(limite)) configLetras.limiteDiario = limite;
+                if (!isNaN(tiempoLimite)) configLetras.tiempoLimite = tiempoLimite;
+                if (nombre !== undefined) configLetras.premio.nombre = nombre;
+                if (!isNaN(monedas)) configLetras.premio.monedas = monedas;
+                if (!isNaN(gemasPremio)) configLetras.premio.gemas = gemasPremio;
+                if (img !== undefined) configLetras.premio.imagen = img;
+                localStorage.setItem('config_letras_app', JSON.stringify(configLetras));
+            }
+
             if (firebaseListo && window._promesasPendientesNube && window._promesasPendientesNube.length) {
                 await Promise.allSettled(window._promesasPendientesNube);
                 window._promesasPendientesNube = [];
@@ -11415,134 +11888,6 @@
         }
 
         // ============================================================
-        // ===== CARTEL INFORMATIVO: PRIX (evento fuera de la app) =====
-        // ============================================================
-        const CAMPOS_TEXTO_PRIX = ['titulo', 'subtitulo', 'fecha', 'hora', 'modo', 'avatar', 'wind', 'teleport', 'descripcion', 'reglas'];
-
-        async function cargarConfigPrixNube() {
-            if (!firebaseListo) return;
-            try {
-                const doc = await dbFirebase.collection('config').doc('prix').get();
-                if (!doc.exists) return;
-                localStorage.setItem('config_prix', JSON.stringify(doc.data()));
-                renderizarCartelPrix();
-            } catch (e) { console.warn('No se pudo cargar la config de Prix desde la nube:', e); }
-        }
-        function escucharConfigPrixEnVivo() {
-            if (!firebaseListo) return;
-            dbFirebase.collection('config').doc('prix').onSnapshot(doc => {
-                if (!doc.exists) return;
-                localStorage.setItem('config_prix', JSON.stringify(doc.data()));
-                renderizarCartelPrix();
-            }, err => console.warn('Error escuchando el cartel de Prix:', err));
-        }
-        // Convierte un textarea (una línea por ítem) en un array limpio, sin líneas vacías.
-        function lineasATexto(idTextarea) {
-            const val = document.getElementById(idTextarea)?.value || '';
-            return val.split('\n').map(l => l.trim()).filter(Boolean);
-        }
-        function guardarConfigPrixAdmin() {
-            const titulo = document.getElementById('admin-prix-titulo')?.value?.trim();
-            if (!titulo) { alert('Ponle un título al Prix.'); return; }
-            const datos = { activo: true };
-            CAMPOS_TEXTO_PRIX.forEach(campo => {
-                if (campo === 'titulo') { datos.titulo = titulo; return; }
-                datos[campo] = document.getElementById(`admin-prix-${campo}`)?.value?.trim() || '';
-            });
-            datos.mapas = lineasATexto('admin-prix-mapas');
-            datos.premios = lineasATexto('admin-prix-premios');
-
-            localStorage.setItem('config_prix', JSON.stringify(datos));
-            if (firebaseListo) {
-                dbFirebase.collection('config').doc('prix').set(datos)
-                    .catch(e => console.warn('No se pudo publicar el cartel de Prix:', e));
-            }
-            renderizarCartelPrix();
-        }
-        function quitarConfigPrixAdmin() {
-            const datos = { activo: false };
-            localStorage.setItem('config_prix', JSON.stringify(datos));
-            CAMPOS_TEXTO_PRIX.forEach(campo => { const el = document.getElementById(`admin-prix-${campo}`); if (el) el.value = ''; });
-            ['admin-prix-mapas', 'admin-prix-premios'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-            if (firebaseListo) {
-                dbFirebase.collection('config').doc('prix').set(datos)
-                    .catch(e => console.warn('No se pudo quitar el cartel de Prix:', e));
-            }
-            renderizarCartelPrix();
-        }
-        function actualizarEstadoPrixAdmin(cfg) {
-            const el = document.getElementById('admin-prix-estado');
-            if (!el) return;
-            el.textContent = (cfg && cfg.activo && cfg.titulo)
-                ? '🟢 Cartel publicado y visible para todos en Inicio.'
-                : '⚪ No hay cartel de Prix activo ahora mismo.';
-        }
-        // Rellena una etiqueta con badge tipo "Modo: 4vs4"; se oculta sola si viene vacío.
-        function pintarCondicionPrix(idBloque, valor) {
-            const bloque = document.getElementById(idBloque);
-            if (!bloque) return;
-            bloque.classList.toggle('hidden', !valor);
-            if (valor) bloque.querySelector('p:last-child').textContent = valor;
-        }
-        function renderizarCartelPrix() {
-            let cfg = null;
-            try { cfg = JSON.parse(localStorage.getItem('config_prix')); } catch (e) {}
-
-            const campoTitulo = document.getElementById('admin-prix-titulo');
-            if (campoTitulo && cfg) {
-                CAMPOS_TEXTO_PRIX.forEach(campo => { const el = document.getElementById(`admin-prix-${campo}`); if (el) el.value = cfg[campo] || ''; });
-                document.getElementById('admin-prix-mapas').value = (cfg.mapas || []).join('\n');
-                document.getElementById('admin-prix-premios').value = (cfg.premios || []).join('\n');
-            }
-            actualizarEstadoPrixAdmin(cfg);
-
-            const seccion = document.getElementById('cartel-prix');
-            if (!seccion) return;
-            if (!cfg || !cfg.activo || !cfg.titulo) { seccion.classList.add('hidden'); return; }
-
-            document.getElementById('prix-titulo').innerHTML = `<i class="fa fa-trophy text-morado"></i> ${cfg.titulo}`;
-            const elSub = document.getElementById('prix-subtitulo');
-            elSub.textContent = cfg.subtitulo || '';
-            elSub.classList.toggle('hidden', !cfg.subtitulo);
-
-            const elFecha = document.getElementById('prix-fecha');
-            elFecha.classList.toggle('hidden', !cfg.fecha);
-            if (cfg.fecha) elFecha.querySelector('span').textContent = cfg.fecha;
-            const elHora = document.getElementById('prix-hora');
-            elHora.classList.toggle('hidden', !cfg.hora);
-            if (cfg.hora) elHora.querySelector('span').textContent = cfg.hora;
-
-            const elDesc = document.getElementById('prix-descripcion');
-            elDesc.textContent = cfg.descripcion || '';
-            elDesc.classList.toggle('hidden', !cfg.descripcion);
-
-            pintarCondicionPrix('prix-cond-modo', cfg.modo);
-            pintarCondicionPrix('prix-cond-avatar', cfg.avatar);
-            pintarCondicionPrix('prix-cond-wind', cfg.wind);
-            pintarCondicionPrix('prix-cond-teleport', cfg.teleport);
-            document.getElementById('prix-condiciones').classList.toggle('hidden', !(cfg.modo || cfg.avatar || cfg.wind || cfg.teleport));
-
-            const mapas = cfg.mapas || [];
-            document.getElementById('prix-bloque-mapas').classList.toggle('hidden', mapas.length === 0);
-            document.getElementById('prix-mapas-lista').innerHTML = mapas.map(m =>
-                `<span class="text-[10px] font-bold text-white bg-oscuro border border-morado/30 rounded-lg px-2 py-1">🗺️ ${m}</span>`
-            ).join('');
-
-            const premios = cfg.premios || [];
-            document.getElementById('prix-bloque-premios').classList.toggle('hidden', premios.length === 0);
-            document.getElementById('prix-premios-lista').innerHTML = premios.map(p =>
-                `<p class="text-[10px] text-slate-300 bg-oscuro border border-dorado/20 rounded-lg px-2 py-1.5">🏆 ${p}</p>`
-            ).join('');
-
-            const elReglas = document.getElementById('prix-reglas');
-            elReglas.textContent = cfg.reglas || '';
-            elReglas.classList.toggle('hidden', !cfg.reglas);
-            elReglas.closest('.border-t')?.classList.toggle('hidden', !cfg.reglas);
-
-            seccion.classList.remove('hidden');
-        }
-
-        // ============================================================
         // ===== ESPÍRITU RECOLECTOR (AFK PET) =====
         // ============================================================
         // Junta recompensas mientras el jugador está desconectado. Al volver,
@@ -11886,7 +12231,6 @@
                 document.addEventListener('touchstart', reintentarMusicaBloqueada, { once: true });
             }, 'listeners de música');
             _intentar(aplicarConfiguracionApp, 'aplicarConfiguracionApp');
-            _intentar(renderizarCartelPrix, 'renderizarCartelPrix');
             _intentar(inicializarVersionApp, 'inicializarVersionApp');
             _intentar(generarGridTragamonedas, 'generarGridTragamonedas');
 
@@ -11900,8 +12244,7 @@
                         cargarConfigTelegramNube(),
                         cargarMetaGlobalNube(),
                         cargarMisionesNube(),
-                        cargarConfigGlobalNube(),
-                        cargarConfigPrixNube()
+                        cargarConfigGlobalNube()
                     ]);
                 } catch (e) {
                     console.error('⚠️ Error cargando datos de la nube:', e);
@@ -11911,7 +12254,6 @@
                 _intentar(escucharMisionesEnVivo, 'escucharMisionesEnVivo');
                 _intentar(escucharConfigGlobalEnVivo, 'escucharConfigGlobalEnVivo');
                 _intentar(escucharLogrosGlobalesEnVivo, 'escucharLogrosGlobalesEnVivo');
-                _intentar(escucharConfigPrixEnVivo, 'escucharConfigPrixEnVivo');
                 setInterval(() => { if (usuarioActual) _intentar(() => guardarProgresoNube(true), 'guardarProgresoNube'); }, 15000);
             }
             _intentar(asegurarTemporadaPaseVipActiva, 'asegurarTemporadaPaseVipActiva');
