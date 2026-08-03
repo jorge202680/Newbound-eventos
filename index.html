@@ -1743,7 +1743,7 @@
                             <button type="button" data-dir="right" class="absolute right-0 top-1/2 -translate-y-1/2 w-6 h-6 rounded-md bg-gradient-to-b from-white/25 to-white/5 border border-white/30 text-white text-[10px] shadow-md active:from-dorado/60 active:to-dorado/20"><i class="fa fa-caret-right"></i></button>
                         </div>
                     </div>
-                    <p class="text-[9px] text-slate-500">En tu turno: usa las flechas para moverte y arrastra el círculo naranja hacia atrás y suelta para disparar; mientras arrastras ves la barra de potencia y el ángulo. En el turno del BOSS no puedes actuar — su disparo siempre acierta.</p>
+                    <p class="text-[9px] text-slate-500">En tu turno: usa las flechas para moverte y arrastra el círculo naranja para apuntar y soltar para disparar; mientras arrastras ves la barra de potencia, el ángulo y una línea punteada con la trayectoria real (afectada por la gravedad y el viento). En el turno del BOSS no puedes actuar — su disparo siempre acierta.</p>
                 </div>
 
                 <div id="letras-premio-preview" class="p-3 bg-oscuro rounded-2xl border border-borde flex items-center gap-3 text-left">
@@ -7284,6 +7284,7 @@
         let letrasRafId = null;               // id del requestAnimationFrame activo
         let letrasLimpiarRonda = null;        // función de limpieza de la ronda activa (listeners, loop, etc.)
         let letrasControlesListos = false;
+        let letrasApuntando = { activo: false, dx: 0, dy: 0, potencia: 0 }; // arrastre actual (mientras se apunta), para dibujar la trayectoria previa con gravedad/viento reales
         let letrasDuracionTurnoSeleccionada = 10; // segundos por turno, elegido por el jugador (5/10/15/20)
         let letrasImagenesCache = {}; // cache de <img> ya cargadas por id de Mobil, para dibujarlas en el canvas
 
@@ -7400,6 +7401,7 @@
                     if (!arrastrando) return;
                     const dx = clientX - cx, dy = clientY - cy;
                     const dist = Math.min(Math.hypot(dx, dy), MAX_ARRASTRE);
+                    const distReal = Math.hypot(dx, dy) || 1;
                     const ang = Math.atan2(dy, dx);
                     const potencia = dist / MAX_ARRASTRE;
                     if (flecha) {
@@ -7416,12 +7418,16 @@
                         grados = ((grados % 360) + 360) % 360;
                         anguloTxt.textContent = `${grados}°`;
                     }
+                    // guarda la dirección/potencia actual para que la ronda dibuje la trayectoria
+                    // predicha (con gravedad y viento reales) mientras se está apuntando.
+                    letrasApuntando = { activo: true, dx: dx / distReal, dy: dy / distReal, potencia: 0.5 + potencia * 0.5 };
                 }
                 function soltar(clientX, clientY) {
                     if (!arrastrando) return;
                     arrastrando = false;
                     flecha?.classList.add('hidden');
                     potenciaWrap?.classList.add('hidden');
+                    letrasApuntando.activo = false;
                     if (radarArco) radarArco.setAttribute('stroke-dasharray', `0 ${RADAR_CIRCUNFERENCIA}`);
                     const dx = clientX - cx, dy = clientY - cy;
                     const dist = Math.hypot(dx, dy);
@@ -7433,7 +7439,7 @@
                 zona.addEventListener('touchstart', e => { iniciar(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
                 zona.addEventListener('touchmove', e => { mover(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); }, { passive: false });
                 zona.addEventListener('touchend', e => { const t = e.changedTouches[0]; soltar(t.clientX, t.clientY); });
-                zona.addEventListener('touchcancel', () => { arrastrando = false; flecha?.classList.add('hidden'); potenciaWrap?.classList.add('hidden'); });
+                zona.addEventListener('touchcancel', () => { arrastrando = false; flecha?.classList.add('hidden'); potenciaWrap?.classList.add('hidden'); letrasApuntando.activo = false; });
                 zona.addEventListener('mousedown', e => iniciar(e.clientX, e.clientY));
                 window.addEventListener('mousemove', e => mover(e.clientX, e.clientY));
                 window.addEventListener('mouseup', e => soltar(e.clientX, e.clientY));
@@ -7447,6 +7453,7 @@
             letrasJuego = null;
             letrasMoveDir = { x: 0, y: 0 };
             letrasDispararCallback = null;
+            letrasApuntando = { activo: false, dx: 0, dy: 0, potencia: 0 };
         }
 
         function iniciarRondaLetras(mobilId) {
@@ -7498,6 +7505,8 @@
             const ANCHO = 520, ALTO = 292; // formato panorámico 16:9, como un campo de batalla de artillería real
             canvas.width = ANCHO; canvas.height = ALTO;
             const ctx = canvas.getContext('2d');
+            const GRAVEDAD_PROYECTIL = 170; // px/s², hace que el disparo del jugador dibuje un arco real (como artillería de verdad)
+            const VIENTO_ACCEL = 2.4;       // cuánto empuja el viento la velocidad horizontal del proyectil por segundo
 
             // Las letras flotan dentro del cañón/hueco central (franja vertical entre las dos mesetas),
             // eligiendo X dentro de esa franja y cualquier Y dentro de la altura del campo.
@@ -7610,7 +7619,7 @@
                 if (ahora - ultimoDisparo < 260) return;
                 ultimoDisparo = ahora;
                 const vel = 220 + (potencia || 0.7) * 160;
-                proyectiles.push({ x: jugador.x, y: jugador.y, dx, dy, vel, color: mobilFinal.bala || '#38BDF8' });
+                proyectiles.push({ x: jugador.x, y: jugador.y, vx: dx * vel, vy: dy * vel, color: mobilFinal.bala || '#38BDF8', trail: [] });
                 if (typeof reproducirSFX === 'function') { try { reproducirSFX('click'); } catch (e) {} }
             }
             letrasDispararCallback = dispara;
@@ -7628,6 +7637,7 @@
                 letrasJuego = null;
                 letrasMoveDir = { x: 0, y: 0 };
                 letrasDispararCallback = null;
+                letrasApuntando = { activo: false, dx: 0, dy: 0, potencia: 0 };
                 if (typeof reproducirSFX === 'function') { try { reproducirSFX(gano ? 'ganar' : 'perder'); } catch (e) {} }
                 areaJuego?.classList.add('hidden');
                 const resultado = document.getElementById('resultado-letras');
@@ -7701,8 +7711,12 @@
 
                     for (let i = proyectiles.length - 1; i >= 0; i--) {
                         const p = proyectiles[i];
-                        p.x += p.dx * p.vel * dt + viento * 3.2 * dt;
-                        p.y += p.dy * p.vel * dt;
+                        p.vx += viento * VIENTO_ACCEL * dt;
+                        p.vy += GRAVEDAD_PROYECTIL * dt;
+                        p.x += p.vx * dt;
+                        p.y += p.vy * dt;
+                        p.trail.push({ x: p.x, y: p.y });
+                        if (p.trail.length > 10) p.trail.shift();
                         if (p.x < -10 || p.x > ANCHO + 10 || p.y < -10 || p.y > ALTO + 10) { proyectiles.splice(i, 1); continue; }
                         if (!boss.derrotado && Math.hypot(p.x - boss.x, p.y - boss.y) < boss.r + 4) {
                             boss.vida -= DANO_IMPACTO;
@@ -7877,6 +7891,31 @@
                 ctx.fillStyle = gradFoso;
                 ctx.fillRect(X_HUECO_MIN, ALTO * 0.62, X_HUECO_MAX - X_HUECO_MIN, ALTO * 0.4);
 
+                // Línea de trayectoria predicha (con la misma gravedad y viento reales del disparo),
+                // visible solo mientras el jugador está apuntando en su propio turno.
+                if (turno === 'jugador' && letrasApuntando.activo && !terminado) {
+                    ctx.save();
+                    ctx.strokeStyle = 'rgba(253,224,71,0.85)';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([4, 6]);
+                    ctx.beginPath();
+                    let sx = jugador.x, sy = jugador.y;
+                    const velSim = 220 + Math.max(0.15, letrasApuntando.potencia) * 160;
+                    let svx = letrasApuntando.dx * velSim, svy = letrasApuntando.dy * velSim;
+                    const pasoSim = 0.045;
+                    ctx.moveTo(sx, sy);
+                    for (let i = 0; i < 40; i++) {
+                        svx += viento * VIENTO_ACCEL * pasoSim;
+                        svy += GRAVEDAD_PROYECTIL * pasoSim;
+                        sx += svx * pasoSim;
+                        sy += svy * pasoSim;
+                        ctx.lineTo(sx, sy);
+                        if (sx < 0 || sx > ANCHO || sy > ALTO) break;
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
                 letrasTiles.forEach(t => {
                     if (t.recolectada) return;
                     ctx.beginPath();
@@ -7890,6 +7929,17 @@
                 });
 
                 proyectiles.forEach(p => {
+                    // estela detrás del proyectil, para que se note el arco real de gravedad/viento
+                    if (p.trail && p.trail.length > 1) {
+                        ctx.save();
+                        ctx.strokeStyle = p.color || '#38BDF8';
+                        ctx.lineWidth = 2.5;
+                        ctx.beginPath();
+                        p.trail.forEach((pt, i) => { if (i === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+                        ctx.globalAlpha = 0.5;
+                        ctx.stroke();
+                        ctx.restore();
+                    }
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
                     ctx.fillStyle = p.color || '#38BDF8';
