@@ -14774,7 +14774,17 @@ async function loadFromCloud(){
     _loadOk=true;
     let cloudData=snap.exists?snap.data():null, fromLocal=false;
     try{ const loc=await localBackupRead(); if(loc && (!cloudData || (loc.savedAt||0)>(cloudData.savedAt||0)+3000)){ cloudData=loc; fromLocal=true; } }catch(e){}
-    if(cloudData){
+    let _pend=null; try{ _pend=await window.mhTakePendingImport(); }catch(e){}
+    if(_pend){
+      const sc=applyCloudSave(_pend); cloudLoaded=true; window._pendingGuestSave=true;
+      try{ showToast("♻️ Partida del dispositivo cargada en «"+fbUid+"».","ok"); }catch(e2){}
+      if(sc && bootDrawn){
+        await rebuildElRapidoPath(); await rebuildUrbanRoute();
+        await Promise.all(Object.keys(extraUrbanRoutes).map(L=>rebuildExtraUrbanPath(L).catch(e=>console.warn("Ruta extra "+L+":", e))));
+        reassignBusRoutesForUrbanCut(); drawRoutes();
+        buses.forEach(b=>{ b.pickedStops=new Set(); b.pickedCheckpoints=new Set(); });
+      }
+    } else if(cloudData){
       const stopsChanged = applyCloudSave(cloudData);
       cloudLoaded=true;
       if(fromLocal){ try{ showToast("💾 Se recuperó tu partida del respaldo de este dispositivo (la nube tenía una versión más antigua).","ok"); }catch(e2){} }
@@ -14798,32 +14808,37 @@ async function loadFromCloud(){
         document.getElementById("incidentSub").textContent="Tu ruta guardada tardó en cargar, ya está puesta en el mapa.";
       }
     } else {
-      // 🛟 RECUPERACIÓN v3: si este usuario no tiene partida pero existe una guardada como «invitado», se ofrece cargarla con un cuadro en pantalla. No se borra nada de «invitado».
-      let guest=null, guestErr="";
-      try{ if(fbUid!=="invitado"){ const g=await fbDb.collection("bus_manager_saves").doc("invitado").get(); if(g.exists) guest=g.data(); else guestErr="el documento «invitado» no existe"; } }catch(e2){ guestErr=(e2&&e2.message)?e2.message:String(e2); }
-      let yes=false;
-      if(guest){
-        yes=await new Promise(res=>{
-          const o=document.createElement("div");
-          o.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:20px";
-          o.innerHTML='<div style="background:#fff;color:#111;border-radius:16px;padding:20px;max-width:340px;width:100%;font-family:sans-serif"><div style="font-size:18px;font-weight:800;margin-bottom:8px">♻️ Partida encontrada</div><div style="font-size:15px;margin-bottom:16px">Hay una partida guardada como «invitado»: <b>'+((guest.buses||[]).length)+' buses</b>, caja <b>S/ '+Math.round(guest.wallet||0).toLocaleString("es-PE")+'</b>.<br><br>¿Cargarla en tu usuario «'+fbUid+'»?</div><button id="gYes" style="width:100%;padding:14px;border:0;border-radius:12px;background:#2a9d5c;color:#fff;font-size:16px;font-weight:800;margin-bottom:8px">Sí, recuperar mi partida</button><button id="gNo" style="width:100%;padding:12px;border:1px solid #ccc;border-radius:12px;background:#fff;font-size:15px">No, empezar de cero</button></div>';
-          document.body.appendChild(o);
-          o.querySelector("#gYes").onclick=()=>{ o.remove(); res(true); };
-          o.querySelector("#gNo").onclick=()=>{ o.remove(); res(false); };
-        });
+      // 🛟 RECUPERACIÓN v4: busca partidas de otros usuarios (p. ej. «invitado») y deja ELEGIR cuál cargar con un cuadro que NO desaparece solo. No se borra nada.
+      let cands=[], errs=[];
+      try{ if(fbUid!=="invitado"){ const g=await fbDb.collection("bus_manager_saves").doc("invitado").get(); if(g.exists) cands.push({id:"invitado",data:g.data()}); else errs.push("«invitado» no existe"); } }catch(e2){ errs.push("leer «invitado»: "+((e2&&e2.message)?e2.message:String(e2))); }
+      if(!cands.length){
+        try{ const qs=await fbDb.collection("bus_manager_saves").get(); qs.forEach(d=>{ if(d.id!==fbUid) cands.push({id:d.id,data:d.data()}); }); if(!qs.size) errs.push("la colección está vacía"); }catch(e2){ errs.push("listar colección: "+((e2&&e2.message)?e2.message:String(e2))); }
       }
-      if(guest && yes){
-        const sc=applyCloudSave(guest);
+      const pick=await new Promise(res=>{
+        const o=document.createElement("div");
+        o.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto";
+        const esc=t=>String(t).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+        let h='<div style="background:#fff;color:#111;border-radius:16px;padding:18px;max-width:360px;width:100%;font-family:sans-serif;max-height:90vh;overflow:auto">';
+        if(cands.length){
+          h+='<div style="font-size:18px;font-weight:800;margin-bottom:6px">♻️ Partidas encontradas</div><div style="font-size:14px;margin-bottom:12px">Tu usuario «'+esc(fbUid)+'» no tiene partida. Toca la que quieres recuperar:</div>';
+          cands.forEach((c,i)=>{ const d=c.data||{}; h+='<button data-i="'+i+'" style="width:100%;text-align:left;padding:12px;border:0;border-radius:12px;background:#2a9d5c;color:#fff;font-size:15px;font-weight:700;margin-bottom:8px">«'+esc(c.id)+'»<br><span style="font-weight:400;font-size:13px">'+((d.buses||[]).length)+' buses · caja S/ '+Math.round(d.wallet||0).toLocaleString("es-PE")+'</span></button>'; });
+          h+='<button data-i="-1" style="width:100%;padding:12px;border:1px solid #ccc;border-radius:12px;background:#fff;font-size:15px">No, empezar de cero</button>';
+        } else {
+          h+='<div style="font-size:18px;font-weight:800;margin-bottom:6px">⚠️ No encontré partidas para recuperar</div><div style="font-size:14px;margin-bottom:12px;word-break:break-word">Motivo: '+esc(errs.join(" · ")||"sin datos")+'<br><br>Mándale una captura de este mensaje a Claude.</div><button data-i="-1" style="width:100%;padding:12px;border:0;border-radius:12px;background:#111;color:#fff;font-size:15px;font-weight:700">Cerrar</button>';
+        }
+        h+='</div>'; o.innerHTML=h; document.body.appendChild(o);
+        o.querySelectorAll("button").forEach(bt=>bt.onclick=()=>{ o.remove(); res(Number(bt.getAttribute("data-i"))); });
+      });
+      if(pick>=0){
+        const sc=applyCloudSave(cands[pick].data);
         cloudLoaded=true; window._pendingGuestSave=true;
-        try{ showToast("♻️ Partida de «invitado» recuperada en «"+fbUid+"».","ok"); }catch(e2){}
+        try{ showToast("♻️ Partida de «"+cands[pick].id+"» recuperada en «"+fbUid+"».","ok"); }catch(e2){}
         if(sc && bootDrawn){
           await rebuildElRapidoPath(); await rebuildUrbanRoute();
           await Promise.all(Object.keys(extraUrbanRoutes).map(L=>rebuildExtraUrbanPath(L).catch(e=>console.warn("Ruta extra "+L+":", e))));
           reassignBusRoutesForUrbanCut(); drawRoutes();
           buses.forEach(b=>{ b.pickedStops=new Set(); b.pickedCheckpoints=new Set(); });
         }
-      } else {
-        try{ showToast("☁️ [v3] Usuario «"+fbUid+"» sin partida"+(guestErr?" · no se pudo leer «invitado»: "+guestErr:"")+" — se empieza de cero.", "warn"); }catch(e2){}
       }
     }
   }catch(e){
@@ -16283,6 +16298,71 @@ $("dirBtn")?.addEventListener("click",()=>openM("dirModal","dirBody",dirHtml));
 ["colBody","libBody","dirBody"].forEach(id=>$(id)?.addEventListener("click",ev=>{ const bt=ev.target.closest("[data-edu]"); if(bt) eduAct(bt.dataset.edu,bt.dataset.k,bt.dataset.v); }));
 setInterval(()=>{ try{ if(typeof pandBiz==="object"&&pandBiz){ eduTick(); eduRender(false); } }catch(x){} },1500);
 }catch(e){ console.warn("Módulo hospital/materiales:",e); } })();
+</script>
+<script>
+/* 🛟 BUSCADOR DE COPIAS LOCALES: lista las partidas que este navegador/dispositivo guardó como respaldo (localStorage + IndexedDB) y deja elegir una para cargarla. No borra nada. */
+(function(){
+  const PREFIX="bm_local_save_v2_";
+  async function idbAll(){
+    return new Promise(res=>{
+      try{
+        const r=indexedDB.open("bm_saves_db",1);
+        r.onupgradeneeded=()=>{ try{ r.result.createObjectStore("s"); }catch(e){} };
+        r.onerror=()=>res([]);
+        r.onsuccess=()=>{ try{
+          const db=r.result; if(!db.objectStoreNames.contains("s")){ res([]); return; }
+          const tx=db.transaction("s","readonly"), st=tx.objectStore("s"), out=[];
+          const c=st.openCursor();
+          c.onsuccess=()=>{ const cur=c.result; if(cur){ out.push({key:String(cur.key),val:cur.value}); cur.continue(); } else res(out); };
+          c.onerror=()=>res(out);
+        }catch(e){ res([]); } };
+      }catch(e){ res([]); }
+    });
+  }
+  async function scan(){
+    const found=[];
+    try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); if(k&&k.startsWith(PREFIX)){ try{ const o=JSON.parse(localStorage.getItem(k)); if(o) found.push({key:k,src:"ls",o}); }catch(e){} } } }catch(e){}
+    try{ (await idbAll()).forEach(x=>{ if(x.key.startsWith(PREFIX)){ try{ const o=typeof x.val==="string"?JSON.parse(x.val):x.val; if(o) found.push({key:x.key,src:"idb",o}); }catch(e){} } }); }catch(e){}
+    return found;
+  }
+  window.mhTakePendingImport=async function(){
+    let p=null; try{ p=JSON.parse(sessionStorage.getItem("mh_pending_import")||"null"); }catch(e){}
+    if(!p) return null;
+    try{ sessionStorage.removeItem("mh_pending_import"); }catch(e){}
+    const all=await scan(); const f=all.find(x=>x.key===p.key&&x.src===p.src);
+    return f?f.o:null;
+  };
+  const esc=t=>String(t).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+  window.mhOpenLocalRecovery=async function(){
+    const list=await scan();
+    list.sort((a,b)=>(b.o.wallet||0)-(a.o.wallet||0));
+    const o=document.createElement("div");
+    o.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto";
+    let h='<div style="background:#fff;color:#111;border-radius:16px;padding:16px;max-width:380px;width:100%;font-family:sans-serif;max-height:92vh;overflow:auto"><div style="font-size:18px;font-weight:800;margin-bottom:6px">🛟 Copias en este dispositivo</div>';
+    if(!list.length) h+='<div style="font-size:14px;margin-bottom:12px">No hay ninguna copia guardada en este navegador. Prueba abrir el juego en el otro celular/PC/navegador donde jugabas antes.</div>';
+    else{
+      h+='<div style="font-size:13px;margin-bottom:10px">Se muestran ordenadas por dinero. Elige la de tus 132 mil millones:</div>';
+      list.forEach((x,i)=>{ const d=x.o, u=x.key.slice(PREFIX.length), dt=d.savedAt?new Date(d.savedAt).toLocaleString("es-PE"):"sin fecha";
+        h+='<button data-i="'+i+'" style="width:100%;text-align:left;padding:11px;border:0;border-radius:12px;background:#2a9d5c;color:#fff;font-size:14px;font-weight:700;margin-bottom:8px">Usuario «'+esc(u)+'»<br><span style="font-weight:400;font-size:12.5px">caja S/ '+Math.round(d.wallet||0).toLocaleString("es-PE")+' · '+((d.buses||[]).length)+' buses<br>guardada: '+esc(dt)+'</span></button>'; });
+    }
+    h+='<button data-i="-1" style="width:100%;padding:11px;border:1px solid #ccc;border-radius:12px;background:#fff;font-size:15px">Cerrar</button></div>';
+    o.innerHTML=h; document.body.appendChild(o);
+    o.querySelectorAll("button").forEach(b=>b.onclick=async()=>{
+      const i=Number(b.getAttribute("data-i")); o.remove(); if(i<0) return;
+      const x=list[i];
+      try{ sessionStorage.setItem("mh_pending_import",JSON.stringify({key:x.key,src:x.src})); }catch(e){}
+      if(typeof fbUid!=="undefined" && fbUid && typeof cloudSyncReady!=="undefined"){ alert("Listo. Cierra sesión (SALIR), vuelve a entrar con tu usuario y esa partida se cargará."); }
+      else alert("Listo. Ahora inicia sesión (o crea tu cuenta) y esa partida se cargará automáticamente.");
+    });
+  };
+  function addBtn(){
+    const b=document.getElementById("loginSubmitBtn"); if(!b||document.getElementById("mhLocalRecBtn")) return;
+    const n=document.createElement("button"); n.id="mhLocalRecBtn"; n.type="button"; n.textContent="🛟 Buscar partidas guardadas en este dispositivo";
+    n.style.cssText="margin-top:12px;width:100%;padding:12px;border:1px dashed #8b5cf6;border-radius:12px;background:#fff;color:#5b21b6;font-size:14px;font-weight:700";
+    n.onclick=window.mhOpenLocalRecovery; b.insertAdjacentElement("afterend",n);
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",addBtn); else addBtn();
+})();
 </script>
 </body>
 </html>
