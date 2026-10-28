@@ -14798,10 +14798,21 @@ async function loadFromCloud(){
         document.getElementById("incidentSub").textContent="Tu ruta guardada tardó en cargar, ya está puesta en el mapa.";
       }
     } else {
-      // 🛟 RECUPERACIÓN: si este usuario no tiene partida pero existe una guardada como «invitado» (versión anterior del juego), se ofrece cargarla. No se borra nada de «invitado».
-      let guest=null;
-      try{ if(fbUid!=="invitado"){ const g=await fbDb.collection("bus_manager_saves").doc("invitado").get(); if(g.exists) guest=g.data(); } }catch(e2){}
-      if(guest && confirm("Encontré una partida guardada como «invitado» ("+((guest.buses||[]).length)+" buses, caja S/ "+Math.round(guest.wallet||0)+").\n\n¿Cargarla en tu usuario «"+fbUid+"»?\n\nAceptar = recuperar mi partida\nCancelar = empezar de cero")){
+      // 🛟 RECUPERACIÓN v3: si este usuario no tiene partida pero existe una guardada como «invitado», se ofrece cargarla con un cuadro en pantalla. No se borra nada de «invitado».
+      let guest=null, guestErr="";
+      try{ if(fbUid!=="invitado"){ const g=await fbDb.collection("bus_manager_saves").doc("invitado").get(); if(g.exists) guest=g.data(); else guestErr="el documento «invitado» no existe"; } }catch(e2){ guestErr=(e2&&e2.message)?e2.message:String(e2); }
+      let yes=false;
+      if(guest){
+        yes=await new Promise(res=>{
+          const o=document.createElement("div");
+          o.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:20px";
+          o.innerHTML='<div style="background:#fff;color:#111;border-radius:16px;padding:20px;max-width:340px;width:100%;font-family:sans-serif"><div style="font-size:18px;font-weight:800;margin-bottom:8px">♻️ Partida encontrada</div><div style="font-size:15px;margin-bottom:16px">Hay una partida guardada como «invitado»: <b>'+((guest.buses||[]).length)+' buses</b>, caja <b>S/ '+Math.round(guest.wallet||0).toLocaleString("es-PE")+'</b>.<br><br>¿Cargarla en tu usuario «'+fbUid+'»?</div><button id="gYes" style="width:100%;padding:14px;border:0;border-radius:12px;background:#2a9d5c;color:#fff;font-size:16px;font-weight:800;margin-bottom:8px">Sí, recuperar mi partida</button><button id="gNo" style="width:100%;padding:12px;border:1px solid #ccc;border-radius:12px;background:#fff;font-size:15px">No, empezar de cero</button></div>';
+          document.body.appendChild(o);
+          o.querySelector("#gYes").onclick=()=>{ o.remove(); res(true); };
+          o.querySelector("#gNo").onclick=()=>{ o.remove(); res(false); };
+        });
+      }
+      if(guest && yes){
         const sc=applyCloudSave(guest);
         cloudLoaded=true; window._pendingGuestSave=true;
         try{ showToast("♻️ Partida de «invitado» recuperada en «"+fbUid+"».","ok"); }catch(e2){}
@@ -14812,7 +14823,7 @@ async function loadFromCloud(){
           buses.forEach(b=>{ b.pickedStops=new Set(); b.pickedCheckpoints=new Set(); });
         }
       } else {
-        try{ showToast("☁️ No hay ninguna partida guardada con el usuario «"+fbUid+"» — se empieza de cero.", "warn"); }catch(e2){}
+        try{ showToast("☁️ [v3] Usuario «"+fbUid+"» sin partida"+(guestErr?" · no se pudo leer «invitado»: "+guestErr:"")+" — se empieza de cero.", "warn"); }catch(e2){}
       }
     }
   }catch(e){
